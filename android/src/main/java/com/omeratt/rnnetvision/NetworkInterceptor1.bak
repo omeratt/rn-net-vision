@@ -1,0 +1,157 @@
+package com.omeratt.rnnetvision
+
+import android.util.Log
+import okhttp3.*
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.json.JSONObject
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+
+class NetworkInterceptor : Interceptor {
+
+    companion object {
+        private var webSocket: WebSocket? = null
+        private var isSocketInitialized = false
+        private var discoveredHost: String? = null
+        private var isDiscoveryRunning = false
+        private var fallbackTriggered = false
+        private const val UDP_PORT = 4242
+
+        // אפשרות ל־manual override
+        private val MANUAL_HOST_OVERRIDE: String? = null
+        // לדוגמה: "ws://192.168.1.22:8088"
+
+        init {
+            if (MANUAL_HOST_OVERRIDE != null) {
+                discoveredHost = MANUAL_HOST_OVERRIDE
+                Log.w("NetVision", "🔧 Using manual override host: $discoveredHost")
+                initWebSocket()
+            } else {
+                // 🔁 UDP discovery loop
+                Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate({
+                    discoverServer()
+                }, 0, 2, TimeUnit.SECONDS)
+
+                // 🛜 fallback אחרי 5 שניות אם אין discovery
+                Executors.newSingleThreadScheduledExecutor().schedule({
+                    if (discoveredHost == null) {
+                        discoveredHost = "ws://10.0.2.2:8088"
+                        fallbackTriggered = true
+                        Log.w("NetVision", "🛜 Fallback to default emulator debugger at $discoveredHost")
+                        initWebSocket()
+                    }
+                }, 5, TimeUnit.SECONDS)
+            }
+        }
+
+        private fun discoverServer() {
+            if (isDiscoveryRunning) {
+                Log.d("NetVision", "🔁 Discovery already running – skipping")
+                return
+            }
+
+            isDiscoveryRunning = true
+
+            Executors.newSingleThreadExecutor().execute {
+                try {
+                    val socket = DatagramSocket(UDP_PORT)
+                    val buf = ByteArray(1024)
+                    val packet = DatagramPacket(buf, buf.size)
+
+                    Log.d("NetVision", "🕵️ Listening for debugger on UDP...")
+
+                    socket.receive(packet)
+                    val message = String(packet.data, 0, packet.length)
+
+                    if (message.startsWith("NETVISION_DISCOVERY:")) {
+                        val port = message.split(":")[1]
+                        val address = packet.address.hostAddress
+                        val newHost = "ws://$address:$port"
+
+                        val shouldSwitch = discoveredHost != newHost || webSocket == null
+
+                        if (shouldSwitch) {
+                            Log.d("NetVision", "🔄 Switching or first-time connection to debugger: $newHost")
+                            discoveredHost = newHost
+                            isSocketInitialized = false
+                            webSocket?.close(1000, "Reconnect or switch")
+                            webSocket = null
+                            initWebSocket()
+                        } else {
+                            Log.d("NetVision", "✅ Already connected to $newHost")
+                        }
+                    }
+
+                    socket.close()
+                } catch (e: Exception) {
+                    Log.e("NetVision", "UDP discovery failed", e)
+                } finally {
+                    isDiscoveryRunning = false
+                }
+            }
+        }
+
+        private fun initWebSocket() {
+            Log.d("NetVision", "📡 Trying to init WebSocket. Host: $discoveredHost")
+
+            if (isSocketInitialized || discoveredHost == null) return
+
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url(discoveredHost!!)
+                .build()
+
+            client.newWebSocket(request, object : WebSocketListener() {
+                override fun onOpen(ws: WebSocket, response: Response) {
+                    Log.d("NetVision", "📡 WebSocket connected to $discoveredHost")
+                    webSocket = ws
+                }
+
+                override fun onFailure(ws: WebSocket, t: Throwable, r: Response?) {
+                    Log.e("NetVision", "❌ WebSocket error: ${t.message}")
+                }
+            })
+
+            isSocketInitialized = true
+        }
+    }
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        Log.d("NetVision", "🧲 Interceptor triggered")
+
+        val request = chain.request()
+        val method = request.method
+        val url = request.url.toString()
+        val headers = request.headers.toString()
+        val body = request.body?.toString() ?: "no-body"
+
+        Log.d("NetVision", "⬆️ Request: $method $url")
+
+        val response = chain.proceed(request)
+        val responseBody = response.body
+        val contentType = responseBody?.contentType()
+        val responseString = responseBody?.string() ?: ""
+
+        val json = JSONObject().apply {
+            put("url", url)
+            put("method", method)
+            put("headers", headers)
+            put("requestBody", body)
+            put("status", response.code)
+            put("response", responseString)
+        }
+
+        if (webSocket == null) {
+            Log.d("NetVision", "⚠️ WebSocket not ready. Skipping send.")
+        } else {
+            webSocket?.send(json.toString())
+            Log.d("NetVision", "📤 Sent to WebSocket")
+        }
+
+        return response.newBuilder()
+            .body(responseString.toResponseBody(contentType))
+            .build()
+    }
+}

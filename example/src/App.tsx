@@ -1,17 +1,26 @@
-import { multiply } from '@omeratt/rn-net-vision';
-import { Text, View, StyleSheet } from 'react-native';
+// import { registerNetVisionDevMenu } from '@omeratt/rn-net-vision';
+import { Text, View, StyleSheet, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
+import { useNetVision, testRequest } from '@omeratt/rn-net-vision';
 
 export default function App() {
-  const [result, setResult] = useState<number | undefined>();
+  const isReady = useNetVision();
 
   useEffect(() => {
-    multiply(3, 7).then(setResult);
+    testRequest();
+    setTimeout(() => {
+      fetch('https://jsonplaceholder.typicode.com/todos/1')
+        .then((res) => res.json())
+        .then((res) => {
+          console.log(res, 'asdasdasdasd@@@@@');
+        })
+        .catch(console.error);
+    }, 7000);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: {+isReady}</Text>
     </View>
   );
 }
