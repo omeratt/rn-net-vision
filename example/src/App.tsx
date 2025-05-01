@@ -1,21 +1,13 @@
 // import { registerNetVisionDevMenu } from '@omeratt/rn-net-vision';
-import { Text, View, StyleSheet, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
-import { useNetVision, testRequest } from '@omeratt/rn-net-vision';
+import { useNetVision } from '@omeratt/rn-net-vision';
+import { useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
-  const isReady = useNetVision();
+  useNetVision();
 
   useEffect(() => {
-    testRequest();
-    setTimeout(() => {
-      fetch('https://jsonplaceholder.typicode.com/todos/1')
-        .then((res) => res.json())
-        .then((res) => {
-          console.log(res, 'asdasdasdasd@@@@@');
-        })
-        .catch(console.error);
-    }, 7000);
+    fetch('https://jsonplaceholder.typicode.com/todos/1');
   }, []);
 
   return (
@@ -30,5 +22,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#fff',
   },
 });
