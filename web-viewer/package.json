@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "production": "node run-vite-production.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.3",
