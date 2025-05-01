@@ -12,7 +12,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Result: {+isReady}</Text>
+      <Text style={styles.text}>Welcome To Net Vision!</Text>
     </View>
   );
 }
@@ -23,5 +23,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
+  },
+  text: {
+    fontSize: 32,
+    color: '#000',
+    letterSpacing: 2,
   },
 });
