@@ -8,6 +8,13 @@ import org.json.JSONObject
 class NetworkInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
+        val ignoredPorts = setOf(3232, 8088, 8089, 8081)
+        val url = request.url
+
+        if (url.port in ignoredPorts) {
+            return chain.proceed(request)
+        }
+
         val startTime = System.currentTimeMillis()
         val response = chain.proceed(request)
         val duration = System.currentTimeMillis() - startTime
@@ -28,9 +35,4 @@ class NetworkInterceptor : Interceptor {
         return response
     }
 
-    companion object {
-        fun initializeWebSocket() {
-            // Deprecated: no longer needed if using NetVisionDispatcher
-        }
-    }
 }

@@ -11,7 +11,13 @@ object NetVisionDispatcher {
     private var isSocketInitialized = false
 
     fun connect(host: String, port: Int) {
-        if (isSocketInitialized) return
+        if (isSocketInitialized){
+            val host = webSocket?.request()?.url?.host
+            val port = webSocket?.request()?.url?.port
+           
+            Log.d("NetVision", "Already connected to $host:$port")
+            return
+        } 
 
         val client = OkHttpClient.Builder()
             .connectTimeout(3, TimeUnit.SECONDS)
@@ -39,6 +45,8 @@ object NetVisionDispatcher {
 
             override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
                 Log.e("NetVision", "❌ WebSocket error: ${t.message}")
+                isSocketInitialized = false
+                webSocket = null
             }
 
             override fun onClosed(ws: WebSocket, code: Int, reason: String) {
@@ -65,7 +73,10 @@ object NetVisionDispatcher {
         if (success) {
             Log.d("NetVision", "📤 Sent to debugger: $message")
         } else {
-            Log.e("NetVision", "❌ Failed to send message")
+             Log.d("NetVision", "🕗 Send failed — queueing: $message")
+            synchronized(pendingMessages) {
+                pendingMessages.add(message)
+            }
         }
     }
 }
