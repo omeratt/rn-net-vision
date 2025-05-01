@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { DevSettings, NativeModules } from 'react-native';
+import { isDebuggerReady, waitForDebuggerReady } from './utils';
 
 const { RnNetVision } = NativeModules;
 
 // ✅ Start NetVision
-export function startNetVision() {
+export async function startNetVision() {
   if (RnNetVision?.startDebuggerViaDiscovery) {
-    RnNetVision.startDebuggerViaDiscovery();
+    try {
+      const result = await RnNetVision.startDebuggerDirect();
+      console.log('[NetVision] Native responded:', result);
+    } catch (e) {
+      console.error('[NetVision] Native threw error:', e);
+    }
   } else {
     console.warn(
       '[NetVision] Native module not found or startDebuggerViaDiscovery() not defined'
@@ -16,61 +22,55 @@ export function startNetVision() {
 
 // ✅ Register Dev Menu item to start NetVision
 // (only in development mode)
-export function registerNetVisionDevMenu(onReadyCallback?: () => void) {
+export function registerNetVisionDevMenu() {
   if (__DEV__) {
     DevSettings.addMenuItem('🕵️ Start NetVision', async () => {
       console.log('[NetVision] Dev menu pressed');
 
-      // רק אז שלח את ה-trigger למטרו
+      const alreadyRunning = await isDebuggerReady();
+
+      if (alreadyRunning) {
+        console.log('[NetVision] Debugger already running, connecting...');
+        await startNetVision(); // רק לעשות connect
+        return;
+      }
+      // Trigger the NetVision server to start
       await fetch('http://localhost:8081/net-vision-trigger', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trigger: true }),
-      }).catch((err) => {
-        console.error('[NetVision] Fetch error:', err);
-      });
+      })
+        .then(async () => {
+          await waitForDebuggerReady();
 
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-
-      try {
-        const result = await RnNetVision.startDebuggerViaDiscovery?.();
-        console.log('[NetVision] Native responded:', result);
-      } catch (e) {
-        console.error('[NetVision] Native threw error:', e);
-      }
-
-      onReadyCallback?.();
+          await startNetVision();
+        })
+        .catch((err) => {
+          console.error('[NetVision] Fetch error:', err);
+        });
     });
-    // DevSettings.addMenuItem('🕵️ Start NetVision', async () => {
-    //   console.log('[NetVision] Dev menu pressed');
-
-    //   startNetVision();
-
-    //   fetch('http://localhost:8081/net-vision-trigger', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ trigger: true }),
-    //   }).catch((err) => {
-    //     console.error('[NetVision] Fetch error:', err);
-    //   });
-
-    //   if (onReadyCallback) {
-    //     onReadyCallback();
-    //   }
-    // });
   }
 }
 
-export const useNetVision = () => {
-  const [isNetworkReady, setIsNetworkReady] = useState(false);
+/**
+ * Hook that starts NetVision connection if debugger is alive.
+ */
+export function useNetVision() {
   useEffect(() => {
-    registerNetVisionDevMenu(() => setIsNetworkReady(true));
-  }, []);
+    (async () => {
+      registerNetVisionDevMenu();
 
-  return isNetworkReady;
-};
+      const ready = await isDebuggerReady();
+      if (ready) {
+        console.log(
+          '[NetVision] Debugger detected immediately (on app start)!'
+        );
+
+        await startNetVision();
+      }
+    })();
+  }, []);
+}
 
 export const testRequest = () => {
   RnNetVision?.testRequest()
