@@ -1,33 +1,57 @@
-const dgram = require('dgram');
 const WebSocket = require('ws');
 
-const UDP_PORT = 4242;
+const http = require('http');
+
+let viteIsReady = false;
+let viewerSocket = null;
+
+function shutdownDebugger() {
+  return new Promise((resolve) => {
+    const req = http.request(
+      {
+        method: 'POST',
+        host: 'localhost',
+        port: 8089,
+        path: '/shutdown',
+      },
+      (res) => {
+        console.log(`[NetVision] Shutdown response: ${res.statusCode}`);
+        resolve();
+      }
+    );
+
+    req.on('error', (err) => {
+      console.error('[NetVision] Failed to shutdown debugger:', err.message);
+      resolve();
+    });
+
+    req.end();
+  });
+}
+
+// HTTP server קטן ל־ready-check
+http
+  .createServer((req, res) => {
+    if (req.url === '/ready-check') {
+      if (viteIsReady) {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('ready');
+      } else {
+        res.writeHead(503);
+        res.end('not ready');
+      }
+    } else {
+      res.writeHead(404);
+      res.end();
+    }
+  })
+  .listen(3232, '0.0.0.0', () => {
+    console.log(
+      '[NetVision] 🛰 Ready-check server listening on http://0.0.0.0:3232'
+    );
+  });
+
 const WS_PORT = 8088;
-
-// UDP Broadcast - for discovery
-const udpServer = dgram.createSocket('udp4');
-
-// This server will broadcast a discovery packet every 2 seconds
-setInterval(() => {
-  const message = Buffer.from(`NETVISION_DISCOVERY:${WS_PORT}`);
-  udpServer.send(message, 0, message.length, UDP_PORT, '255.255.255.255');
-  console.log('📡 Broadcasting discovery packet...');
-}, 2000);
-
-// 👇 ענה לכל מי ששולח בקשת discovery
-udpServer.on('message', (msg, rinfo) => {
-  console.log(
-    `📩 Got UDP discovery request from ${rinfo.address}:${rinfo.port}`
-  );
-
-  const response = Buffer.from(`NETVISION_DISCOVERY:${WS_PORT}`);
-  udpServer.send(response, 0, response.length, rinfo.port, rinfo.address);
-  console.log(`📨 Sent discovery response to ${rinfo.address}:${rinfo.port}`);
-});
-
-udpServer.bind(UDP_PORT, () => {
-  udpServer.setBroadcast(true);
-});
 
 // WebSocket Server - for receiving network requests
 const wss = new WebSocket.Server({ port: WS_PORT }, () => {
@@ -40,6 +64,14 @@ wss.on('connection', (ws, req) => {
   ws.on('message', (data) => {
     try {
       const json = JSON.parse(data);
+
+      if (json.type === 'vite-ready') {
+        console.log('[NetVision] 🎯 Vite viewer is ready');
+        viteIsReady = true;
+        viewerSocket = ws;
+        return;
+      }
+
       console.log('📥 New network request:');
       console.log(JSON.stringify(json, null, 2));
 
@@ -50,13 +82,48 @@ wss.on('connection', (ws, req) => {
         }
       });
     } catch (e) {
-      console.log('⚠️ Failed to parse message:', data);
+      console.log('⚠️ Failed to parse message:', e, data);
     }
   });
 
-  ws.send(JSON.stringify({ info: '👋 Viewer connected!' }));
-
   ws.on('close', () => {
-    console.log('❌ App disconnected');
+    if (ws === viewerSocket) {
+      viewerSocket = null;
+      console.log(
+        '👀 Viewer socket closed, waiting briefly to detect potential refresh...'
+      );
+
+      setTimeout(async () => {
+        if (!viewerSocket) {
+          console.log('❌ Viewer tab really closed — shutting down debugger');
+          await shutdownDebugger();
+          process.exit();
+        } else {
+          console.log(
+            '🔄 Viewer reconnected (probably a refresh), keeping debugger alive'
+          );
+        }
+      }, 1000);
+    } else {
+      console.log('❌ App disconnected');
+    }
   });
+});
+
+process.on('SIGINT', async () => {
+  console.log('👋 SIGINT received, cleaning up...');
+
+  try {
+    await shutdownDebugger();
+    wss.close();
+  } catch (e) {
+    console.error('❌ Error during shutdown:', e);
+  }
+
+  process.exit();
+});
+
+process.on('exit', () => {
+  console.log('👋 Exiting, cleaning up...');
+  wss.close();
 });

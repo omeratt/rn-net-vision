@@ -2,11 +2,21 @@
 
 const { spawn, exec } = require('child_process');
 const path = require('path');
-
 const http = require('http');
+
+// Parse CLI flag
+const isProduction = process.env.NET_VISION_PRODUCTION === 'true';
 
 http
   .createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    if (req.url === '/ready-check') {
+      res.writeHead(200);
+      res.end('debugger-ready');
+      return;
+    }
+
     if (req.url === '/shutdown') {
       console.log('👋 Shutdown request received via viewer');
 
@@ -14,12 +24,13 @@ http
       vite?.kill?.('SIGINT');
       res.end('Shutting down...');
       process.exit();
-    } else {
-      res.end('NetVision debugger active');
     }
+
+    res.writeHead(404);
+    res.end('Not found');
   })
-  .listen(8089, () => {
-    console.log('🛰 Listening for shutdown requests on http://localhost:8089');
+  .listen(8089, '0.0.0.0', () => {
+    console.log('🛰 Listening for shutdown requests on 0.0.0.0:8089');
   });
 
 // Paths
@@ -54,8 +65,9 @@ const server = spawn('node', [serverPath], {
 // Start Vite dev server
 const isWindows = process.platform === 'win32';
 const viteCommand = isWindows ? 'npm.cmd' : 'npm';
+const viteArgs = isProduction ? ['run', 'production'] : ['run', 'dev'];
 
-const vite = spawn(viteCommand, ['run', 'dev'], {
+const vite = spawn(viteCommand, viteArgs, {
   cwd: viewerPath,
   stdio: 'inherit',
 });
