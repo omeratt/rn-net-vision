@@ -20,10 +20,20 @@ http
     if (req.url === '/shutdown') {
       console.log('👋 Shutdown request received via viewer');
 
+      let didExit = false;
+      const exitOnce = () => {
+        if (!didExit) {
+          didExit = true;
+          process.exit();
+        }
+      };
+
       server?.kill?.('SIGINT');
       vite?.kill?.('SIGINT');
+
+      setTimeout(exitOnce, 1000); // minimal delay to allow for graceful shutdown
       res.end('Shutting down...');
-      process.exit();
+      return;
     }
 
     res.writeHead(404);
@@ -77,10 +87,17 @@ setTimeout(() => {
   openUrlCrossPlatform('http://localhost:5173');
 }, 2000);
 
-// Graceful shutdown
-process.on('SIGINT', () => {
+let hasShutdown = false;
+
+function gracefulExit() {
+  if (hasShutdown) return;
+  hasShutdown = true;
+
   console.log('\n👋 Shutting down NetVision Debugger...');
   server.kill('SIGINT');
   vite.kill('SIGINT');
   process.exit();
-});
+}
+
+process.on('SIGINT', gracefulExit);
+process.on('SIGTERM', gracefulExit);

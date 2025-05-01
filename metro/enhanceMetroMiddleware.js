@@ -8,30 +8,6 @@ const { startTrackingDevices } = require('./trackAdbDevices.cjs');
 
 let didStartAdbTracking = false;
 
-function shutdownDebugger() {
-  return new Promise((resolve) => {
-    const req = http.request(
-      {
-        method: 'POST',
-        host: 'localhost',
-        port: 8089,
-        path: '/shutdown',
-      },
-      (res) => {
-        console.log(`[NetVision] Shutdown response: ${res.statusCode}`);
-        resolve();
-      }
-    );
-
-    req.on('error', (err) => {
-      console.error('[NetVision] Failed to shutdown debugger:', err.message);
-      resolve();
-    });
-
-    req.end();
-  });
-}
-
 async function isDebuggerRunning() {
   return new Promise((resolve) => {
     http
@@ -41,22 +17,6 @@ async function isDebuggerRunning() {
       .on('error', () => resolve(false));
   });
 }
-
-process.on('SIGINT', async () => {
-  await shutdownDebugger();
-});
-
-process.on('SIGTERM', async () => {
-  await shutdownDebugger();
-});
-
-process.on('beforeExit', async () => {
-  await shutdownDebugger();
-});
-
-process.on('exit', async () => {
-  await shutdownDebugger();
-});
 
 module.exports = function enhanceMetroMiddleware({ projectRoot }) {
   console.log('[NetVision] Middleware activated');
@@ -87,6 +47,8 @@ module.exports = function enhanceMetroMiddleware({ projectRoot }) {
 
   let isProduction = 'false';
 
+  let serverProcesses = null;
+
   try {
     // Check if the config file exists in the project root - Production mode
     let rootConfigPath = path.join(projectRoot, 'netvision.config.js');
@@ -109,9 +71,16 @@ module.exports = function enhanceMetroMiddleware({ projectRoot }) {
     const config = require(rootConfigPath);
 
     isProduction = config.isProduction ?? 'true';
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     console.log('[NetVision] No config file found, using default (dev mode)');
   }
+
+  process.on('exit', () => {
+    if (serverProcesses) {
+      serverProcesses.kill('SIGINT');
+    }
+  });
 
   return function middlewareWrapper(middleware) {
     return async (req, res, next) => {
@@ -120,16 +89,14 @@ module.exports = function enhanceMetroMiddleware({ projectRoot }) {
           const alreadyRunning = await isDebuggerRunning();
 
           if (!alreadyRunning) {
-            spawn('node', [absDebuggerPath], {
+            serverProcesses = spawn('node', [absDebuggerPath], {
               cwd: projectRoot,
-              shell: true,
-              detached: false,
-              stdio: 'inherit', //'ignore',
+              stdio: 'inherit',
               env: {
                 ...process.env,
                 NET_VISION_PRODUCTION: isProduction,
               },
-            }).unref();
+            });
           } else {
             console.log('[NetVision] Debugger already running');
             res.writeHead(204);

@@ -109,21 +109,3 @@ wss.on('connection', (ws, req) => {
     }
   });
 });
-
-process.on('SIGINT', async () => {
-  console.log('👋 SIGINT received, cleaning up...');
-
-  try {
-    await shutdownDebugger();
-    wss.close();
-  } catch (e) {
-    console.error('❌ Error during shutdown:', e);
-  }
-
-  process.exit();
-});
-
-process.on('exit', () => {
-  console.log('👋 Exiting, cleaning up...');
-  wss.close();
-});
