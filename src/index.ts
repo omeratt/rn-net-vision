@@ -6,16 +6,16 @@ const { RnNetVision } = NativeModules;
 
 // ✅ Start NetVision
 export async function startNetVision() {
-  if (RnNetVision?.startDebuggerViaDiscovery) {
+  if (RnNetVision?.startDebugger) {
     try {
-      const result = await RnNetVision.startDebuggerDirect();
+      const result = await RnNetVision.startDebugger();
       console.log('[NetVision] Native responded:', result);
     } catch (e) {
       console.error('[NetVision] Native threw error:', e);
     }
   } else {
     console.warn(
-      '[NetVision] Native module not found or startDebuggerViaDiscovery() not defined'
+      '[NetVision] Native module not found or startDebugger() not defined'
     );
   }
 }
