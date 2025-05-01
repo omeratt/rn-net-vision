@@ -5,21 +5,6 @@ import DebuggerHeader from './components/DebuggerHeader/DebuggerHeader';
 export function App() {
   const [logs, setLogs] = useState([]);
 
-  // useEffect(() => {
-  //   const shutdown = () => {
-  //     navigator.sendBeacon?.(
-  //       'http://localhost:8089/shutdown',
-  //       JSON.stringify({ reason: 'window closed' })
-  //     );
-  //   };
-
-  //   window.addEventListener('beforeunload', shutdown);
-
-  //   return () => {
-  //     window.removeEventListener('beforeunload', shutdown);
-  //   };
-  // }, []);
-
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:8088');
     ws.onopen = () => {
