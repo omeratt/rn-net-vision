@@ -1,38 +1,61 @@
 # RN Net Vision - Web Viewer Technical Specification
 
-## Project Requirements
+## Overview
+Build a high-performance React Native network traffic inspector with TypeScript and modern web technologies.
 
-Build a React Native network traffic inspector with these specifications:
+## Technical Requirements
 
-### Technical Stack
-
-- Use only Typescript for new files
-- Vite for build tooling
-- React 18+ with TypeScript (strict mode)
-- Keep vite and preact for thin client size and performance
+### Core Technology Stack
+- TypeScript in strict mode (no `any` types permitted)
+- Vite + Preact for optimal bundle size
+- Yarn package manager
 - TailwindCSS for styling
 - WebSocket connection to `ws://localhost:8088`
 
-### Core Functionality
+### Development Guidelines
+1. TypeScript Implementation
+   - Strict mode enabled
+   - Complete type coverage required
+   - JS configuration files excluded from TypeScript conversion
+   - Thorough type checking before file completion
 
-1. Real-time Network Monitoring
+2. State Management
+   - Use local `useState` hooks for component-specific state
+   - Avoid global state management
+   - Implement Context API for theme management
 
-   - Connect to WebSocket endpoint
-   - Parse and display incoming traffic logs
-   - Clear logs on debugger restart
+3. Performance Optimization
+   - Minimize unnecessary re-renders
+   - Implement component memoization where beneficial
+   - Use React DevTools for performance monitoring
+   - Implement virtualization for log lists
+
+## Functional Requirements
+
+### Network Monitoring
+1. WebSocket Integration
+   - Connect to `ws://localhost:8088`
    - Send `{ type: 'vite-ready' }` on connection
+   - Handle connection state management
+   - Implement automatic reconnection
 
-2. UI Requirements
-   - Responsive Design as possible
-   - Flipper-inspired modern interface
-   - System-aware dark/light theme with useContext or modern concepts
-   - Request/response inspection panels
-   - Status code indicators (2xx: green, 4xx/5xx: red)
-   - Smooth transitions (200ms duration)
-   - Keyboard navigation (↑/↓)
+2. Traffic Logging
+   - Real-time log parsing and display
+   - Automatic log clearing on debugger restart
+   - Request/response detail viewing
+   - HTTP status code visualization
+     - 2xx: Green
+     - 4xx/5xx: Red
 
-### Data Structure
+### User Interface
+1. Design System
+   - Responsive layout
+   - Flipper-inspired modern UI
+   - System-aware dark/light theme
+   - Smooth transitions (200ms)
+   - Keyboard navigation support (↑/↓)
 
+2. Component Architecture
 ```typescript
 interface NetVisionLog {
   type: 'network-log';
@@ -40,7 +63,7 @@ interface NetVisionLog {
   url: string;
   duration: number;
   status: number;
-  timestamp: string;
+  timestamp: string; // Iso string
   requestHeaders: Record<string, string[]>;
   responseHeaders: Record<string, string[]>;
   requestBody?: string | Record<string, any> | any[];
@@ -53,39 +76,35 @@ interface NetVisionLog {
 ```
 
 ### Project Structure
-
 ```
 web-viewer/
 ├── src/
-│   ├── components/  # Reusable UI components
-│   ├── hooks/      # useSocket, useDarkMode
-│   ├── store/      # LegendState or Zustand or Context+useReducer
+│   ├── components/  # UI components
+│   ├── hooks/      # Custom hooks
 │   ├── utils/      # Helper functions
-│   ├── styles/     # TailwindCSS theme config
-│   └── App.tsx
+│   ├── styles/     # TailwindCSS config
+│   └── App.tsx     # Main application
 ```
 
-### Performance Requirements
-
-- Implement virtualization for log lists
-- Optimize render cycles and state updates
-- Efficient memory management
-- Responsive across viewport sizes
-- Very Clean Code
-- Divide Logic And UI By implement hooks and utils function
-
-### Theme Tokens
-
+### Theme Configuration
 ```typescript
-colors: {
+interface ThemeColors {
   bg: {
-    DEFAULT: 'white',
-    dark: '#121212'
-  },
+    DEFAULT: 'white';
+    dark: '#121212';
+  };
   text: {
-    DEFAULT: '#1f1f1f',
-    dark: '#f5f5f5'
-  },
-  accent: '#4ade80'
+    DEFAULT: '#1f1f1f';
+    dark: '#f5f5f5';
+  };
+  accent: '#4ade80';
 }
 ```
+
+## Quality Standards
+- Clean, maintainable code
+- Separation of concerns (UI/Logic)
+- Comprehensive error handling
+- Performance optimization
+- Cross-browser compatibility
+- Responsive design implementation
