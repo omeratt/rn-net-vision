@@ -1,1 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* Base styles */
+:root {
+  color-scheme: light;
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 17, 24, 39;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}

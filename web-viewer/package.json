@@ -10,15 +10,14 @@
     "production": "node run-vite-production.js"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.3",
+    "framer-motion": "^12.9.4",
     "preact": "^10.26.2"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.1",
-    "@tailwindcss/postcss": "^4.1.3",
-    "autoprefixer": "latest",
-    "postcss": "latest",
-    "tailwindcss": "^4.1.3",
+    "autoprefixer": "10.4.16",
+    "postcss": "8.4.31",
+    "tailwindcss": "2.2.19",
     "vite": "^6.2.0"
   }
 }
