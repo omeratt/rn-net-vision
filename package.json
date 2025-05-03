@@ -48,7 +48,8 @@
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build && cd web-viewer && yarn install && yarn build && cd ..",
     "release": "release-it",
-    "start-server": "node server/debug-server.js"
+    "start-server": "node server/debug-server.js",
+    "track-net-vision-logs": "adb logcat -c && adb logcat | grep NetVision"
   },
   "keywords": [
     "react-native",
