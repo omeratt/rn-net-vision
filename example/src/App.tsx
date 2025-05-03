@@ -7,7 +7,17 @@ export default function App() {
   useNetVision();
 
   useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/todos/1');
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: 'Hello NetVision',
+        body: 'This is a test request body',
+        userId: 123,
+      }),
+    });
   }, []);
 
   return (

@@ -2,22 +2,18 @@ package com.omeratt.rnnetvision
 
 import android.util.Log
 import okhttp3.*
-import okio.ByteString
 import java.util.concurrent.TimeUnit
 
 object NetVisionDispatcher {
     private var webSocket: WebSocket? = null
-    private val pendingMessages = mutableListOf<String>()
     private var isSocketInitialized = false
 
     fun connect(host: String, port: Int) {
-        if (isSocketInitialized){
-            val host = webSocket?.request()?.url?.host
-            val port = webSocket?.request()?.url?.port
-           
-            Log.d("NetVision", "Already connected to $host:$port")
+        if (isSocketInitialized && webSocket != null) {
+            Log.d("NetVision", "🔁 Already connected to $host:$port")
+            NetVisionQueue.flushIfReady { send(it) }
             return
-        } 
+        }
 
         val client = OkHttpClient.Builder()
             .connectTimeout(3, TimeUnit.SECONDS)
@@ -33,14 +29,11 @@ object NetVisionDispatcher {
                 isSocketInitialized = true
                 Log.d("NetVision", "✅ Connected to debugger at ws://$host:$port")
 
-                synchronized(pendingMessages) {
-                    pendingMessages.forEach { send(it) }
-                    pendingMessages.clear()
-                }
+                NetVisionQueue.flushIfReady { send(it) }
             }
 
             override fun onMessage(ws: WebSocket, text: String) {
-                Log.d("NetVision", "📥 Message from debugger: $text")
+                Log.d("NetVision", "📬 Message from debugger: $text")
             }
 
             override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
@@ -62,21 +55,17 @@ object NetVisionDispatcher {
     fun send(message: String) {
         val ws = webSocket
         if (ws == null) {
-            Log.d("NetVision", "🕗 Queued message: $message")
-            synchronized(pendingMessages) {
-                pendingMessages.add(message)
-            }
+            Log.d("NetVision", "🕗 Queued message (WS not ready): ${message.take(100)}...")
+            NetVisionQueue.add(message)
             return
         }
 
         val success = ws.send(message)
         if (success) {
-            Log.d("NetVision", "📤 Sent to debugger: $message")
+            Log.d("NetVision", "📤 Sent to debugger: ${message.take(100)}...")
         } else {
-             Log.d("NetVision", "🕗 Send failed — queueing: $message")
-            synchronized(pendingMessages) {
-                pendingMessages.add(message)
-            }
+            Log.d("NetVision", "🕗 Send failed — queueing")
+            NetVisionQueue.add(message)
         }
     }
 }

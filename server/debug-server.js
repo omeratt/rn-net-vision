@@ -2,6 +2,8 @@ const WebSocket = require('ws');
 
 const http = require('http');
 
+const { decodeResponseBody } = require('./utils/decodeBody');
+
 let viteIsReady = false;
 let viewerSocket = null;
 
@@ -61,7 +63,10 @@ const wss = new WebSocket.Server({ port: WS_PORT }, () => {
 wss.on('connection', (ws, req) => {
   console.log('🔌 App connected to debugger from:', req.socket.remoteAddress);
 
-  ws.on('message', (data) => {
+  ws.on('message', async (data) => {
+    const raw = data.toString();
+    if (!raw.trim()) return; // 🛡 Prevent Parse Empty Data
+
     try {
       const json = JSON.parse(data);
 
@@ -71,14 +76,29 @@ wss.on('connection', (ws, req) => {
         viewerSocket = ws;
         return;
       }
+      const rawBody = json.responseBody ?? '';
+      const headers = json.responseHeaders ?? {};
+      const decodedBody = await decodeResponseBody(
+        headers['content-encoding'],
+        rawBody
+      );
+
+      let decodedData = { ...json };
+      if (decodedBody) {
+        try {
+          decodedData.responseBody = JSON.parse(decodedBody);
+        } catch (e) {
+          decodedData.responseBody = decodedBody;
+        }
+      }
 
       console.log('📥 New network request:');
-      console.log(JSON.stringify(json, null, 2));
 
-      // ✅ שלח לכולם, כולל viewer
+      console.log(JSON.stringify(decodedData, null, 2));
+
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(json));
+          client.send(JSON.stringify(decodedData));
         }
       });
     } catch (e) {
