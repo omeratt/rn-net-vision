@@ -12,7 +12,10 @@ http
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     if (req.url === '/ready-check') {
-      res.writeHead(200);
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Content-Length': '14',
+      });
       res.end('debugger-ready');
       return;
     }
@@ -36,7 +39,10 @@ http
       return;
     }
 
-    res.writeHead(404);
+    res.writeHead(404, {
+      'Content-Type': 'text/plain',
+      'Content-Length': '9',
+    });
     res.end('Not found');
   })
   .listen(8089, '0.0.0.0', () => {
