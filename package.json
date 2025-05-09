@@ -133,6 +133,9 @@
         2,
         "always",
         "Infinity"
+      ],
+      "subject-case": [
+        0
       ]
     }
   },
