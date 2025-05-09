@@ -1,98 +1,125 @@
 package com.omeratt.rnnetvision
 
+import android.content.Context
 import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import org.json.JSONArray
 import org.json.JSONObject
+import okhttp3.Protocol
+import android.util.Base64
 
 class NetworkInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        val ignoredPorts = setOf(3232, 8088, 8089, 8081)
-        val url = request.url
+        return try {
+            val request = chain.request()
+            val ignoredPorts = setOf(3232, 8088, 8089, 8081)
+            val url = request.url
 
-        if (url.port in ignoredPorts) {
-            return chain.proceed(request)
-        }
+            val ignoredHosts = setOf("localhost", "127.0.0.1")
+            Log.d("NetVision", "🔎 Checking request URL: $url (port=${url.port})")
 
-        val startTime = System.currentTimeMillis()
-        val response = chain.proceed(request)
-        val duration = System.currentTimeMillis() - startTime
-
-        Log.d("NetVision", "🚦 Interceptor triggered! URL: ${request.url}")
-
-        // headers as JSON
-        val requestHeadersJson = JSONObject()
-        request.headers.toMultimap().forEach { (key, valueList) ->
-            requestHeadersJson.put(key, JSONArray(valueList))
-        }
-
-        val responseHeadersJson = JSONObject()
-        response.headers.toMultimap().forEach { (key, valueList) ->
-            responseHeadersJson.put(key, JSONArray(valueList))
-        }
-
-        // request body
-        val parsedRequestBody = extractRequestBody(request)
-
-
-
-        // Parse request cookies
-        val requestCookieHeader = request.header("Cookie")
-        val requestCookiesJson = JSONObject()
-        requestCookieHeader?.split(";")?.forEach {
-            val parts = it.trim().split("=")
-            if (parts.size == 2) {
-                requestCookiesJson.put(parts[0], parts[1])
-            }
-        }
-
-        // Parse response cookies
-        val responseCookieHeader = response.headers("Set-Cookie")
-        val responseCookiesJson = JSONObject()
-        responseCookieHeader.forEach { fullCookie ->
-            val parts = fullCookie.split(";")[0].split("=")
-            if (parts.size == 2) {
-                responseCookiesJson.put(parts[0].trim(), parts[1].trim())
-            }
-        }
-
-        val responseBodyHolder = arrayOf<String?>(null)
-
-        val interceptedResponse = response.newBuilder()
-            .body(
-                InterceptingResponseBody(response.body!!) { bodyString ->
-                    Log.d("NetVision", "📦 Intercepted response body: ${bodyString?.take(100)}")
-                    responseBodyHolder[0] = bodyString
-
-                    val payload = JSONObject().apply {
-                        put("type", "network-log")
-                        put("method", request.method)
-                        put("url", request.url.toString())
-                        put("duration", duration)
-                        put("status", response.code)
-                        put("requestHeaders", requestHeadersJson)
-                        put("responseHeaders", responseHeadersJson)
-                        if (parsedRequestBody != null) put("requestBody", parsedRequestBody)
-                        if (!bodyString.isNullOrBlank()) put("responseBody", bodyString)
-                        if (requestCookiesJson.length() > 0 || responseCookiesJson.length() > 0) {
-                            put("cookies", JSONObject().apply {
-                                put("request", requestCookiesJson)
-                                put("response", responseCookiesJson)
-                            })
-                        }
-                    }
-
-                    NetVisionDispatcher.send(payload.toString())
+            if (url.port in ignoredPorts || url.host in ignoredHosts) {
+                Log.d("NetVision", "🌐 Intercepting request to: $url")
+                return try {
+                    chain.proceed(request)
+                } catch (e: Exception) {
+                    Log.e("NetVision", "❌ Ignored URL failed: $url - ${e.message}")
+                    Response.Builder()
+                        .code(500)
+                        .protocol(Protocol.HTTP_1_1)
+                        .message("Localhost unavailable")
+                        .request(request)
+                        .body("".toResponseBody(null))
+                        .build()
                 }
-            )
-            .build()
+            }
 
-        return interceptedResponse
+            val startTime = System.currentTimeMillis()
+
+            val response = chain.proceed(request)
+
+            val duration = System.currentTimeMillis() - startTime
+
+            Log.d("NetVision", "🚦 Interceptor triggered! URL: ${request.url}")
+
+            val requestHeadersJson = request.headers.toMultimap().toJson()
+            val responseHeadersJson = response.headers.toMultimap().toJson()
+            val requestCookiesJson = request.header("cookie").parseCookies()
+            val responseCookiesJson = response.headers("set-cookie").parseCookies()
+            val parsedRequestBody = extractRequestBody(request)
+
+            val context = ReactApplicationContextProvider.context
+
+            Log.d("NetVision", "🐛 response.cache: ${response.cacheResponse}")
+
+            val rawBytes = when {
+                response.code == 304 && response.cacheResponse?.body != null -> {
+                    Log.d("NetVision", "📦 Using OkHttp cacheResponse for 304")
+                    response.cacheResponse!!.body!!.bytes()
+                }
+                response.code == 304 -> {
+                    Log.d("NetVision", "📦 OkHttp cacheResponse not found, using disk fallback for 304")
+                    CustomDiskCache.loadCachedResponse(request, context) ?: ByteArray(0)
+                }
+                else -> {
+                    Log.d("NetVision", "📦 Using fresh network response body")
+                    Log.d("NetVision", "📁 OkHttp cache dir: ${context.cacheDir}/okhttp_netvision_cache")
+                    Log.d("NetVision", "📛 response Cache-Control: ${response.header("Cache-Control")}")
+                    Log.d("NetVision", "📥 response code: ${response.code}")
+                    val bodyBytes = response.body?.bytes() ?: ByteArray(0)
+                    if (response.code == 200 && bodyBytes.isNotEmpty()) {
+                        CustomDiskCache.persistResponse(request, bodyBytes, context)
+                    }
+                    bodyBytes
+                }
+            }
+
+            val base64Body = Base64.encodeToString(rawBytes, Base64.NO_WRAP)
+
+            val payload = JSONObject().apply {
+                put("type", "network-log")
+                put("method", request.method)
+                put("url", request.url.toString())
+                put("duration", duration)
+                put("status", response.code)
+                put("timestamp", System.currentTimeMillis())
+                put("requestHeaders", requestHeadersJson)
+                put("responseHeaders", responseHeadersJson)
+                if (parsedRequestBody != null) put("requestBody", parsedRequestBody)
+                if (base64Body.isNotBlank()) {
+                    put("responseBody", base64Body)
+                    put("responseBodyEncoding", "base64")
+                }
+                if (requestCookiesJson.length() > 0 || responseCookiesJson.length() > 0) {
+                    put("cookies", JSONObject().apply {
+                        put("request", requestCookiesJson)
+                        put("response", responseCookiesJson)
+                    })
+                }
+            }
+
+            NetVisionDispatcher.send(payload.toString())
+
+            return response.newBuilder()
+                .body(rawBytes.toResponseBody(response.body?.contentType()))
+                .build()
+
+        } catch (e: Exception) {
+            Log.e("NetVision", "❌ Error in NetworkInterceptor: ${e.message}")
+            return Response.Builder()
+                .request(chain.request())
+                .protocol(Protocol.HTTP_1_1)
+                .code(520)
+                .message("Intercept Error: ${e.localizedMessage}")
+                .body("".toResponseBody(null))
+                .build()
+        }
     }
-    fun extractRequestBody(request: okhttp3.Request): Any? {
+
+    private fun extractRequestBody(request: okhttp3.Request): Any? {
         return try {
             val contentType = request.body?.contentType()?.toString()?.lowercase()
             val buffer = Buffer()
@@ -101,15 +128,11 @@ class NetworkInterceptor : Interceptor {
 
             if (bodyString.isBlank()) return null
 
-            return if (contentType?.contains("application/json") == true) {
-                try {
-                    when {
-                        bodyString.startsWith("{") -> JSONObject(bodyString)
-                        bodyString.startsWith("[") -> JSONArray(bodyString)
-                        else -> bodyString
-                    }
-                } catch (_: Exception) {
-                    bodyString
+            if (contentType?.contains("application/json") == true) {
+                when {
+                    bodyString.startsWith("{") -> JSONObject(bodyString)
+                    bodyString.startsWith("[") -> JSONArray(bodyString)
+                    else -> bodyString
                 }
             } else {
                 bodyString
@@ -117,5 +140,33 @@ class NetworkInterceptor : Interceptor {
         } catch (_: Exception) {
             null
         }
+    }
+
+    private fun Map<String, List<String>>.toJson(): JSONObject {
+        val json = JSONObject()
+        forEach { (key, values) ->
+            json.put(key, JSONArray(values))
+        }
+        return json
+    }
+
+    private fun String?.parseCookies(): JSONObject {
+        val json = JSONObject()
+        this?.split(";")?.forEach {
+            val (k, v) = it.trim().split("=").let { parts -> parts.getOrNull(0) to parts.getOrNull(1) }
+            if (k != null && v != null) json.put(k, v)
+        }
+        return json
+    }
+
+    private fun List<String>.parseCookies(): JSONObject {
+        val json = JSONObject()
+        forEach { header ->
+            val parts = header.split(";")[0].split("=")
+            if (parts.size == 2) {
+                json.put(parts[0].trim(), parts[1].trim())
+            }
+        }
+        return json
     }
 }

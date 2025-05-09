@@ -9,7 +9,7 @@ object NetVisionQueue {
 
     fun add(message: String) {
         synchronized(pending) {
-            Log.d("NetVision", "📥 Queued: ${message.take(80)}...")
+            Log.d("NetVision", "📥 Queued: ${message}")
             pending.add(message)
         }
     }
