@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
 import { DevSettings, NativeModules } from 'react-native';
-import { isDebuggerReady, waitForDebuggerReady } from './utils';
+import {
+  getHostIPFromReactNative,
+  isDebuggerReady,
+  waitForDebuggerReady,
+} from './utils';
 
 const { RnNetVision } = NativeModules;
 
@@ -35,7 +39,8 @@ export function registerNetVisionDevMenu() {
         return;
       }
       // Trigger the NetVision server to start
-      await fetch('http://localhost:8081/net-vision-trigger', {
+      const host = await getHostIPFromReactNative();
+      await fetch(`http://${host}:8081/net-vision-trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trigger: true }),
@@ -78,7 +83,6 @@ export const testRequest = () => {
     .catch(console.error);
 };
 
-// אפשר גם ייבוא דיפולטי:
 export default {
   startNetVision,
   registerNetVisionDevMenu,

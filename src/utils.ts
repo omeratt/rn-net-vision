@@ -1,10 +1,26 @@
+import { NativeModules, Platform } from 'react-native';
+
+export async function getHostIPFromReactNative(): Promise<string> {
+  if (Platform.OS === 'ios') {
+    try {
+      const ip = await NativeModules?.RnNetVision?.getHostIPAddress?.();
+      return ip;
+    } catch (err) {
+      console.warn('[NetVision] Failed to get host IP, fallback to localhost');
+      return 'localhost';
+    }
+  }
+
+  return 'localhost';
+}
+
 /**
  * Internal function to check if debugger is ready.
  */
 async function fetchDebuggerReady(): Promise<boolean> {
   try {
-    // const baseUrl = await getNetVisionBaseUrl(3232);
-    const res = await fetch(`http://localhost:3232/ready-check`, {
+    const host = await getHostIPFromReactNative();
+    const res = await fetch(`http://${host}:3232/ready-check`, {
       method: 'GET',
     });
     return res.ok;
