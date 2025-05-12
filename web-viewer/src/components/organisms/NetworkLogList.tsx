@@ -1,4 +1,3 @@
-/** @jsxImportSource preact */
 import { useState, useMemo } from 'preact/hooks';
 import type { VNode } from 'preact';
 import type { NetVisionLog } from '../../types';
