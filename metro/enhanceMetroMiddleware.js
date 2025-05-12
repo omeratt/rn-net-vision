@@ -23,7 +23,11 @@ module.exports = function enhanceMetroMiddleware({ projectRoot }) {
 
   if (!didStartAdbTracking) {
     didStartAdbTracking = true;
-    startTrackingDevices();
+    try {
+      startTrackingDevices();
+    } catch (e) {
+      console.error('[NetVision] Failed to start ADB tracking:', e);
+    }
   }
 
   let absDebuggerPath = path.join(
