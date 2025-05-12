@@ -1,61 +1,44 @@
 # RN Net Vision - Web Viewer Technical Specification
 
 ## Overview
-Build a high-performance React Native network traffic inspector with TypeScript and modern web technologies.
 
-## Technical Requirements
+Build a modern, performant web-based network traffic inspector for React Native applications, drawing inspiration from Flipper Network Debugger while maintaining a cleaner, more modern approach.
 
-### Core Technology Stack
-- TypeScript in strict mode (no `any` types permitted)
-- Vite + Preact for optimal bundle size
-- Yarn package manager
-- TailwindCSS for styling
-- WebSocket connection to `ws://localhost:8088`
+## Technical Stack
 
-### Development Guidelines
-1. TypeScript Implementation
-   - Strict mode enabled
-   - Complete type coverage required
-   - JS configuration files excluded from TypeScript conversion
-   - Thorough type checking before file completion
+- TypeScript 5.0+ (strict mode enabled)
+- Type 'any' not permitted
+- Vite with Preact for optimal performance
+- Yarn package management
+- TailwindCSS 3.x for styling
+- WebSocket client for real-time communication
+- After each edit, ask yourself - "is it clean, optimal and atomic design?" if not adjust it
 
-2. State Management
-   - Use local `useState` hooks for component-specific state
-   - Avoid global state management
-   - Implement Context API for theme management
+## Core Architecture
 
-3. Performance Optimization
-   - Minimize unnecessary re-renders
-   - Implement component memoization where beneficial
-   - Use React DevTools for performance monitoring
-   - Implement virtualization for log lists
+### Component Design
 
-## Functional Requirements
+- Strict separation between UI components and business logic
+- Implementation of modern React patterns (hooks, functional components)
+- Atomic design methodology for component structure
+- Zero runtime type checking for optimal performance
 
-### Network Monitoring
-1. WebSocket Integration
-   - Connect to `ws://localhost:8088`
-   - Send `{ type: 'vite-ready' }` on connection
-   - Handle connection state management
-   - Implement automatic reconnection
-
-2. Traffic Logging
-   - Real-time log parsing and display
-   - Automatic log clearing on debugger restart
-   - Request/response detail viewing
-   - HTTP status code visualization
-     - 2xx: Green
-     - 4xx/5xx: Red
+### Network Protocol
 
 ### User Interface
-1. Design System
-   - Responsive layout
-   - Flipper-inspired modern UI
-   - System-aware dark/light theme
-   - Smooth transitions (200ms)
-   - Keyboard navigation support (↑/↓)
 
-2. Component Architecture
+- Atomic Design
+- Allow filter by all Log Fields
+- Responsive layout
+- Flipper-inspired modern UI
+- System-aware dark/light theme with modern tailwind concept
+- Smooth transitions (200ms)
+- Keyboard navigation support (↑/↓)
+- Smooth Animations
+- Global and modern palette using tailwind
+- Use Dark mode and Light mode across all app
+- Dark Mode and Light mode with Modern concept of implementation
+
 ```typescript
 interface NetVisionLog {
   type: 'network-log';
@@ -63,11 +46,11 @@ interface NetVisionLog {
   url: string;
   duration: number;
   status: number;
-  timestamp: string; // Iso string
+  timestamp: string;
   requestHeaders: Record<string, string[]>;
   responseHeaders: Record<string, string[]>;
-  requestBody?: string | Record<string, any> | any[];
-  responseBody?: string | Record<string, any> | any[];
+  requestBody?: string | Record<string, unknown> | unknown[];
+  responseBody?: string | Record<string, unknown> | unknown[];
   cookies?: {
     request?: Record<string, string>;
     response?: Record<string, string>;
@@ -75,36 +58,70 @@ interface NetVisionLog {
 }
 ```
 
-### Project Structure
+### WebSocket Integration
+
+- Connection endpoint: ws://localhost:8088
+- Initial handshake payload: `{ type: 'vite-ready' }`
+- Implement exponential backoff reconnection (5 retry maximum)
+- Custom hook for WebSocket state management
+
+### Performance Requirements
+
+1. Bundle size: Maximum 200KB
+2. Performance metrics:
+   - First paint: 1.5s or less
+   - Time to interactive: 2s or less
+   - Smooth scrolling at 60fps
+
+### State Management
+
+- Component state: React useState
+- Network logs: Custom optimized storage solution with persistence
+- No external state management libraries permitted
+- logs should reset every new socket connection but persist on refresh
+
+### Directory Structure
+
 ```
 web-viewer/
 ├── src/
-│   ├── components/  # UI components
-│   ├── hooks/      # Custom hooks
-│   ├── utils/      # Helper functions
-│   ├── styles/     # TailwindCSS config
-│   └── App.tsx     # Main application
+│   ├── components/
+│   ├── hooks/
+│   ├── utils/
+│   ├── constants/
+│   └── App.tsx
+├── tests/
+├── tsconfig.json
+└── package.json
 ```
 
-### Theme Configuration
-```typescript
-interface ThemeColors {
-  bg: {
-    DEFAULT: 'white';
-    dark: '#121212';
-  };
-  text: {
-    DEFAULT: '#1f1f1f';
-    dark: '#f5f5f5';
-  };
-  accent: '#4ade80';
-}
-```
+## Quality Requirements
 
-## Quality Standards
-- Clean, maintainable code
-- Separation of concerns (UI/Logic)
-- Comprehensive error handling
-- Performance optimization
-- Cross-browser compatibility
-- Responsive design implementation
+1. TypeScript Compliance:
+
+   - Strict mode enabled
+   - No type assertions
+   - Complete type coverage
+
+2. Browser Compatibility:
+
+   - Support latest 2 versions of modern browsers
+   - Responsive design (320px to 4K)
+   - Zero console errors/warnings
+
+3. Testing:
+
+   - Minimum 90% unit test coverage
+   - E2E tests for critical paths
+   - Performance benchmark tests
+
+4. Accessibility:
+   - Full keyboard navigation
+   - ARIA compliance
+   - Screen reader support
+
+## References
+
+- [React Performance Optimization](https://react.dev/learn/render-and-commit)
+- [WebSocket API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
