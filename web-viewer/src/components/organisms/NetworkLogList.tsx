@@ -1,3 +1,4 @@
+/** @jsxImportSource preact */
 import { useState, useMemo } from 'preact/hooks';
 import type { VNode } from 'preact';
 import type { NetVisionLog } from '../../types';
@@ -7,11 +8,17 @@ import { Button } from '../atoms/Button';
 interface NetworkLogListProps {
   logs: NetVisionLog[];
   onClear: () => void;
+  onSelectLog: (log: NetVisionLog, index: number) => void;
+  selectedLog: NetVisionLog | null;
+  selectedIndex: number;
 }
 
 export const NetworkLogList = ({
   logs,
   onClear,
+  onSelectLog,
+  selectedLog,
+  selectedIndex,
 }: NetworkLogListProps): VNode => {
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -46,7 +53,7 @@ export const NetworkLogList = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+      <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md dark:shadow-[0_4px_12px_rgba(200,200,255,0.08)]">
         <div className="flex items-center space-x-4">
           <input
             type="text"
@@ -55,14 +62,14 @@ export const NetworkLogList = ({
             onInput={(e) => {
               setFilter((e.target as HTMLInputElement).value);
             }}
-            className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 "
           />
           <select
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter((e.target as HTMLSelectElement).value);
             }}
-            className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 "
           >
             <option value="all">All Status</option>
             <option value="success">Success (2xx)</option>
@@ -74,7 +81,7 @@ export const NetworkLogList = ({
             onChange={(e) => {
               setMethodFilter((e.target as HTMLSelectElement).value);
             }}
-            className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 "
           >
             {uniqueMethods.map((method) => (
               <option key={method} value={method}>
@@ -94,7 +101,14 @@ export const NetworkLogList = ({
             No logs match your filters
           </div>
         ) : (
-          filteredLogs.map((log, index) => <NetworkLog key={index} log={log} />)
+          filteredLogs.map((log, index) => (
+            <NetworkLog
+              key={log.timestamp + log.url}
+              log={log}
+              isSelected={selectedLog === log || index === selectedIndex}
+              onClick={() => onSelectLog(log, index)}
+            />
+          ))
         )}
       </div>
     </div>

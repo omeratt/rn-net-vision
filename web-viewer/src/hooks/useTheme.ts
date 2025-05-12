@@ -12,6 +12,11 @@ export const useTheme = () => {
   });
 
   useEffect(() => {
+    // Apply dark mode class to HTML element
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
       if (localStorage.getItem('darkMode') === null) {

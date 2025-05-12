@@ -36,42 +36,48 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-4 bg-white dark:bg-gray-800">
-      <DetailField label="URL" value={log.url} />
-      <DetailField label="Method" value={log.method} />
-      <DetailField label="Status" value={String(log.status)} />
-      <DetailField label="Duration" value={`${log.duration}ms`} />
+    <div className="h-full overflow-y-auto p-4 space-y-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 ">
+        <DetailField label="URL" value={log.url} />
+        <DetailField label="Method" value={log.method} />
+        <DetailField label="Status" value={String(log.status)} />
+        <DetailField label="Duration" value={`${log.duration}ms`} />
+      </div>
 
-      <DetailField
-        label="Request Headers"
-        value={formatHeaders(log.requestHeaders)}
-        isCode
-      />
-
-      {log.requestBody && (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 ">
         <DetailField
-          label="Request Body"
-          value={formatData(log.requestBody)}
+          label="Request Headers"
+          value={formatHeaders(log.requestHeaders)}
           isCode
         />
-      )}
 
-      <DetailField
-        label="Response Headers"
-        value={formatHeaders(log.responseHeaders)}
-        isCode
-      />
+        {log.requestBody && (
+          <DetailField
+            label="Request Body"
+            value={formatData(log.requestBody)}
+            isCode
+          />
+        )}
+      </div>
 
-      {log.responseBody && (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 ">
         <DetailField
-          label="Response Body"
-          value={formatData(log.responseBody)}
+          label="Response Headers"
+          value={formatHeaders(log.responseHeaders)}
           isCode
         />
-      )}
+
+        {log.responseBody && (
+          <DetailField
+            label="Response Body"
+            value={formatData(log.responseBody)}
+            isCode
+          />
+        )}
+      </div>
 
       {log.cookies && (
-        <>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 ">
           {log.cookies.request && (
             <DetailField
               label="Request Cookies"
@@ -86,7 +92,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
               isCode
             />
           )}
-        </>
+        </div>
       )}
     </div>
   );

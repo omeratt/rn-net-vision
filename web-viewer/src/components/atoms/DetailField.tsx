@@ -17,15 +17,13 @@ export const DetailField = ({
       <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
         {label}
       </div>
-      <div
-        className={`p-3 bg-gray-50 dark:bg-gray-800 rounded-md ${
-          isCode
-            ? 'font-mono text-sm whitespace-pre overflow-x-auto'
-            : 'text-sm break-words'
-        }`}
-      >
-        {value}
-      </div>
+      {isCode ? (
+        <pre className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md text-xs font-mono overflow-x-auto text-gray-800 dark:text-gray-200">
+          {value}
+        </pre>
+      ) : (
+        <div className="text-sm text-gray-600 dark:text-gray-400">{value}</div>
+      )}
     </div>
   );
 };

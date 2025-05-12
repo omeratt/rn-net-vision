@@ -5,20 +5,44 @@
 /* Base styles */
 :root {
   color-scheme: light;
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
 }
 
 :root.dark {
   color-scheme: dark;
-  --foreground-rgb: 255, 255, 255;
-  --background-rgb: 17, 24, 39;
 }
 
+/* Apply faster transitions for dark mode changes */
+* {
+  transition: background-color 0.15s ease-in-out, 
+              border-color 0.15s ease-in-out, 
+              color 0.15s ease-in-out;
+}
+
+/* Base colors */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  @apply bg-white text-gray-900;
+}
+
+/* Dark mode colors */
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* Apply dark mode to all major UI elements by default */
+.dark [class*='bg-white'],
+.dark [class*='bg-gray-50'],
+.dark [class*='bg-gray-100'] {
+  @apply bg-gray-800;
+}
+
+.dark [class*='border-gray'] {
+  @apply border-gray-700;
+}
+
+.dark [class*='text-gray'] {
+  @apply text-gray-300;
+}
+
+.dark [class*='ring-gray'] {
+  @apply ring-gray-700;
 }
