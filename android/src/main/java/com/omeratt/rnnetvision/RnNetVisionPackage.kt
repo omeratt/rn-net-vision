@@ -12,22 +12,24 @@ import java.io.File
 class RnNetVisionPackage : ReactPackage {
 
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-        // Initialize context
-        ReactApplicationContextProvider.initialize(reactContext)
+        if (BuildConfig.DEBUG) {
+            // Initialize context
+            ReactApplicationContextProvider.initialize(reactContext)
 
-        // Clean expired files in the cache
-        CustomDiskCache.cleanExpiredFiles(reactContext)
+            // Clean expired files in the cache
+            CustomDiskCache.cleanExpiredFiles(reactContext)
 
-        // Set up OkHttp cache and interceptors
-        NetworkingModule.setCustomClientBuilder { builder: OkHttpClient.Builder ->
-            val cacheSize = 10L * 1024 * 1024 // 10MB
-            val cacheDir = File(reactContext.cacheDir, "okhttp_netvision_cache")
-            val cache = Cache(cacheDir, cacheSize)
+            // Set up OkHttp cache and interceptors
+            NetworkingModule.setCustomClientBuilder { builder: OkHttpClient.Builder ->
+                val cacheSize = 10L * 1024 * 1024 // 10MB
+                val cacheDir = File(reactContext.cacheDir, "okhttp_netvision_cache")
+                val cache = Cache(cacheDir, cacheSize)
 
-            builder.cache(cache)
+                builder.cache(cache)
 
-            // Main interceptor (must be last!)
-            builder.addNetworkInterceptor(NetworkInterceptor())
+                // Main interceptor (must be last!)
+                builder.addNetworkInterceptor(NetworkInterceptor())
+            }
         }
 
         return listOf(RnNetVisionModule(reactContext))
