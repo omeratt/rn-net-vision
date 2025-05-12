@@ -1,3 +1,4 @@
+#if DEBUG
  #import <objc/runtime.h>
  #import <Foundation/Foundation.h>
  #import <React/RCTNetworking.h>
@@ -92,3 +93,4 @@
  }
 
  @end
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import <RnNetVision-Swift.h>
@@ -64,3 +65,4 @@
 }
 
 @end
+#endif
