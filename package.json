@@ -44,7 +44,7 @@
     "example": "yarn workspace @omeratt/rn-net-vision-example",
     "test": "jest",
     "typecheck": "tsc",
-    "lint": "eslint . --ext .js,.ts,.tsx",
+    "lint": "eslint . --ext .js,.ts,.tsx --ignore-pattern web-viewer/",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build && cd web-viewer && yarn install && yarn build && cd ..",
     "release": "release-it",
