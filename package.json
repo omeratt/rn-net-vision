@@ -71,7 +71,8 @@
   },
   "homepage": "https://github.com/omeratt/rn-network-vision#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "dependencies": {
     "ws": "^8.0.0"
