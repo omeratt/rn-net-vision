@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-const { spawn, exec } = require('child_process');
+const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
+const openUrlCrossPlatform = require('./utils/openUrlCrossPlatform');
 
 // Parse CLI flag
 const isProduction = process.env.NET_VISION_PRODUCTION === 'true';
@@ -12,10 +13,7 @@ http
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     if (req.url === '/ready-check') {
-      res.writeHead(200, {
-        'Content-Type': 'text/plain',
-        'Content-Length': '14',
-      });
+      res.writeHead(200);
       res.end('debugger-ready');
       return;
     }
@@ -39,10 +37,7 @@ http
       return;
     }
 
-    res.writeHead(404, {
-      'Content-Type': 'text/plain',
-      'Content-Length': '9',
-    });
+    res.writeHead(404);
     res.end('Not found');
   })
   .listen(8089, '0.0.0.0', () => {
@@ -52,26 +47,6 @@ http
 // Paths
 const serverPath = path.join(__dirname, 'debug-server.js');
 const viewerPath = path.join(__dirname, '../web-viewer');
-
-// Utility: Open URL in default browser (Cross-Platform)
-function openUrlCrossPlatform(url) {
-  const platform = process.platform;
-
-  let command;
-  if (platform === 'darwin') {
-    command = `open "${url}"`;
-  } else if (platform === 'win32') {
-    command = `start "" "${url}"`;
-  } else {
-    command = `xdg-open "${url}"`;
-  }
-
-  exec(command, (err) => {
-    if (err) {
-      console.error('❌ Failed to open browser:', err);
-    }
-  });
-}
 
 // Start WebSocket server
 const server = spawn('node', [serverPath], {

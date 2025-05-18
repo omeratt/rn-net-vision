@@ -5,6 +5,9 @@ import type { NetVisionLog } from '../../types';
 import { NetworkLogList } from './NetworkLogList';
 import { LogDetailsPanel } from '../molecules/LogDetailsPanel';
 import { useCallback } from 'react';
+import { SplitHandle } from '../atoms/SplitHandle';
+
+const SPLIT_POSITION_KEY = 'netvision-split-position';
 
 interface NetworkLogsProps {
   logs: NetVisionLog[];
@@ -14,9 +17,13 @@ interface NetworkLogsProps {
 export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
   const [selectedLog, setSelectedLog] = useState<NetVisionLog | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-  const [splitPosition, setSplitPosition] = useState<number>(50);
+  const [splitPosition, setSplitPosition] = useState<number>(() => {
+    const savedPosition = localStorage.getItem(SPLIT_POSITION_KEY);
+    return savedPosition ? parseFloat(savedPosition) : 50;
+  });
   const splitRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
+  const [isResizing, setIsResizing] = useState(false);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -47,39 +54,88 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
   }, [logs, handleKeyDown]);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    // Use requestAnimationFrame to optimize the animation performance
+    let animationFrameId: number | null = null;
+    let lastPosition = splitPosition;
+
+    const handleMove = (clientX: number) => {
       if (!isDragging.current || !splitRef.current) return;
 
-      const containerRect =
-        splitRef.current.parentElement?.getBoundingClientRect();
-      if (!containerRect) return;
+      // Cancel any pending animation frame
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
 
-      const position =
-        ((e.clientX - containerRect.left) / containerRect.width) * 100;
-      setSplitPosition(Math.min(Math.max(20, position), 80));
+      // Use requestAnimationFrame to smooth out the animation
+      animationFrameId = requestAnimationFrame(() => {
+        const containerRect =
+          splitRef.current?.parentElement?.getBoundingClientRect();
+        if (!containerRect) return;
+
+        const position =
+          ((clientX - containerRect.left) / containerRect.width) * 100;
+        const newPosition = Math.min(Math.max(20, position), 80);
+
+        // Only update if position changed significantly (reduces unnecessary renders)
+        if (Math.abs(newPosition - lastPosition) > 0.1) {
+          lastPosition = newPosition;
+          setSplitPosition(newPosition);
+          localStorage.setItem(SPLIT_POSITION_KEY, newPosition.toString());
+        }
+
+        animationFrameId = null;
+      });
     };
 
-    const handleMouseUp = () => {
+    const handleMouseMove = (e: MouseEvent) => {
+      handleMove(e.clientX);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        handleMove(e.touches[0].clientX);
+      }
+    };
+
+    const handleEnd = () => {
       isDragging.current = false;
       document.body.style.cursor = 'default';
+      setIsResizing(false);
+
+      // Cancel any pending animation frame
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
     };
 
     document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleEnd);
+    document.addEventListener('touchcancel', handleEnd);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleEnd);
+      document.removeEventListener('touchcancel', handleEnd);
+
+      // Clean up any remaining animation frame
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
-  }, []);
+  }, [splitPosition]);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-col sm:flex-row h-[calc(100vh-5rem)] overflow-hidden rounded-lg shadow-lg">
       <div
         style={{ width: `${splitPosition}%` }}
-        className="overflow-auto bg-gray-50 dark:bg-gray-900"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900 transition-[width] ease-out"
       >
-        <div className="p-4">
+        <div className="p-2 sm:p-4">
           <NetworkLogList
             logs={logs}
             onClear={onClear}
@@ -93,18 +149,16 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
         </div>
       </div>
 
-      <div
-        ref={splitRef}
-        className="w-1 cursor-col-resize bg-gray-200 dark:bg-gray-700 hover:bg-blue-500 dark:hover:bg-blue-400 transition-colors"
-        onMouseDown={() => {
-          isDragging.current = true;
-          document.body.style.cursor = 'col-resize';
-        }}
+      <SplitHandle
+        splitRef={splitRef}
+        isDragging={isDragging}
+        isResizing={isResizing}
+        setIsResizing={setIsResizing}
       />
 
       <div
         style={{ width: `${100 - splitPosition}%` }}
-        className="overflow-auto bg-white dark:bg-gray-800"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-auto bg-white dark:bg-gray-800 transition-[width] ease-out"
       >
         <LogDetailsPanel log={selectedLog} />
       </div>

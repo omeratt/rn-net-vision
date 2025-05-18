@@ -5,13 +5,14 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const http = require('http'); // ✅ נוסף
 const { startTrackingDevices } = require('./trackAdbDevices.cjs');
+const openUrlCrossPlatform = require('../server/utils/openUrlCrossPlatform');
 
 let didStartAdbTracking = false;
 
 async function isDebuggerRunning() {
   return new Promise((resolve) => {
     http
-      .get('http://localhost:8089/ready-check', (res) => {
+      .get('http://127.0.0.1:8089/ready-check', (res) => {
         resolve(res.statusCode === 200);
       })
       .on('error', () => resolve(false));
@@ -103,6 +104,7 @@ module.exports = function enhanceMetroMiddleware({ projectRoot }) {
             });
           } else {
             console.log('[NetVision] Debugger already running');
+            openUrlCrossPlatform('http://localhost:5173');
             res.writeHead(204);
             res.end();
             return;

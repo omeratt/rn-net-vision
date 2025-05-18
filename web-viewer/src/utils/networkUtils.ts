@@ -1,3 +1,5 @@
+import { NetVisionLog } from '../types';
+
 export const formatDuration = (duration: number): string => {
   if (duration < 1000) {
     return `${duration}ms`;
@@ -44,4 +46,23 @@ export const formatData = (data: unknown): string => {
     }
   }
   return JSON.stringify(data, null, 2);
+};
+
+export const LOGS_STORAGE_KEY = 'netvision-logs';
+
+/**
+ *
+ * Retrieves logs from localStorage.
+ * If parsing fails, it returns an empty array and logs the error to the console.
+ * @returns {NetVisionLog[]} - Returns the logs stored in localStorage.
+ *
+ */
+export const getLocalStorageLogs = (): NetVisionLog[] => {
+  try {
+    const savedLogs = localStorage.getItem(LOGS_STORAGE_KEY);
+    return savedLogs ? JSON.parse(savedLogs) : [];
+  } catch (error) {
+    console.error('Failed to parse saved logs:', error);
+    return [];
+  }
 };

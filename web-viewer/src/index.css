@@ -1,22 +1,21 @@
-@tailwind base;
-@tailwind components;
+@import "tailwindcss";
+
 @tailwind utilities;
+/* The global selectors that were here have been removed in favor of using Tailwind's dark: prefix directly */
 
-/* Base styles */
-:root {
-  color-scheme: light;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
-:root.dark {
-  color-scheme: dark;
-}
 
-/* Apply faster transitions for dark mode changes */
-* {
+/* Apply targeted transitions for dark mode changes */
+.transition-theme {
   transition:
     background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out,
-    color 0.15s ease-in-out;
+    border-color 0.15s ease-in-out;
+}
+
+/* Disable transitions during page load */
+.no-transitions * {
+  transition: none !important;
 }
 
 /* Base colors */
@@ -29,21 +28,18 @@ body {
   @apply bg-gray-900 text-gray-100;
 }
 
-/* Apply dark mode to all major UI elements by default */
-.dark [class*='bg-white'],
-.dark [class*='bg-gray-50'],
-.dark [class*='bg-gray-100'] {
-  @apply bg-gray-800;
+/* Elegant shadows for dark mode
+.dark .network-log {
+  box-shadow: 0 4px 20px -5px rgba(99, 102, 241, 0.4);
+  transition: box-shadow 0.2s ease-in-out;
 }
 
-.dark [class*='border-gray'] {
-  @apply border-gray-700;
+.dark .network-log:hover {
+  box-shadow: 0 8px 21px -5px rgba(99, 102, 241, 0.6), 0 4px 10px -5px rgba(99, 102, 241, 0.4);
 }
 
-.dark [class*='text-gray'] {
-  @apply text-gray-300;
-}
+.dark .network-log.selected {
+  box-shadow: 0 10px 21px -5px rgba(99, 102, 241, 0.7), 0 6px 12px -6px rgba(99, 102, 241, 0.6);
+} */
 
-.dark [class*='ring-gray'] {
-  @apply ring-gray-700;
-}
+/* The global selectors that were here have been removed in favor of using Tailwind's dark: prefix directly */

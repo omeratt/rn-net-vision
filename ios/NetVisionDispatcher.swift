@@ -146,7 +146,7 @@ import Foundation
     ) {
       let endTime = Date().timeIntervalSince1970 * 1000.0
       let duration = Int(endTime - startTime)  // ms
-      let timestamp = startTime * 1000.0 // ms
+      let timestamp = Int(startTime) // ms
 
       var payload: [String: Any] = [
         "type": "network-log",

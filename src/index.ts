@@ -35,7 +35,7 @@ export function registerNetVisionDevMenu() {
 
       if (alreadyRunning) {
         console.log('[NetVision] Debugger already running, connecting...');
-        await startNetVision(); // רק לעשות connect
+        await startNetVision(); // only connect the socket from native
         return;
       }
       // Trigger the NetVision server to start
@@ -50,8 +50,10 @@ export function registerNetVisionDevMenu() {
 
           await startNetVision();
         })
-        .catch((err) => {
-          console.error('[NetVision] Fetch error:', err);
+        .catch(() => {
+          console.warn(
+            '[NetVision] cannot start NetVision server, try again...'
+          );
         });
     });
   }

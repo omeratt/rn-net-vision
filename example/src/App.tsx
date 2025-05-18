@@ -18,12 +18,22 @@ export default function App() {
         userId: 123,
       }),
     });
-    fetch('https://sellme.app/feed/63ad9ff1623d856c886d918d', {
+    fetch('https://string.isracard.co.il/DigitalShell.MobileTestBE/GetTest', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    })
+      .then((res) => {
+        console.log('Response:', res);
+        return res.json();
+      })
+      .then((data) => {
+        console.log('Data:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
     fetch('https://sellme.app/feed', {
       method: 'GET',
       headers: {

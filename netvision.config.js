@@ -1,3 +1,3 @@
 module.exports = {
-  isProduction: false, // או false
+  isProduction: true, // או false
 };

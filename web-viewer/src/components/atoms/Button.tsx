@@ -17,7 +17,7 @@ export const Button = ({
   children,
 }: ButtonProps): VNode => {
   const baseClasses = [
-    'font-medium rounded transition-all duration-200',
+    'font-medium rounded transition-theme duration-200',
     'focus:outline-none focus:ring-2 focus:ring-offset-2',
   ].join(' ');
 
