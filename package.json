@@ -62,14 +62,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omeratt/rn-network-vision.git"
+    "url": "git+https://github.com/omeratt/rn-net-vision.git"
   },
   "author": "OmerAttias <omeratt1405@gmail.com> (https://github.com/omeratt)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/omeratt/rn-network-vision/issues"
+    "url": "https://github.com/omeratt/rn-net-vision/issues"
   },
-  "homepage": "https://github.com/omeratt/rn-network-vision#readme",
+  "homepage": "https://github.com/omeratt/rn-net-vision#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
