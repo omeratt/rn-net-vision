@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const DIST_DIR = join(__dirname, '..', 'web-viewer', 'dist');
+const DIST_DIR = join(__dirname, 'dist');
 
 function serveStaticFile(req, res) {
   const url = req.url === '/' ? '/index.html' : req.url;

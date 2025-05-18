@@ -58,8 +58,13 @@ const isWindows = process.platform === 'win32';
 
 let viteCommand, viteArgs;
 if (isProduction) {
-  viteCommand = 'node';
-  viteArgs = [path.join(viewerPath, 'run-vite-production.js')];
+  // Use the absolute path to the current Node.js executable
+  viteCommand = process.execPath;
+  // Run as ES module since web-viewer/package.json has "type": "module"
+  viteArgs = [
+    '--experimental-modules',
+    path.join(viewerPath, 'run-vite-production.js'),
+  ];
 } else {
   viteCommand = isWindows ? 'npm.cmd' : 'npm';
   viteArgs = ['run', 'dev'];
