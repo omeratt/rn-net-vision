@@ -6,7 +6,17 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const DIST_DIR = join(__dirname, 'dist');
+// Robust dist directory detection - try multiple possible locations
+let DIST_DIR = join(__dirname, 'dist');
+
+// If dist doesn't exist at the expected location, try alternative locations
+if (!existsSync(DIST_DIR)) {
+  // Check if we're in the published package structure
+  DIST_DIR = __dirname; // Fallback to the current directory
+  console.log(
+    `⚠️ Could not find dist folder at ${join(__dirname, 'dist')}, using ${DIST_DIR} instead`
+  );
+}
 
 function serveStaticFile(req, res) {
   const url = req.url === '/' ? '/index.html' : req.url;
