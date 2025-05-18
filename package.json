@@ -1,6 +1,6 @@
 {
   "name": "@omeratt/rn-net-vision",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A lightweight native module for React Native that provides real-time network monitoring and debugging through an intuitive web interface. Inspect HTTP/HTTPS requests, analyze responses, and troubleshoot API issues with ease",
   "source": "src",
   "main": "./lib/module/index.js",
