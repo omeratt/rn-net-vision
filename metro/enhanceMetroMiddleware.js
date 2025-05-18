@@ -96,7 +96,7 @@ module.exports = function enhanceMetroMiddleware({ projectRoot }) {
           if (!alreadyRunning) {
             serverProcesses = spawn('node', [absDebuggerPath], {
               cwd: projectRoot,
-              stdio: 'inherit',
+              stdio: isProduction === 'true' ? 'ignore' : 'inherit',
               env: {
                 ...process.env,
                 NET_VISION_PRODUCTION: isProduction,
