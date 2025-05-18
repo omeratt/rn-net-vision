@@ -55,8 +55,15 @@ const server = spawn('node', [serverPath], {
 
 // Start Vite dev server
 const isWindows = process.platform === 'win32';
-const viteCommand = isWindows ? 'npm.cmd' : 'npm';
-const viteArgs = isProduction ? ['run', 'production'] : ['run', 'dev'];
+
+let viteCommand, viteArgs;
+if (isProduction) {
+  viteCommand = 'node';
+  viteArgs = [path.join(viewerPath, 'run-vite-production.js')];
+} else {
+  viteCommand = isWindows ? 'npm.cmd' : 'npm';
+  viteArgs = ['run', 'dev'];
+}
 
 const vite = spawn(viteCommand, viteArgs, {
   cwd: viewerPath,
