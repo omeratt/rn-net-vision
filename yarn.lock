@@ -3793,6 +3793,7 @@ __metadata:
     react: 19.0.0
     react-native: 0.78.2
     react-native-builder-bob: ^0.40.5
+    react-native-ssl-pinning: latest
   languageName: unknown
   linkType: soft
 
@@ -11969,6 +11970,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"q@npm:^1.4.1":
+  version: 1.5.1
+  resolution: "q@npm:1.5.1"
+  checksum: 147baa93c805bc1200ed698bdf9c72e9e42c05f96d007e33a558b5fdfd63e5ea130e99313f28efc1783e90e6bdb4e48b67a36fcc026b7b09202437ae88a1fb12
+  languageName: node
+  linkType: hard
+
 "queue-microtask@npm:^1.2.2":
   version: 1.2.3
   resolution: "queue-microtask@npm:1.2.3"
@@ -12106,6 +12114,17 @@ __metadata:
   bin:
     bob: bin/bob
   checksum: 20fc633d6cb311d76c139064d1bf45c36f100ad5f7799d9a21d0c5d85f6d588740f2604e1014730071058a2d55e95f87363674987860fa0e246c547219771ad6
+  languageName: node
+  linkType: hard
+
+"react-native-ssl-pinning@npm:latest":
+  version: 1.5.9
+  resolution: "react-native-ssl-pinning@npm:1.5.9"
+  dependencies:
+    q: ^1.4.1
+  peerDependencies:
+    react-native: "*"
+  checksum: be32d8bfa4ca377de2598f5344a5b509dd98cc3219eca50fbc437eb68cd5bf011e25858fd81457d5615b8a5d057b2bbe72a6137837e8865f15287d935b8004d6
   languageName: node
   linkType: hard
 
