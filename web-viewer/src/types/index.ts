@@ -13,6 +13,7 @@ export interface NetVisionLog {
     request?: Record<string, string>;
     response?: Record<string, string>;
   };
+  error: string | undefined;
 }
 
 export type Theme = 'light' | 'dark';

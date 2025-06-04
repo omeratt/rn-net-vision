@@ -13,6 +13,8 @@ import android.util.Base64
 
 class NetworkInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
+        val startTime = System.currentTimeMillis()
+
         return try {
             val request = chain.request()
             val ignoredPorts = setOf(3232, 8088, 8089, 8081)
@@ -37,7 +39,6 @@ class NetworkInterceptor : Interceptor {
                 }
             }
 
-            val startTime = System.currentTimeMillis()
 
             val response = chain.proceed(request)
 
@@ -55,26 +56,38 @@ class NetworkInterceptor : Interceptor {
 
             Log.d("NetVision", "🐛 response.cache: ${response.cacheResponse}")
 
-            val rawBytes = when {
-                response.code == 304 && response.cacheResponse?.body != null -> {
-                    Log.d("NetVision", "📦 Using OkHttp cacheResponse for 304")
-                    response.cacheResponse!!.body!!.bytes()
-                }
-                response.code == 304 -> {
-                    Log.d("NetVision", "📦 OkHttp cacheResponse not found, using disk fallback for 304")
-                    CustomDiskCache.loadCachedResponse(request, context) ?: ByteArray(0)
-                }
-                else -> {
-                    Log.d("NetVision", "📦 Using fresh network response body")
-                    Log.d("NetVision", "📁 OkHttp cache dir: ${context.cacheDir}/okhttp_netvision_cache")
-                    Log.d("NetVision", "📛 response Cache-Control: ${response.header("Cache-Control")}")
-                    Log.d("NetVision", "📥 response code: ${response.code}")
-                    val bodyBytes = response.body?.bytes() ?: ByteArray(0)
-                    if (response.code == 200 && bodyBytes.isNotEmpty()) {
-                        CustomDiskCache.persistResponse(request, bodyBytes, context)
+            val rawBytes = try {
+                when {
+                    response.code == 304 && response.cacheResponse?.body != null -> {
+                        Log.d("NetVision", "📦 Using OkHttp cacheResponse for 304")
+                        response.cacheResponse!!.body!!.bytes()
                     }
-                    bodyBytes
+                    response.code == 304 -> {
+                        Log.d("NetVision", "📦 OkHttp cacheResponse not found, using disk fallback for 304")
+                        CustomDiskCache.loadCachedResponse(request, context) ?: ByteArray(0)
+                    }
+                    else -> {
+                        Log.d("NetVision", "📦 Using fresh network response body")
+                        Log.d("NetVision", "📁 OkHttp cache dir: ${context.cacheDir}/okhttp_netvision_cache")
+                        Log.d("NetVision", "📛 response Cache-Control: ${response.header("Cache-Control")}")
+                        Log.d("NetVision", "📥 response code: ${response.code}")
+                        val bodyBytes = response.body?.bytes() ?: ByteArray(0)
+                        if (response.code == 200 && bodyBytes.isNotEmpty()) {
+                            CustomDiskCache.persistResponse(request, bodyBytes, context)
+                        }
+                        bodyBytes
+                    }
                 }
+            } catch (sslError: javax.net.ssl.SSLPeerUnverifiedException) {
+                Log.e("NetVision", "⚠️ SSL Verification Failed: ${sslError.message}")
+                return response
+            } 
+            catch (e: java.security.GeneralSecurityException) {
+                Log.e("NetVision", "❌ SSL/TLS Error (trust anchor): ${e.message}")
+                return response // אל תעשה כלום, רק תמשיך בלי לקרוא את ה־body
+            } catch (e: Exception) {
+                Log.e("NetVision", "⚠️ Error reading response body: ${e.message}")
+                ByteArray(0)
             }
 
             val base64Body = Base64.encodeToString(rawBytes, Base64.NO_WRAP)
@@ -109,6 +122,23 @@ class NetworkInterceptor : Interceptor {
 
         } catch (e: Exception) {
             Log.e("NetVision", "❌ Error in NetworkInterceptor: ${e.message}")
+
+            val parsedRequestBody = extractRequestBody(chain.request())
+            val requestHeaders = chain.request().headers.toMultimap().toJson()
+
+            val payload = JSONObject().apply {
+                if (parsedRequestBody != null) put("requestBody", parsedRequestBody)
+                put("type", "network-log")
+                put("method", chain.request().method)
+                put("url", chain.request().url.toString())
+                put("timestamp", System.currentTimeMillis())
+                put("status", 520)
+                put("duration", System.currentTimeMillis() - startTime) 
+                put("requestHeaders", requestHeaders)
+                put("error", e.localizedMessage ?: "Unknown error")
+            }
+
+            NetVisionDispatcher.send(payload.toString())
             return Response.Builder()
                 .request(chain.request())
                 .protocol(Protocol.HTTP_1_1)

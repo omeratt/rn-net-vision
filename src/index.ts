@@ -67,6 +67,8 @@ export function useNetVision() {
     (async () => {
       registerNetVisionDevMenu();
 
+      RnNetVision?.activateSslPinningInterceptor();
+
       const ready = await isDebuggerReady();
       if (ready) {
         console.log(

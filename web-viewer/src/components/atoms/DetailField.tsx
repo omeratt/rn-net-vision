@@ -14,9 +14,14 @@ export const DetailField = ({
   isCode = false,
   className = '',
 }: DetailFieldProps): VNode => {
+  const labelColor = label.includes('Error')
+    ? 'text-red-600 dark:text-red-400'
+    : 'text-gray-700 dark:text-gray-300';
   return (
     <div className={`mb-4 ${className}`}>
-      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-all duration-200">
+      <div
+        className={`text-sm font-medium ${labelColor} mb-1 transition-all duration-200`}
+      >
         {label}
       </div>
       {isCode ? (

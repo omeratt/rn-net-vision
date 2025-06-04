@@ -54,6 +54,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
       <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all">
         <div className="flex flex-wrap gap-4 mb-2">
           <DetailField label="URL" value={log.url} />
+          {log.error && <DetailField label="Local Error" value={log.error} />}
           <DetailField label="Method" value={log.method} />
           <DetailField label="Status" value={String(log.status)} />
           <DetailField label="Duration" value={`${log.duration}ms`} />

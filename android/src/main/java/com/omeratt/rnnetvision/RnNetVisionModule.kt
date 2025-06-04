@@ -6,25 +6,21 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import okhttp3.*
-import java.io.IOException
-import java.net.URL
 import com.omeratt.rnnetvision.NetVisionDispatcher
 import android.os.Build
 
-class RnNetVisionModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext) {
 
-  private var debuggerHost: String? = null
+class RnNetVisionModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
   override fun getName(): String = NAME
 
-  @ReactMethod
-  fun setDebuggerHost(host: String) {
-    debuggerHost = host
-    Log.d("NetVision", "🌐 Debugger host set from JS: $host")
+  override fun initialize() {
+      super.initialize()
+      tryInjectInterceptorIfClientExists()
   }
 
-  @ReactMethod
+
+    @ReactMethod
   fun startDebugger(promise: Promise) {
       Thread {
           try {
@@ -40,26 +36,42 @@ class RnNetVisionModule(reactContext: ReactApplicationContext) :
       }.start()
   }
 
-  @ReactMethod
-  fun testRequest(promise: Promise) {
-    val client = OkHttpClient.Builder()
-      .addInterceptor(NetworkInterceptor())
-      .build()
 
-    val request = Request.Builder()
-      .url("https://jsonplaceholder.typicode.com/todos/1")
-      .build()
+  private fun tryInjectInterceptorIfClientExists(): Boolean {
+      return try {
+          val sslPinningModuleClass = Class.forName("com.toyberman.RNSslPinningModule")
+          val clientField = sslPinningModuleClass.getDeclaredField("client")
+          clientField.isAccessible = true
 
-    client.newCall(request).enqueue(object : Callback {
-      override fun onFailure(call: Call, e: IOException) {
-        promise.reject("FAIL", e)
+          try {
+              val utilsClass = Class.forName("com.toyberman.Utils.OkHttpUtils")
+              val method = utilsClass.getDeclaredMethod("addInterceptorForDebug", Interceptor::class.java)
+              method.isAccessible = true
+              method.invoke(null, NetworkInterceptor())
+              Log.d("RnNetVision", "✅ Interceptor added to RNSslPinning using reflection")
+          } catch (e: Exception) {
+              Log.d("RnNetVision", "❌ Failed to reflect addInterceptorForDebug on RNSslPinning", e)
+          }
+
+          val nativeModule = reactContext.getNativeModule("RNSslPinning") ?: return false
+          val okHttpClient = clientField.get(nativeModule) as? OkHttpClient ?: return false
+
+          val alreadyInjected = okHttpClient.interceptors.any { it is NetworkInterceptor }
+          if (alreadyInjected) {
+              Log.d("RnNetVision", "Interceptor already present in chain.")
+              return true
+          }
+
+          val newClient = okHttpClient.newBuilder()
+              .addNetworkInterceptor(NetworkInterceptor())
+              .build()
+
+          clientField.set(nativeModule, newClient)
+          true
+      } catch (e: Exception) {
+          Log.e("RnNetVision", "Error during scheduled injection", e)
+          false
       }
-
-      override fun onResponse(call: Call, response: Response) {
-        val body = response.body?.string()
-        promise.resolve(body)
-      }
-    })
   }
 
   companion object {
