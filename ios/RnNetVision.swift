@@ -6,6 +6,7 @@ class RnNetVision: NSObject {
   @objc(startDebugger:withRejecter:)
   func startDebugger(resolve: @escaping RCTPromiseResolveBlock,
                      reject: @escaping RCTPromiseRejectBlock) {
+    #if DEBUG
     DispatchQueue.global().async {
       do {
         let ip = self.getSafeHostIP()
@@ -17,6 +18,10 @@ class RnNetVision: NSObject {
         reject("DEBUGGER_ERROR", error.localizedDescription, error)
       }
     }
+    #else
+    // In release builds, just resolve with success but don't actually start the debugger
+    resolve("Debugger disabled in release builds")
+    #endif
   }
 
   @objc
