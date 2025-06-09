@@ -1,4 +1,19 @@
 PODS:
+  - AFNetworking (4.0.1):
+    - AFNetworking/NSURLSession (= 4.0.1)
+    - AFNetworking/Reachability (= 4.0.1)
+    - AFNetworking/Security (= 4.0.1)
+    - AFNetworking/Serialization (= 4.0.1)
+    - AFNetworking/UIKit (= 4.0.1)
+  - AFNetworking/NSURLSession (4.0.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (4.0.1)
+  - AFNetworking/Security (4.0.1)
+  - AFNetworking/Serialization (4.0.1)
+  - AFNetworking/UIKit (4.0.1):
+    - AFNetworking/NSURLSession
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
@@ -1525,7 +1540,7 @@ PODS:
     - React-logger (= 0.78.2)
     - React-perflogger (= 0.78.2)
     - React-utils (= 0.78.2)
-  - RnNetVision (0.1.0):
+  - RnNetVision (0.2.8):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1546,6 +1561,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNSslPinning (1.5.9):
+    - AFNetworking (~> 4.0)
+    - React
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
@@ -1618,10 +1636,12 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RnNetVision (from `../..`)
+  - RNSslPinning (from `../node_modules/react-native-ssl-pinning`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
+    - AFNetworking
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -1758,10 +1778,13 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RnNetVision:
     :path: "../.."
+  RNSslPinning:
+    :path: "../node_modules/react-native-ssl-pinning"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -1804,10 +1827,10 @@ SPEC CHECKSUMS:
   React-performancetimeline: 8c0ecfa1ae459cc5678a65f95ac3bf85644d6feb
   React-RCTActionSheet: 2ef95837e89b9b154f13cd8401f9054fc3076aff
   React-RCTAnimation: 46abefd5acfda7e6629f9e153646deecc70babd2
-  React-RCTAppDelegate: a3814cb61183743c531def98a20f2062edbf61ad
+  React-RCTAppDelegate: 7e58e0299e304cceee3f7019fa77bc6990f66b22
   React-RCTBlob: f68c63a801ef1d27e83c4011e3b083cc86a200d7
-  React-RCTFabric: 6ef4dccb25f42c5b38b09b95d4dc57dd77b8f722
-  React-RCTFBReactNativeSpec: 328962a4a19a8459b40188ee56eea1fab78f7737
+  React-RCTFabric: c59f41d0c4edbaac8baa232731ca09925ae4dda7
+  React-RCTFBReactNativeSpec: 3240b9b8d792aa4be0fb85c9898fc183125ba8de
   React-RCTImage: 34e0bba1507e55f1c614bd759eb91d9be48c8c5b
   React-RCTLinking: a0b6c9f4871c18b0b81ea952f43e752718bd5f1d
   React-RCTNetwork: bdafd661ac2b20d23b779e45bf7ac3e4c8bd1b60
@@ -1827,7 +1850,8 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 4893bde33952f997a323eb1a1ee87a72764018ff
   ReactCodegen: 99ea3536c05be3c18d0c517acb56b5a6d726fc7b
   ReactCommon: 865ebe76504a95e115b6229dd00a31e56d2d4bfe
-  RnNetVision: d61182f7606badda0fb12693ceb8318cff9a9955
+  RnNetVision: 376a76c630a9935376a0741ef1fe3d86e2db4aac
+  RNSslPinning: e4413eec5a0e03b77e7aceb6b3275fc31f90cb8e
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: e14bad835e12b6c7e2260fc320bd00e0f4b45add
 
