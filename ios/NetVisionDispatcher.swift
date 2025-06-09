@@ -201,6 +201,13 @@ import Foundation
             formattedResponseHeaders[keyStr] = [valStr]
           }
         }
+        
+        // Handle error headers specially
+        if res.statusCode == 520, // Standard error code we're using
+           let errorDesc = res.allHeaderFields["Error-Description"] as? String {
+          payload["error"] = errorDesc
+        }
+        
         payload["responseHeaders"] = formattedResponseHeaders
 
         // Response cookies
@@ -225,8 +232,24 @@ import Foundation
       // Response Body (base64)
       if let responseData = data, !responseData.isEmpty {
         let base64 = responseData.base64EncodedString()
-        payload["responseBody"] = base64
-        payload["responseBodyEncoding"] = "base64"
+        
+        // If this is an error response with status code 520, extract the error message
+        if let res = response, res.statusCode == 520,
+           let errorDesc = res.allHeaderFields["Error-Description"] as? String {
+          // Store error in a dedicated field
+          payload["error"] = errorDesc
+          
+          // For error responses, we'll empty the responseBody to avoid duplication
+          // since the error is already captured in the error field
+          payload["responseBody"] = ""
+          payload["responseBodyEncoding"] = "text"
+        } else {
+          payload["responseBody"] = base64
+          payload["responseBodyEncoding"] = "base64"
+        }
+      } else {
+        payload["responseBody"] = ""
+        payload["responseBodyEncoding"] = "text"
       }
 
       // Serialize to JSON
