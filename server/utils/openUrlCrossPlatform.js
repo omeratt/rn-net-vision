@@ -1,4 +1,5 @@
 const { exec } = require('child_process');
+const logger = require('../../logger');
 
 // Utility: Open URL in default browser (Cross-Platform)
 module.exports = function openUrlCrossPlatform(url) {
@@ -15,7 +16,7 @@ module.exports = function openUrlCrossPlatform(url) {
 
   exec(command, (err) => {
     if (err) {
-      console.error('❌ Failed to open browser:', err);
+      logger.error(`Failed to open browser: ${err}`);
     }
   });
 };

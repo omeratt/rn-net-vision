@@ -9,12 +9,12 @@ static void registerInterceptorEarly(void) {
   Class sslClass = NSClassFromString(@"RNSslPinning");
 
   if (sslClass && [sslClass respondsToSelector:@selector(setRequestObserver:)]) {
-    NSLog(@"\U0001F4CA [NetVision] Hooking into RNSslPinning observers");
+    [[NetVisionLogger shared] info:@"Hooking into RNSslPinning observers"];
 
     void (^requestObserver)(NSURLRequest *) = ^(NSURLRequest *request) {
       // Note: No need to track request start times using our dictionary anymore
       // as RNSslPinning now passes that directly to the response observer
-      NSLog(@"\U0001F4E4 [NetVision] Observed request: %@", request.URL.absoluteString);
+      [[NetVisionLogger shared] debug:[NSString stringWithFormat:@"Observed request: %@", request.URL.absoluteString]];
     };
 
     void (^responseObserver)(NSURLRequest *, NSHTTPURLResponse *, NSData *, NSTimeInterval) = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSTimeInterval requestStartTime) {
@@ -22,12 +22,12 @@ static void registerInterceptorEarly(void) {
       NSTimeInterval endTime = [[NSDate date] timeIntervalSince1970] * 1000.0;
       NSTimeInterval duration = endTime - requestStartTime;
       
-      NSLog(@"\U0001F4E5 [NetVision] Observed response (%ld): %@ (start: %.0f, end: %.0f, duration: %.2fms)",
+      [[NetVisionLogger shared] debug:[NSString stringWithFormat:@"Observed response (%ld): %@ (start: %.0f, end: %.0f, duration: %.2fms)",
             (long)(response ? response.statusCode : 0),
             request.URL.absoluteString,
             requestStartTime,
             endTime,
-            duration);
+            duration]];
       
       // Create a standardized response object for error cases
       NSHTTPURLResponse *standardizedResponse = response;
@@ -65,18 +65,18 @@ static void registerInterceptorEarly(void) {
         if (standardizedResponse.statusCode == 520) {
           // This is our standard error code for synthetic responses
           NSString *errorDesc = [standardizedResponse.allHeaderFields objectForKey:@"Error-Description"] ?: @"Unknown error";
-          NSLog(@"\U0001F4E5 [NetVision] Observed error response (%ld): %@ - %@",
+          [[NetVisionLogger shared] warn:[NSString stringWithFormat:@"Observed error response (%ld): %@ - %@",
                 (long)standardizedResponse.statusCode,
                 request.URL.absoluteString,
-                errorDesc);
+                errorDesc]];
         } else {
-          NSLog(@"\U0001F4E5 [NetVision] Observed response (%ld): %@",
+          [[NetVisionLogger shared] debug:[NSString stringWithFormat:@"Observed response (%ld): %@",
                 (long)standardizedResponse.statusCode,
-                request.URL.absoluteString);
+                request.URL.absoluteString]];
         }
       } else {
-        NSLog(@"\U0001F4E5 [NetVision] Observed response (null): %@",
-              request.URL.absoluteString);
+        [[NetVisionLogger shared] debug:[NSString stringWithFormat:@"Observed response (null): %@",
+              request.URL.absoluteString]];
       }
 
       // This gets called if there's an error with the response as well
@@ -91,9 +91,9 @@ static void registerInterceptorEarly(void) {
     ((void (*)(id, SEL, void (^)(NSURLRequest *)))objc_msgSend)(sslClass, @selector(setRequestObserver:), requestObserver);
     ((void (*)(id, SEL, void (^)(NSURLRequest *, NSHTTPURLResponse *, NSData *, NSTimeInterval)))objc_msgSend)(sslClass, @selector(setResponseObserver:), responseObserver);
 
-    NSLog(@"✅ [NetVision] Observers registered successfully");
+    [[NetVisionLogger shared] info:@"Observers registered successfully"];
   } else {
-    NSLog(@"⚠️ [NetVision] RNSslPinning not found or does not respond to observer methods");
+    [[NetVisionLogger shared] warn:@"RNSslPinning not found or does not respond to observer methods"];
   }
 #endif
 }
@@ -105,6 +105,10 @@ RCT_EXTERN_METHOD(startDebugger:(RCTPromiseResolveBlock)resolve
 
 RCT_EXTERN_METHOD(getHostIPAddress:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(configureLogger:(BOOL)isProduction
+                 withResolver:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)               
 
 + (BOOL)requiresMainQueueSetup
 {

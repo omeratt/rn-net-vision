@@ -3,6 +3,7 @@ import http from 'http';
 import { createReadStream, existsSync } from 'fs';
 import { extname, join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import logger from '../logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -49,5 +50,5 @@ http
     serveStaticFile(req, res);
   })
   .listen(PORT, () => {
-    console.log(`✅ Serving dist on http://localhost:${PORT}`);
+    logger.info(`✅ Serving dist on http://localhost:${PORT}`);
   });

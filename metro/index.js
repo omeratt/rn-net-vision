@@ -1,12 +1,12 @@
 // metro/index.js
-const path = require('path');
 const enhanceMetroMiddleware = require('./enhanceMetroMiddleware');
+const logger = require('../logger');
 
 function withNetVision(config, projectRoot = process.cwd()) {
   config.server = config.server || {};
   config.server.enhanceMiddleware = enhanceMetroMiddleware({ projectRoot });
 
-  console.log('✅ [NetVision] Middleware injected via withNetVision');
+  logger.info('✅ Middleware injected via withNetVision');
   return config;
 }
 

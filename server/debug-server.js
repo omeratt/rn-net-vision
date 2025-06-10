@@ -1,10 +1,8 @@
 const WebSocket = require('ws');
-
 const http = require('http');
-
 const net = require('net');
-
 const { decodeResponseBody } = require('./utils/decodeBody');
+const logger = require('../logger');
 
 let shutdownTimer = null; // Track the current shutdown timer
 
@@ -48,13 +46,13 @@ function shutdownDebugger() {
         path: '/shutdown',
       },
       (res) => {
-        console.log(`[NetVision] Shutdown response: ${res.statusCode}`);
+        logger.info(`Shutdown response: ${res.statusCode}`);
         resolve();
       }
     );
 
     req.on('error', (err) => {
-      console.error('[NetVision] Failed to shutdown debugger:', err.message);
+      logger.error('Failed to shutdown debugger:', err.message);
       resolve();
     });
 
@@ -66,8 +64,8 @@ function shutdownDebugger() {
 const createServer = async (port) => {
   const isPortUsed = await isPortInUse(port);
   if (isPortUsed) {
-    console.log(
-      `[NetVision] ⚠️ Port ${port} is already in use. Unable to start ready-check server.`
+    logger.warn(
+      `Port ${port} is already in use. Unable to start ready-check server.`
     );
     return;
   }
@@ -88,9 +86,7 @@ const createServer = async (port) => {
       }
     })
     .listen(port, '0.0.0.0', () => {
-      console.log(
-        `[NetVision] 🛰 Ready-check server listening on http://0.0.0.0:${port}`
-      );
+      logger.debug(`🛰 Ready-check server listening on http://0.0.0.0:${port}`);
     });
 };
 createServer(READY_CHECK_PORT);
@@ -99,17 +95,19 @@ createServer(READY_CHECK_PORT);
 const createWebSocketServer = async (port) => {
   const isPortUsed = await isPortInUse(port);
   if (isPortUsed) {
-    console.log(
-      `[NetVision] ⚠️ Port ${port} is already in use. Unable to start WebSocket server.`
+    logger.warn(
+      `Port ${port} is already in use. Unable to start WebSocket server.`
     );
     return;
   }
   const wss = new WebSocket.Server({ port: WS_PORT }, () => {
-    console.log(`🚀 WebSocket server listening on ws://localhost:${WS_PORT}`);
+    logger.info(`🚀 WebSocket server listening on ws://localhost:${WS_PORT}`);
   });
 
   wss.on('connection', (ws, req) => {
-    console.log('🔌 App connected to debugger from:', req.socket.remoteAddress);
+    logger.info(
+      `🔌 App connected to debugger from: ${req.socket.remoteAddress}`
+    );
 
     ws.on('message', async (data) => {
       const raw = data.toString();
@@ -119,7 +117,7 @@ const createWebSocketServer = async (port) => {
         const json = JSON.parse(data);
 
         if (json.type === 'vite-ready') {
-          console.log('[NetVision] 🎯 Vite viewer is ready');
+          logger.debug('🎯 Vite viewer is ready');
           viteIsReady = true;
           viewerSocket = ws;
           return;
@@ -140,9 +138,9 @@ const createWebSocketServer = async (port) => {
           }
         }
 
-        console.log('📥 New network request:');
+        logger.debug('📥 New network request:');
 
-        console.log(JSON.stringify(decodedData, null, 2));
+        logger.debug(JSON.stringify(decodedData, null, 2));
 
         wss.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN) {
@@ -150,14 +148,14 @@ const createWebSocketServer = async (port) => {
           }
         });
       } catch (e) {
-        console.log('⚠️ Failed to parse message:', e, data);
+        logger.error(`Failed to parse message: ${e.message}`);
       }
     });
 
     ws.on('close', () => {
       if (ws === viewerSocket) {
         viewerSocket = null;
-        console.log(
+        logger.debug(
           '👀 Viewer socket closed, waiting briefly to detect potential refresh...'
         );
 
@@ -168,20 +166,21 @@ const createWebSocketServer = async (port) => {
 
         shutdownTimer = setTimeout(async () => {
           if (!viewerSocket) {
-            console.log('❌ Viewer tab really closed — shutting down debugger');
+            logger.debug(
+              '❌ Viewer tab really closed — shutting down debugger'
+            );
             try {
               // Only try to shut down if we need to, but don't fail if it doesn't work
               await shutdownDebugger().catch((err) => {
-                console.log(
-                  'Shutdown service not available, continuing with exit',
-                  err
+                logger.error(
+                  `Shutdown service not available, continuing with exit: ${err.message}`
                 );
               });
             } finally {
               process.exit();
             }
           } else {
-            console.log(
+            logger.debug(
               '🔄 Viewer reconnected (probably a refresh), keeping debugger alive'
             );
             // ws.send(JSON.stringify({ type: 'vite-reconnect' }));
@@ -189,7 +188,7 @@ const createWebSocketServer = async (port) => {
           shutdownTimer = null;
         }, 2500); // Increased timeout to better handle multiple refreshes
       } else {
-        console.log('❌ App disconnected');
+        console.info('[NetVision] App disconnected from debugger 📵');
       }
     });
   });

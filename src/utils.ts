@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import logger from './logger';
 
 export async function getHostIPFromReactNative(): Promise<string> {
   if (Platform.OS === 'ios') {
@@ -51,14 +52,14 @@ export function waitForDebuggerReady(
     let attempts = 0;
 
     const interval = setInterval(async () => {
-      console.log('1 - [NetVision] Checking if debugger is ready...');
+      logger.debug('Checking if debugger is ready...(1)');
       const ready = await fetchDebuggerReady();
 
-      console.log('2 - [NetVision] Checking if debugger is ready...');
+      logger.debug('Checking if debugger is ready...(2)');
 
       if (ready) {
         clearInterval(interval);
-        console.log('[NetVision] Debugger is ready!');
+        logger.info('Debugger is ready!');
         resolve();
       } else {
         attempts++;

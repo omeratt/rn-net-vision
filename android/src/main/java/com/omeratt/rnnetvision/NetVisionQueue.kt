@@ -1,7 +1,5 @@
 package com.omeratt.rnnetvision
 
-import android.util.Log
-
 object NetVisionQueue {
     private val pending = mutableListOf<String>()
     private var isReady = false
@@ -9,7 +7,7 @@ object NetVisionQueue {
 
     fun add(message: String) {
         synchronized(pending) {
-            Log.d("NetVision", "📥 Queued: ${message.take(500)}...")
+            NetVisionLogger.instance.debug("Queued: ${message.take(500)}...")
             pending.add(message)
         }
     }
@@ -18,7 +16,7 @@ object NetVisionQueue {
         synchronized(pending) {
             flushCallback = sendFn
             isReady = true
-            Log.d("NetVision", "🚀 Flushing ${pending.size} messages...")
+            NetVisionLogger.instance.debug("Flushing ${pending.size} messages...")
             pending.forEach { sendFn(it) }
             pending.clear()
         }
@@ -27,13 +25,13 @@ object NetVisionQueue {
     fun flushPendingMessages() {
         flushCallback?.let { cb ->
             flushIfReady(cb)
-        } ?: Log.w("NetVision", "⚠️ Tried to flush, but no callback is registered")
+        } ?: NetVisionLogger.instance.warn("Tried to flush, but no callback is registered")
     }
 
     fun clear() {
         synchronized(pending) {
             pending.clear()
-            Log.d("NetVision", "🧹 Queue cleared")
+            NetVisionLogger.instance.debug("🧹 Queue cleared")
         }
     }
 

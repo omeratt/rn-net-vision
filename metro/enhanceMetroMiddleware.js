@@ -6,6 +6,7 @@ const { spawn } = require('child_process');
 const http = require('http'); // ✅ נוסף
 const { startTrackingDevices } = require('./trackAdbDevices.cjs');
 const openUrlCrossPlatform = require('../server/utils/openUrlCrossPlatform');
+const logger = require('../logger');
 
 const isBundling = process.argv.includes('bundle');
 
@@ -23,11 +24,11 @@ async function isDebuggerRunning() {
   });
 }
 if (isBundling) {
-  console.log('[NetVision] 💤 Skipping middleware during bundling');
+  logger.info('💤 Skipping middleware during bundling');
   enhanceMetroMiddleware = () => (middleware) => middleware;
 } else {
   enhanceMetroMiddleware = function _enhanceMetroMiddleware({ projectRoot }) {
-    console.log('[NetVision] Middleware activated');
+    logger.info('Middleware activated');
 
     if (!didStartAdbTracking) {
       didStartAdbTracking = true;
@@ -83,9 +84,10 @@ if (isBundling) {
       const config = require(rootConfigPath);
 
       isProduction = config.isProduction ?? 'true';
-      // eslint-disable-next-line no-unused-vars
     } catch (e) {
-      console.log('[NetVision] No config file found, using default (dev mode)');
+      logger.info(
+        `No config file found, using default (dev mode) - ${e.message}`
+      );
     }
 
     process.on('exit', () => {
@@ -98,6 +100,7 @@ if (isBundling) {
       return async (req, res, next) => {
         if (req.url === '/net-vision-trigger' && req.method === 'POST') {
           try {
+            console.log('👀 [NetVision] start watching...');
             const alreadyRunning = await isDebuggerRunning();
 
             if (!alreadyRunning) {
@@ -110,7 +113,7 @@ if (isBundling) {
                 },
               });
             } else {
-              console.log('[NetVision] Debugger already running');
+              logger.info('Debugger already running');
               openUrlCrossPlatform('http://localhost:5173');
               res.writeHead(204);
               res.end();

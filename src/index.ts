@@ -5,15 +5,20 @@ import {
   isDebuggerReady,
   waitForDebuggerReady,
 } from './utils';
+import logger, { initializeLogger } from './logger';
 
 const { RnNetVision } = NativeModules;
+
+// Export the logger initialization function and logger instance
+export { initializeLogger, LogLevel } from './logger';
+export { default as logger } from './logger';
 
 // ✅ Start NetVision
 export async function startNetVision() {
   if (RnNetVision?.startDebugger) {
     try {
       const result = await RnNetVision.startDebugger();
-      console.log('[NetVision] Native responded:', result);
+      logger.info(`Native responded: ${result}`);
     } catch (e) {
       console.error('[NetVision] Native threw error:', e);
     }
@@ -28,13 +33,15 @@ export async function startNetVision() {
 // (only in development mode)
 export function registerNetVisionDevMenu() {
   if (__DEV__) {
+    // Initialize logger
+    initializeLogger();
     DevSettings.addMenuItem('🕵️ Start NetVision', async () => {
-      console.log('[NetVision] Dev menu pressed');
+      logger.info('Dev menu pressed');
 
       const alreadyRunning = await isDebuggerReady();
 
       if (alreadyRunning) {
-        console.log('[NetVision] Debugger already running, connecting...');
+        logger.info('Debugger already running, connecting...');
         await startNetVision(); // only connect the socket from native
         return;
       }
@@ -71,9 +78,7 @@ export function useNetVision() {
 
       const ready = await isDebuggerReady();
       if (ready) {
-        console.log(
-          '[NetVision] Debugger detected immediately (on app start)!'
-        );
+        logger.info('Debugger detected immediately (on app start)!');
 
         await startNetVision();
       }
@@ -83,8 +88,8 @@ export function useNetVision() {
 
 export const testRequest = () => {
   RnNetVision?.testRequest()
-    .then((res: any) => console.log('[Native Response]', res))
-    .catch(console.error);
+    .then((res: any) => logger.info(`Native Response: ${res}`))
+    .catch((err: Error) => logger.error(`Test request error: ${err.message}`));
 };
 
 export default {

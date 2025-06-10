@@ -2,7 +2,6 @@ package com.omeratt.rnnetvision
 
 import android.content.Context
 import android.util.Base64
-import android.util.Log
 import java.io.File
 import java.io.RandomAccessFile
 
@@ -36,9 +35,9 @@ object CustomDiskCache {
                 raf.writeLong(timestamp) // Write the timestamp at the beginning taking 8 bytes
                 raf.write(bytes)
             }
-            Log.d(TAG, "📤 Cached with timestamp: $timestamp to ${file.absolutePath}")
+            NetVisionLogger.instance.debug("Cached with timestamp: $timestamp to ${file.absolutePath}")
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Failed to persist response: ${e.message}")
+            NetVisionLogger.instance.error("Failed to persist response: ${e.message}")
         }
     }
 
@@ -51,11 +50,11 @@ object CustomDiskCache {
                 raf.seek(TIMESTAMP_HEADER_SIZE.toLong()) // Skip the timestamp header
                 val remaining = ByteArray((raf.length() - TIMESTAMP_HEADER_SIZE).toInt())
                 raf.readFully(remaining)
-                Log.d(TAG, "📦 Loaded cache from: ${file.absolutePath}")
+                NetVisionLogger.instance.debug("Loaded cache from: ${file.absolutePath}")
                 remaining
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Failed to load cache: ${e.message}")
+            NetVisionLogger.instance.error("Failed to load cache: ${e.message}")
             null
         }
     }
@@ -83,15 +82,15 @@ object CustomDiskCache {
 
     fun cleanExpiredFiles(context: Context, ttlMs: Long = 24 * 60 * 60 * 1000L) {
         ensureInitialized(context)
-        Log.d(TAG, "🧹 Cleaning expired cache files older than $ttlMs ms")
+        NetVisionLogger.instance.debug("🧹 Cleaning expired cache files older than $ttlMs ms")
         cacheDir.listFiles()?.forEach { file ->
             try {
                 if (isExpired(file, ttlMs)) {
                     file.delete()
-                    Log.d(TAG, "🧹 Deleted expired cache file: ${file.name}")
+                    NetVisionLogger.instance.debug("🧹 Deleted expired cache file: ${file.name}")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "❌ Error checking expiration: ${e.message}")
+                NetVisionLogger.instance.error("❌ Error checking expiration: ${e.message}")
             }
         }
     }

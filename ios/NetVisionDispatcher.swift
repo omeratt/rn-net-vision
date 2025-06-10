@@ -25,7 +25,7 @@ import Foundation
             ])
         }
 
-        print("📡 WebSocket connecting to \(url.absoluteString)")
+        NetVisionLogger.shared.debug("WebSocket connecting to \(url.absoluteString)")
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
         webSocket = session.webSocketTask(with: url)
         webSocket?.resume()
@@ -33,9 +33,9 @@ import Foundation
         // נסה לשלוח ping ולחכות לתשובה — סימן שהחיבור פתוח
         webSocket?.sendPing { [weak self] error in
             if let error = error {
-                print("❌ WebSocket ping failed: \(error)")
+                NetVisionLogger.shared.error("WebSocket ping failed: \(error)")
             } else {
-                print("✅ WebSocket connected (ping success)")
+                NetVisionLogger.shared.info("WebSocket connected (ping success)")
                 self?.isConnected = true
                 self?.flush()
             }
@@ -48,14 +48,14 @@ import Foundation
         webSocket?.receive { [weak self] result in
             switch result {
             case .failure(let error):
-                print("❌ WebSocket receive failed: \(error)")
+                NetVisionLogger.shared.error("WebSocket receive failed: \(error)")
                 self?.isConnected = false
             case .success(let message):
                 switch message {
                 case .string(let text):
-                    print("📨 Received message: \(text)")
+                    NetVisionLogger.shared.debug("Received message: \(text)")
                 default:
-                    print("📨 Received non-text WebSocket message")
+                    NetVisionLogger.shared.debug("Received non-text WebSocket message")
                 }
                 self?.listen()
             }
@@ -64,7 +64,7 @@ import Foundation
 
     func sendResponse(for request: URLRequest, response: URLResponse?, data: Data) {
         guard let url = request.url?.absoluteString else {
-            print("⚠️ Cannot extract URL from request")
+            NetVisionLogger.shared.warn("Cannot extract URL from request")
             return
         }
 
@@ -94,12 +94,12 @@ import Foundation
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("📤 Enqueuing network log for \(url)")
+                NetVisionLogger.shared.debug("Enqueuing network log for \(url)")
                 queue.enqueue(jsonString)
                 flush()
             }
         } catch {
-            print("❌ Failed to serialize network log: \(error)")
+            NetVisionLogger.shared.error("Failed to serialize network log: \(error)")
         }
     }
 
@@ -123,16 +123,16 @@ import Foundation
 
     func flush() {
         guard isConnected, let socket = webSocket else {
-            print("⏳ WebSocket not connected. Messages will remain in queue.")
+            NetVisionLogger.shared.debug("WebSocket not connected. Messages will remain in queue.")
             return
         }
 
         for message in queue.flushAll() {
             socket.send(.string(message)) { error in
                 if let error = error {
-                    print("❌ Failed to send message over WebSocket: \(error)")
+                    NetVisionLogger.shared.error("Failed to send message over WebSocket: \(error)")
                 } else {
-                    print("✅ Sent message to debugger")
+                    NetVisionLogger.shared.debug("Sent message to debugger")
                 }
             }
         }
@@ -256,19 +256,19 @@ import Foundation
       do {
         let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
         if let jsonString = String(data: jsonData, encoding: .utf8) {
-          print("📤 [NetVision] Sending payload to debugger")
+          NetVisionLogger.shared.debug("Sending payload to debugger")
           queue.enqueue(jsonString)
           flush()
         }
       } catch {
-        print("❌ [NetVision] Failed to serialize payload: \(error.localizedDescription)")
+        NetVisionLogger.shared.error("Failed to serialize payload: \(error.localizedDescription)")
       }
     }
 
     @objc public func sendWithPayload(_ payload: NSDictionary) {
         guard let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: []),
               let jsonString = String(data: jsonData, encoding: .utf8) else {
-            print("❌ Failed to serialize payload to JSON string")
+            NetVisionLogger.shared.error("Failed to serialize payload to JSON string")
             return
         }
 

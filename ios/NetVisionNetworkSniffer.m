@@ -11,18 +11,18 @@
 
 + (void)load {
   // Swizzling to RCTNetworking
-  NSLog(@"🧠 [NetVision] Swizzling networkTaskWithRequest:completionBlock:");
+  [[NetVisionLogger shared] debug:@"Swizzling networkTaskWithRequest:completionBlock:"];
 
   Class cls = NSClassFromString(@"RCTNetworking");
   if (!cls) {
-    NSLog(@"❌ [NetVision] RCTNetworking not found");
+    [[NetVisionLogger shared] error:@"RCTNetworking not found"];
     return;
   }
 
   SEL selector = NSSelectorFromString(@"networkTaskWithRequest:completionBlock:");
   Method originalMethod = class_getInstanceMethod(cls, selector);
   if (!originalMethod) {
-    NSLog(@"❌ [NetVision] Method not found: networkTaskWithRequest:completionBlock:");
+    [[NetVisionLogger shared] error:@"Method not found: networkTaskWithRequest:completionBlock:"];
     return;
   }
 
@@ -35,20 +35,20 @@
     NSSet *ignoredPorts = [NSSet setWithArray:@[@3232, @8088, @8089, @8081]];
 
     if ([ignoredPorts containsObject:port]) {
-      NSLog(@"⏭️ [NetVision] Ignored port: %@", port);
+      [[NetVisionLogger shared] debug:[NSString stringWithFormat:@"Ignored port: %@", port]];
       typedef id (*OrigMethodType)(id, SEL, NSURLRequest *, void (^)(NSURLResponse *, NSData *, NSError *));
       return ((OrigMethodType)originalIMP)(self, selector, request, originalCompletion);
     } else {
-      NSLog(@"📡 [NetVision] Intercepted networkTaskWithRequest:\n   ├─ Method: %@\n   ├─ URL: %@\n   └─ Body: %@", request.HTTPMethod, urlString, request.HTTPBody ? @"[Has Body]" : @"(nil)");
+      [[NetVisionLogger shared] debug:[NSString stringWithFormat:@"Intercepted networkTaskWithRequest: Method: %@, URL: %@, Body: %@", request.HTTPMethod, urlString, request.HTTPBody ? @"[Has Body]" : @"(nil)"]];
     }
 
     void (^wrappedCompletion)(NSURLResponse *, NSData *, NSError *) = ^(NSURLResponse *response, NSData *data, NSError *error) {
       @try {
-        NSLog(@"📦 [NetVision] wrappedCompletion called");
+        [[NetVisionLogger shared] debug:@"wrappedCompletion called"];
         
         // Check if there's an error
         if (error) {
-          NSLog(@"⚠️ [NetVision] Error detected: %@", error.localizedDescription);
+          [[NetVisionLogger shared] warn:[NSString stringWithFormat:@"Error detected: %@", error.localizedDescription]];
           
           // Create a standardized error response with status code 520
           NSString *errorMessage = error.localizedDescription ?: @"Unknown error";
@@ -84,20 +84,20 @@
         }
         
         if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-          NSLog(@"⚠️ [NetVision] Response is not NSHTTPURLResponse — skipping");
+          [[NetVisionLogger shared] warn:@"Response is not NSHTTPURLResponse — skipping"];
           originalCompletion(response, data, error);
           return;
         }
 
         if (![NetVisionDispatcher respondsToSelector:@selector(shared)]) {
-          NSLog(@"❌ [NetVision] NetVisionDispatcher.shared not available");
+          [[NetVisionLogger shared] error:@"NetVisionDispatcher.shared not available"];
           originalCompletion(response, data, error);
           return;
         }
 
         NetVisionDispatcher *dispatcher = [NetVisionDispatcher shared];
         if (![dispatcher respondsToSelector:@selector(sendWithRequest:response:data:startTime:)]) {
-          NSLog(@"❌ [NetVision] sendWithRequest:response:data:startTime: not implemented");
+          [[NetVisionLogger shared] error:@"sendWithRequest:response:data:startTime: not implemented"];
           originalCompletion(response, data, error);
           return;
         }
@@ -107,7 +107,7 @@
                                data:data
                          startTime:startTime];
       } @catch (NSException *exception) {
-        NSLog(@"❌ [NetVision] Exception in wrappedCompletion: %@", exception.reason);
+        [[NetVisionLogger shared] error:[NSString stringWithFormat:@"Exception in wrappedCompletion: %@", exception.reason]];
       }
 
       if (originalCompletion) {
@@ -121,7 +121,7 @@
   });
 
   method_setImplementation(originalMethod, swizzledIMP);
-  NSLog(@"✅ [NetVision] Swizzle complete: networkTaskWithRequest:completionBlock:");
+  [[NetVisionLogger shared] info:@"Swizzle complete: networkTaskWithRequest:completionBlock:"];
 }
 
 @end

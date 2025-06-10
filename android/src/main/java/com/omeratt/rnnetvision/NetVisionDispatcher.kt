@@ -1,6 +1,5 @@
 package com.omeratt.rnnetvision
 
-import android.util.Log
 import okhttp3.*
 import java.util.concurrent.TimeUnit
 
@@ -10,7 +9,7 @@ object NetVisionDispatcher {
 
     fun connect(host: String, port: Int) {
         if (isSocketInitialized && webSocket != null) {
-            Log.d("NetVision", "🔁 Already connected to $host:$port")
+            NetVisionLogger.instance.debug("Already connected to $host:$port")
             NetVisionQueue.flushIfReady { send(it) }
             return
         }
@@ -27,23 +26,23 @@ object NetVisionDispatcher {
             override fun onOpen(ws: WebSocket, response: Response) {
                 webSocket = ws
                 isSocketInitialized = true
-                Log.d("NetVision", "✅ Connected to debugger at ws://$host:$port")
+                NetVisionLogger.instance.info("Connected to debugger at ws://$host:$port")
 
                 NetVisionQueue.flushIfReady { send(it) }
             }
 
             override fun onMessage(ws: WebSocket, text: String) {
-                Log.d("NetVision", "📬 Message from debugger: $text")
+                NetVisionLogger.instance.debug("📬 Message from debugger: $text")
             }
 
             override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
-                Log.e("NetVision", "❌ WebSocket error: ${t.message}")
+                NetVisionLogger.instance.error("❌ WebSocket error: ${t.message}")
                 isSocketInitialized = false
                 webSocket = null
             }
 
             override fun onClosed(ws: WebSocket, code: Int, reason: String) {
-                Log.d("NetVision", "❌ WebSocket closed: $reason")
+                NetVisionLogger.instance.debug("❌ WebSocket closed: $reason")
                 isSocketInitialized = false
                 webSocket = null
             }
@@ -55,16 +54,16 @@ object NetVisionDispatcher {
     fun send(message: String) {
         val ws = webSocket
         if (ws == null) {
-            Log.d("NetVision", "🕗 Queued message (WS not ready): ${message.take(100)}...")
+            NetVisionLogger.instance.debug("🕗 Queued message (WS not ready): ${message.take(100)}...")
             NetVisionQueue.add(message)
             return
         }
 
         val success = ws.send(message)
         if (success) {
-            Log.d("NetVision", "📤 Sent to debugger: ${message.take(100)}...")
+            NetVisionLogger.instance.debug("📤 Sent to debugger: ${message.take(100)}...")
         } else {
-            Log.d("NetVision", "🕗 Send failed — queueing")
+            NetVisionLogger.instance.debug("🕗 Send failed — queueing")
             NetVisionQueue.add(message)
         }
     }

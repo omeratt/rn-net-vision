@@ -1,5 +1,6 @@
 const zlib = require('zlib');
 const { Buffer } = require('node:buffer');
+const logger = require('../../logger');
 /**
  * @param {string} encoding
  * @param {string} body
@@ -13,7 +14,7 @@ function decodeResponseBody(encoding, base64Body) {
     if (encoding?.includes?.('gzip')) {
       zlib.gunzip(buffer, (err, decoded) => {
         if (err) {
-          console.error('[NetVision] 🔥 Gunzip failed:', err.message);
+          logger.error(`🔥 Gunzip failed: ${err.message}`);
           return resolve(null);
         }
         resolve(decoded.toString('utf-8'));

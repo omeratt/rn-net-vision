@@ -1,3 +1,3 @@
 module.exports = {
-  isProduction: true, // or false
+  isProduction: false, // Set to false for development to see logs
 };

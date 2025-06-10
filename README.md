@@ -128,6 +128,44 @@ module.exports = {
 };
 ```
 
+## Logging System
+
+NetVision includes a cross-platform logging system that works consistently across JavaScript/TypeScript, iOS, and Android environments.
+
+### Basic Usage
+
+```javascript
+// JavaScript/TypeScript
+import logger from '@omeratt/rn-net-vision/logger';
+
+logger.debug('Debug message');
+logger.info('Info message');
+logger.warn('Warning message');
+logger.error('Error message');
+
+// Initialize logger at app startup
+import { initializeLogger } from '@omeratt/rn-net-vision';
+await initializeLogger();
+```
+
+```swift
+// iOS (Swift)
+import NetVisionLogger
+
+NetVisionLogger.shared.debug("Debug message")
+NetVisionLogger.shared.info("Info message")
+```
+
+```kotlin
+// Android (Kotlin)
+import com.omeratt.rnnetvision.NetVisionLogger
+
+NetVisionLogger.instance.debug("Debug message")
+NetVisionLogger.instance.info("Info message")
+```
+
+For detailed logging documentation, see [Logger API](docs/logger-api.md) and [Logging Strategy](LOGGING.md).
+
 ## Troubleshooting
 
 ### Common Issues

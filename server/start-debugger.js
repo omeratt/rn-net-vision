@@ -4,9 +4,71 @@ const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
 const openUrlCrossPlatform = require('./utils/openUrlCrossPlatform');
+const logger = require('../logger');
 
 // Parse CLI flag
 const isProduction = process.env.NET_VISION_PRODUCTION === 'true';
+
+// Function to check if Vite viewer is already open
+function isViewerAlreadyOpen() {
+  return new Promise((resolve) => {
+    // First check the ready-check server
+    const readyCheckReq = http.request(
+      {
+        method: 'GET',
+        host: 'localhost',
+        port: 3232,
+        path: '/ready-check',
+        timeout: 1000,
+      },
+      (res) => {
+        if (res.statusCode === 200) {
+          let data = '';
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+          res.on('end', () => {
+            resolve(data === 'ready');
+          });
+        } else {
+          // If not ready, check if Vite is running directly
+          checkViteRunning();
+        }
+      }
+    );
+
+    readyCheckReq.on('error', () => {
+      // If the ready-check server isn't available, check if Vite is running directly
+      checkViteRunning();
+    });
+
+    readyCheckReq.end();
+
+    // Helper function to check if Vite is running directly
+    function checkViteRunning() {
+      const viteReq = http.request(
+        {
+          method: 'GET',
+          host: 'localhost',
+          port: 5173, // Vite's default port
+          path: '/',
+          timeout: 1000,
+        },
+        (res) => {
+          // If Vite responds with any status code, it's running
+          resolve(res.statusCode >= 200);
+        }
+      );
+
+      viteReq.on('error', () => {
+        // If Vite isn't running either, resolve to false
+        resolve(false);
+      });
+
+      viteReq.end();
+    }
+  });
+}
 
 http
   .createServer((req, res) => {
@@ -19,7 +81,7 @@ http
     }
 
     if (req.url === '/shutdown') {
-      console.log('👋 Shutdown request received via viewer');
+      logger.info('👋 Shutdown request received via viewer');
 
       let didExit = false;
       const exitOnce = () => {
@@ -41,7 +103,7 @@ http
     res.end('Not found');
   })
   .listen(8089, '0.0.0.0', () => {
-    console.log('🛰 Listening for shutdown requests on 0.0.0.0:8089');
+    logger.info('🛰 Listening for shutdown requests on 0.0.0.0:8089');
   });
 
 // Paths
@@ -75,9 +137,17 @@ const vite = spawn(viteCommand, viteArgs, {
   stdio: 'inherit',
 });
 
-// Open the viewer in browser after short delay
-setTimeout(() => {
-  openUrlCrossPlatform('http://localhost:5173');
+// Open the viewer in browser after short delay, but only if not already open
+setTimeout(async () => {
+  logger.info('🔍 Checking if NetVision viewer is already open...');
+  const viewerAlreadyOpen = await isViewerAlreadyOpen();
+
+  if (!viewerAlreadyOpen) {
+    logger.info('🔗 Opening NetVision viewer in browser...');
+    openUrlCrossPlatform('http://localhost:5173');
+  } else {
+    logger.info('✅ NetVision viewer already open, reusing existing tab');
+  }
 }, 2000);
 
 let hasShutdown = false;
@@ -86,7 +156,7 @@ function gracefulExit() {
   if (hasShutdown) return;
   hasShutdown = true;
 
-  console.log('\n👋 Shutting down NetVision Debugger...');
+  logger.info('\n👋 Shutting down NetVision Debugger...');
   server.kill('SIGINT');
   vite.kill('SIGINT');
   process.exit();

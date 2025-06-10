@@ -11,10 +11,10 @@ class RnNetVision: NSObject {
       do {
         let ip = self.getSafeHostIP()
         try NetVisionDispatcher.shared.connect(host: ip, port: 8088)
-        debugPrint("📡 iOS Debugger started on ws://\(ip):8088")
+        NetVisionLogger.shared.info("📡 iOS Debugger started on ws://\(ip):8088")
         resolve("Connected to debugger")
       } catch {
-        debugPrint("❌ Failed to start debugger: \(error.localizedDescription)")
+        NetVisionLogger.shared.error("Failed to start debugger: \(error.localizedDescription)")
         reject("DEBUGGER_ERROR", error.localizedDescription, error)
       }
     }
@@ -37,6 +37,14 @@ class RnNetVision: NSObject {
 
   private func getSafeHostIP() -> String {
     return getLocalWiFiIPAddress() ?? "localhost"
+  }
+
+  @objc(configureLogger:withResolver:withRejecter:)
+  func configureLogger(_ isProduction: Bool, 
+                      resolver: RCTPromiseResolveBlock, 
+                      rejecter: RCTPromiseRejectBlock) {
+    NetVisionLogger.shared.configure(isProduction: isProduction)
+    resolver(nil)
   }
 
   @objc
