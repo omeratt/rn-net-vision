@@ -13,6 +13,9 @@ export interface NetVisionLog {
     request?: Record<string, string>;
     response?: Record<string, string>;
   };
+  deviceId?: string;
+  deviceName?: string;
+  devicePlatform?: 'ios' | 'android';
   error: string | undefined;
 }
 

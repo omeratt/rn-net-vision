@@ -16,6 +16,8 @@ class RnNetVisionModule(private val reactContext: ReactApplicationContext) : Rea
 
   override fun initialize() {
       super.initialize()
+      // Initialize the context provider for device info
+      ReactApplicationContextProvider.initialize(reactContext)
       tryInjectInterceptorIfClientExists()
   }
 

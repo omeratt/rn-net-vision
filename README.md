@@ -9,6 +9,7 @@ A lightweight native module for React Native that provides real-time network mon
 
 - 🔍 Real-time HTTP/HTTPS request inspection
 - 📊 Detailed request and response analysis
+- 📱 Multi-device support with device filtering
 - 🚀 Low-overhead performance impact
 - 🌐 User-friendly web interface
 - 📱 Works with iOS and Android
@@ -173,6 +174,19 @@ For detailed logging documentation, see [Logger API](docs/logger-api.md) and [Lo
 - **NetVision not capturing requests**: Make sure you've properly set up the Metro middleware and added the `useNetVision` hook.
 - **Web interface not opening**: Check that ports 8088 and 5173 are available on your system.
 - **Only capturing partial request data**: Some third-party libraries may use custom networking implementations that bypass the standard networking stack.
+
+## Advanced Features
+
+#### Multi-Device Management
+
+RN Net Vision supports monitoring multiple devices simultaneously:
+
+- 📱 Connect multiple iOS and Android devices to debug at once
+- 🔄 Device auto-detection with platform identification
+- 🔍 Filter network logs by specific device
+- 🚦 Real-time device connection status
+
+When multiple devices are connected, use the device selector in the web viewer to filter logs by device.
 
 ## Contributing
 

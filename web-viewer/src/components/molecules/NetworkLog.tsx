@@ -111,6 +111,19 @@ export const NetworkLog = ({
             </span>
             <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
               {getDomain(log.url)}
+              {log.deviceId && (
+                <span
+                  className={`ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                  ${
+                    log.devicePlatform === 'ios'
+                      ? 'bg-blue-100 dark:bg-blue-800/30 text-blue-800 dark:text-blue-300'
+                      : 'bg-green-100 dark:bg-green-800/30 text-green-800 dark:text-green-300'
+                  }`}
+                >
+                  {log.devicePlatform === 'ios' ? '🍎' : '🤖'}
+                  {log.deviceName || log.deviceId.substring(0, 6)}
+                </span>
+              )}
             </span>
           </div>
           <div className="flex flex-col items-end gap-1">

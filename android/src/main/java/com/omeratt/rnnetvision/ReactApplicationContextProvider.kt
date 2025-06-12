@@ -12,4 +12,13 @@ object ReactApplicationContextProvider {
         context = reactContext.applicationContext
         this.reactContext = reactContext
     }
+    
+    // Helper method to safely get the ReactContext
+    fun safeGetReactContext(): ReactApplicationContext? {
+        return if (::reactContext.isInitialized) {
+            reactContext
+        } else {
+            null
+        }
+    }
 }

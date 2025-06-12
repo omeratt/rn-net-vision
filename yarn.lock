@@ -3817,7 +3817,7 @@ __metadata:
     eslint-plugin-prettier: ^5.2.3
     jest: ^29.7.0
     metro-react-native-babel-preset: ^0.77.0
-    open: ^10.1.1
+    open: ^10.1.2
     prettier: ^3.0.3
     react: 19.0.0
     react-native: 0.78.2
@@ -3825,6 +3825,7 @@ __metadata:
     release-it: ^17.10.0
     turbo: ^1.10.7
     typescript: ^5.2.2
+    uuid: ^11.1.0
     ws: ^8.0.0
   peerDependencies:
     react: "*"
@@ -11342,15 +11343,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"open@npm:^10.1.1":
-  version: 10.1.1
-  resolution: "open@npm:10.1.1"
+"open@npm:^10.1.2":
+  version: 10.1.2
+  resolution: "open@npm:10.1.2"
   dependencies:
     default-browser: ^5.2.1
     define-lazy-prop: ^3.0.0
     is-inside-container: ^1.0.0
     is-wsl: ^3.1.0
-  checksum: a3ad8460a7066d400be1697e568ffbd7ed85790f93e846f0674d783a71bf654b8aa648dd9663865294cfef238fbd5f2026c4580b61f3507d6c646b8e5e5f0a53
+  checksum: cb40d9786e8c679a1c647c62ad3642bbf1a8cc986c3ec970e99ed13d279c93328ea46bf756db64ea465d2d707815d4e792e7ba906830c3439cc8577cdefb8610
   languageName: node
   linkType: hard
 
@@ -14016,6 +14017,15 @@ __metadata:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: c81095493225ecfc28add49c106ca4f09cdf56bc66731aa8dabc2edbbccb1e1bfe2de6a115e5c6a380d3ea166d1636410b62ef216bb07b3feb1cfde1d95d5080
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^11.1.0":
+  version: 11.1.0
+  resolution: "uuid@npm:11.1.0"
+  bin:
+    uuid: dist/esm/bin/uuid
+  checksum: 840f19758543c4631e58a29439e51b5b669d5f34b4dd2700b6a1d15c5708c7a6e0c3e2c8c4a2eae761a3a7caa7e9884d00c86c02622ba91137bd3deade6b4b4a
   languageName: node
   linkType: hard
 

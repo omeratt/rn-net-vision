@@ -2,7 +2,7 @@
 import { useNetVision, initializeLogger, logger } from '@omeratt/rn-net-vision';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
-import { fetch, type ReactNativeSSLPinning } from 'react-native-ssl-pinning';
+// import { fetch, type ReactNativeSSLPinning } from 'react-native-ssl-pinning';
 
 const fetchTo = (
   url: string,

@@ -27,6 +27,13 @@ object NetVisionDispatcher {
                 webSocket = ws
                 isSocketInitialized = true
                 NetVisionLogger.instance.info("Connected to debugger at ws://$host:$port")
+                
+                // Send device information upon connection
+                ReactApplicationContextProvider.safeGetReactContext()?.let { context ->
+                    val deviceInfo = DeviceInfoProvider.getDeviceInfoJson(context)
+                    ws.send(deviceInfo.toString())
+                    NetVisionLogger.instance.info("Sent device info to debugger")
+                }
 
                 NetVisionQueue.flushIfReady { send(it) }
             }

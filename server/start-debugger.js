@@ -3,7 +3,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
-const openUrlCrossPlatform = require('./utils/openUrlCrossPlatform');
+const { openUrlCrossPlatform } = require('./utils/openUrlCrossPlatform');
 const logger = require('../logger');
 
 // Parse CLI flag
@@ -137,18 +137,45 @@ const vite = spawn(viteCommand, viteArgs, {
   stdio: 'inherit',
 });
 
-// Open the viewer in browser after short delay, but only if not already open
-setTimeout(async () => {
-  logger.info('🔍 Checking if NetVision viewer is already open...');
-  const viewerAlreadyOpen = await isViewerAlreadyOpen();
+// Handle viewer tab management with automatic opening only if needed
+// We'll use a simple flag to track if we opened a tab in this process
+let viewerTabWasOpened = false;
 
-  if (!viewerAlreadyOpen) {
-    logger.info('🔗 Opening NetVision viewer in browser...');
-    openUrlCrossPlatform('http://localhost:5173');
-  } else {
-    logger.info('✅ NetVision viewer already open, reusing existing tab');
+// Function to attempt opening the viewer tab, but only if needed
+async function openViewerTabIfNeeded() {
+  try {
+    // Check if the server is up
+    const isServerReady = await isViewerAlreadyOpen();
+
+    if (!isServerReady) {
+      // Server not ready yet, try again in 1 second
+      logger.info('⏳ Waiting for viewer server to be ready...');
+      setTimeout(openViewerTabIfNeeded, 1000);
+      return;
+    }
+
+    // If we haven't opened a tab in this process yet, open one now
+    if (!viewerTabWasOpened) {
+      logger.info('🔗 Opening NetVision viewer in browser...');
+      viewerTabWasOpened = true;
+      openUrlCrossPlatform('http://localhost:5173');
+    } else {
+      logger.info('✅ Already attempted to open viewer in this session');
+    }
+  } catch (err) {
+    logger.error(`Error checking viewer status: ${err.message}`);
+
+    // On error, open a tab anyway if we haven't yet
+    if (!viewerTabWasOpened) {
+      logger.info('🔗 Opening NetVision viewer in browser (after error)...');
+      viewerTabWasOpened = true;
+      openUrlCrossPlatform('http://localhost:5173');
+    }
   }
-}, 2000);
+}
+
+// Initial delay to wait for servers to start
+setTimeout(openViewerTabIfNeeded, 2000);
 
 let hasShutdown = false;
 

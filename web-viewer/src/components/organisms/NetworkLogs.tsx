@@ -6,6 +6,8 @@ import { NetworkLogList } from './NetworkLogList';
 import { LogDetailsPanel } from '../molecules/LogDetailsPanel';
 import { useCallback } from 'react';
 import { SplitHandle } from '../atoms/SplitHandle';
+import { useDevices } from '../../context/DeviceContext';
+import { useFilteredLogs } from '../../hooks/useFilteredLogs';
 
 const SPLIT_POSITION_KEY = 'netvision-split-position';
 
@@ -15,6 +17,11 @@ interface NetworkLogsProps {
 }
 
 export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
+  const { activeDeviceId } = useDevices();
+
+  // Use the filtered logs hook for device filtering
+  const filteredLogs = useFilteredLogs(logs, activeDeviceId);
+
   const [selectedLog, setSelectedLog] = useState<NetVisionLog | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [splitPosition, setSplitPosition] = useState<number>(() => {
@@ -27,31 +34,31 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (logs.length === 0) return;
+      if (filteredLogs.length === 0) return;
 
       if (e.key === 'ArrowUp') {
         e.preventDefault();
         setSelectedIndex((prev) => {
-          const newIndex = prev <= 0 ? logs.length - 1 : prev - 1;
-          setSelectedLog(logs[newIndex]);
+          const newIndex = prev <= 0 ? filteredLogs.length - 1 : prev - 1;
+          setSelectedLog(filteredLogs[newIndex]);
           return newIndex;
         });
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         setSelectedIndex((prev) => {
-          const newIndex = prev >= logs.length - 1 ? 0 : prev + 1;
-          setSelectedLog(logs[newIndex]);
+          const newIndex = prev >= filteredLogs.length - 1 ? 0 : prev + 1;
+          setSelectedLog(filteredLogs[newIndex]);
           return newIndex;
         });
       }
     },
-    [logs]
+    [filteredLogs]
   );
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [logs, handleKeyDown]);
+  }, [filteredLogs, handleKeyDown]);
 
   useEffect(() => {
     // Use requestAnimationFrame to optimize the animation performance
@@ -137,7 +144,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
       >
         <div className="p-2 sm:p-4">
           <NetworkLogList
-            logs={logs}
+            logs={filteredLogs}
             onClear={onClear}
             onSelectLog={(log, index) => {
               setSelectedLog(log);

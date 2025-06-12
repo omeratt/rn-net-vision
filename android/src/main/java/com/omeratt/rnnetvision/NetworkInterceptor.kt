@@ -1,6 +1,7 @@
 package com.omeratt.rnnetvision
 
 import android.content.Context
+import android.os.Build
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -90,6 +91,10 @@ class NetworkInterceptor : Interceptor {
             }
 
             val base64Body = Base64.encodeToString(rawBytes, Base64.NO_WRAP)
+            
+            // Get device information
+            val deviceId = DeviceInfoProvider.getDeviceId(context)
+            val deviceName = Build.MANUFACTURER + " " + Build.MODEL
 
             val payload = JSONObject().apply {
                 put("type", "network-log")
@@ -98,6 +103,12 @@ class NetworkInterceptor : Interceptor {
                 put("duration", duration)
                 put("status", response.code)
                 put("timestamp", System.currentTimeMillis())
+                
+                // Add device information
+                put("deviceId", deviceId)
+                put("deviceName", deviceName)
+                put("devicePlatform", "android")
+                
                 put("requestHeaders", requestHeadersJson)
                 put("responseHeaders", responseHeadersJson)
                 if (parsedRequestBody != null) put("requestBody", parsedRequestBody)
@@ -124,6 +135,11 @@ class NetworkInterceptor : Interceptor {
 
             val parsedRequestBody = extractRequestBody(chain.request())
             val requestHeaders = chain.request().headers.toMultimap().toJson()
+            
+            // Get device information for error log
+            val context = ReactApplicationContextProvider.context
+            val deviceId = DeviceInfoProvider.getDeviceId(context)
+            val deviceName = Build.MANUFACTURER + " " + Build.MODEL
 
             val payload = JSONObject().apply {
                 if (parsedRequestBody != null) put("requestBody", parsedRequestBody)
@@ -132,9 +148,14 @@ class NetworkInterceptor : Interceptor {
                 put("url", chain.request().url.toString())
                 put("timestamp", System.currentTimeMillis())
                 put("status", 520)
-                put("duration", System.currentTimeMillis() - startTime) 
+                put("duration", System.currentTimeMillis() - startTime)
                 put("requestHeaders", requestHeaders)
                 put("error", e.localizedMessage ?: "Unknown error")
+                
+                // Add device information
+                put("deviceId", deviceId)
+                put("deviceName", deviceName)
+                put("devicePlatform", "android")
             }
 
             NetVisionDispatcher.send(payload.toString())

@@ -24,6 +24,7 @@ export const NetworkLogList = ({
   selectedLog,
   selectedIndex,
 }: NetworkLogListProps): VNode => {
+  // Remove activeDeviceId since device filtering is handled in parent component
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [methodFilter, setMethodFilter] = useState<string>('all');
@@ -43,7 +44,12 @@ export const NetworkLogList = ({
   }, [logs]);
 
   const filteredAndSortedLogs = useMemo(() => {
+    console.log(`[NetworkLogList] Filtering with total logs: ${logs.length}`);
+
     const filtered = logs.filter((log) => {
+      // Device filtering is already handled in NetworkLogs component
+
+      // Just do text, status, and method filtering here
       const matchesSearch =
         filter === '' || log.url.toLowerCase().includes(filter.toLowerCase());
 
@@ -214,7 +220,7 @@ export const NetworkLogList = ({
         ) : (
           filteredAndSortedLogs.map((log, index) => (
             <NetworkLog
-              key={log.timestamp + log.url}
+              key={`${log.timestamp}-${log.url}-${log.status}-${log.method}-${log.deviceId || 'no-device'}-${index}`}
               log={log}
               isSelected={selectedLog === log || index === selectedIndex}
               onClick={() => onSelectLog(log, index)}

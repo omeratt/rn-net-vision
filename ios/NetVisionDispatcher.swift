@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @objc public class NetVisionDispatcher: NSObject, URLSessionDelegate {
     @objc public static let shared = NetVisionDispatcher()
@@ -37,6 +38,7 @@ import Foundation
             } else {
                 NetVisionLogger.shared.info("WebSocket connected (ping success)")
                 self?.isConnected = true
+                self?.sendDeviceInfo()
                 self?.flush()
             }
         }
@@ -74,6 +76,11 @@ import Foundation
 
         let requestCookies = parseCookies(from: requestHeaders["Cookie"])
         let responseCookies = parseCookies(from: responseHeaders["Set-Cookie"] as? String)
+        
+        // Get device information for the network log
+        let deviceId = DeviceInfoProvider.shared.getDeviceId()
+        let deviceModel = DeviceInfoProvider.shared.getDeviceModel()
+        let deviceName = "\(deviceModel) (\(UIDevice.current.name))"
 
         let json: [String: Any] = [
             "type": "network-log",
@@ -85,6 +92,10 @@ import Foundation
             "responseHeaders": responseHeaders,
             "responseBody": base64Body,
             "responseBodyEncoding": "base64",
+            // Add device information
+            "deviceId": deviceId,
+            "deviceName": deviceName,
+            "devicePlatform": "ios",
             "cookies": [
                 "request": requestCookies,
                 "response": responseCookies
@@ -148,12 +159,21 @@ import Foundation
       let duration = Int(endTime - startTime)  // ms
       let timestamp = Int(startTime) // ms
 
+      // Get device information
+      let deviceId = DeviceInfoProvider.shared.getDeviceId()
+      let deviceModel = DeviceInfoProvider.shared.getDeviceModel()
+      let deviceName = "\(deviceModel) (\(UIDevice.current.name))"
+      
       var payload: [String: Any] = [
         "type": "network-log",
         "method": request.httpMethod ?? "GET",
         "url": request.url?.absoluteString ?? "",
         "timestamp": timestamp,
-        "duration": duration
+        "duration": duration,
+        // Add device information
+        "deviceId": deviceId,
+        "deviceName": deviceName,
+        "devicePlatform": "ios"
       ]
 
       // Request Headers (as Record<string, string[]>)
@@ -274,5 +294,30 @@ import Foundation
 
         queue.enqueue(jsonString)
         flush()
+    }
+    
+    private func sendDeviceInfo() {
+        guard isConnected, let socket = webSocket else {
+            NetVisionLogger.shared.debug("Cannot send device info: WebSocket not connected")
+            return
+        }
+        
+        let deviceInfo = DeviceInfoProvider.shared.getDeviceInfo()
+        
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: deviceInfo, options: [])
+            
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                socket.send(.string(jsonString)) { error in
+                    if let error = error {
+                        NetVisionLogger.shared.error("Failed to send device info: \(error)")
+                    } else {
+                        NetVisionLogger.shared.info("Sent device info to debugger")
+                    }
+                }
+            }
+        } catch {
+            NetVisionLogger.shared.error("Failed to serialize device info: \(error)")
+        }
     }
 }

@@ -1,5 +1,7 @@
 # 📊 RN Net Vision - Architecture Overview (Updated)
 
+# npm management: Yarn
+
 ## 🔍 Components Overview
 
 | Component         | IP Address                   | Port(s)                      | Protocol(s)      | Description                                                            |
@@ -22,7 +24,9 @@
 | 6   | Native App → Shutdown Server | HTTP POST         | Calls `http://localhost:8089/shutdown` on debugger exit                 |
 | 7   | debug-server → shutdown      | Node Process      | Closes all related ports when viewer tab is truly closed                |
 
-## 🧱 Message Format: `network-log`
+## 🧱 Message Formats
+
+### `network-log`
 
 ```ts
 type NetVisionLog = {
@@ -31,7 +35,7 @@ type NetVisionLog = {
   url: string;
   duration: number;
   status: number;
-  timestamp: string; // ← added (local server time, ISO string)
+  timestamp: string; // ISO string
 
   requestHeaders: Record<string, string[]>;
   responseHeaders: Record<string, string[]>;
@@ -43,6 +47,33 @@ type NetVisionLog = {
     request?: Record<string, string>;
     response?: Record<string, string>;
   };
+
+  // Device information
+  deviceId?: string;
+  deviceName?: string;
+  devicePlatform?: 'ios' | 'android';
+};
+```
+
+### `device-info`
+
+```ts
+type DeviceInfoMessage = {
+  type: 'device-info';
+  deviceId: string; // Unique device identifier
+  deviceName: string; // Human-readable device name
+  platform: 'ios' | 'android'; // Device platform
+};
+```
+
+### `device-connected` and `device-disconnected`
+
+```ts
+type DeviceStatusMessage = {
+  type: 'device-connected' | 'device-disconnected';
+  deviceId: string;
+  deviceName?: string;
+  devicePlatform?: 'ios' | 'android';
 };
 ```
 

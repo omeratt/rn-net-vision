@@ -5,7 +5,9 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const http = require('http'); // ✅ נוסף
 const { startTrackingDevices } = require('./trackAdbDevices.cjs');
-const openUrlCrossPlatform = require('../server/utils/openUrlCrossPlatform');
+const {
+  openUrlCrossPlatform,
+} = require('../server/utils/openUrlCrossPlatform');
 const logger = require('../logger');
 
 const isBundling = process.argv.includes('bundle');
@@ -100,32 +102,87 @@ if (isBundling) {
       return async (req, res, next) => {
         if (req.url === '/net-vision-trigger' && req.method === 'POST') {
           try {
-            console.log('👀 [NetVision] start watching...');
+            console.log('👀 [NetVision] Dev menu trigger received...');
             const alreadyRunning = await isDebuggerRunning();
 
             if (!alreadyRunning) {
+              console.log('[NetVision] Starting debugger process...');
+              console.log('[NetVision] Debugger path:', absDebuggerPath);
+              console.log('[NetVision] Working directory:', projectRoot);
+              console.log('[NetVision] Production mode:', isProduction);
+
+              // Check if debugger file exists
+              if (!fs.existsSync(absDebuggerPath)) {
+                console.error(
+                  '[NetVision] Debugger file not found:',
+                  absDebuggerPath
+                );
+                res.writeHead(500);
+                res.end('NetVision debugger file not found');
+                return;
+              }
+
               serverProcesses = spawn('node', [absDebuggerPath], {
                 cwd: projectRoot,
-                stdio: isProduction === 'true' ? 'ignore' : 'inherit',
+                stdio:
+                  isProduction === 'true' ? 'ignore' : ['pipe', 'pipe', 'pipe'],
                 env: {
                   ...process.env,
                   NET_VISION_PRODUCTION: isProduction,
                 },
+                detached: false,
               });
+
+              serverProcesses.on('error', (error) => {
+                console.error('[NetVision] Process spawn error:', error);
+              });
+
+              serverProcesses.on('exit', (code, signal) => {
+                console.log('[NetVision] Process exited:', { code, signal });
+                serverProcesses = null; // Reset process reference
+              });
+
+              // Capture and display process output in dev mode
+              if (
+                isProduction !== 'true' &&
+                serverProcesses.stdout &&
+                serverProcesses.stderr
+              ) {
+                serverProcesses.stdout.on('data', (data) => {
+                  console.log('[NetVision Server]', data.toString().trim());
+                });
+
+                serverProcesses.stderr.on('data', (data) => {
+                  console.error(
+                    '[NetVision Server Error]',
+                    data.toString().trim()
+                  );
+                });
+              }
+
+              console.log(
+                '[NetVision] Process started with PID:',
+                serverProcesses.pid
+              );
+
+              // Give the process a moment to start
+              setTimeout(() => {
+                res.writeHead(200);
+                res.end('NetVision launched');
+              }, 1000);
             } else {
-              logger.info('Debugger already running');
+              console.log(
+                '[NetVision] Debugger already running, opening viewer...'
+              );
               openUrlCrossPlatform('http://localhost:5173');
-              res.writeHead(204);
-              res.end();
+              res.writeHead(200);
+              res.end('NetVision already running');
               return;
             }
-
-            res.writeHead(200);
-            res.end('NetVision launched');
           } catch (err) {
             console.error('[NetVision] Failed to launch:', err);
             res.writeHead(500);
-            res.end('NetVision failed');
+            res.end(`NetVision failed: ${err.message}`);
           }
         } else {
           return middleware(req, res, next);
