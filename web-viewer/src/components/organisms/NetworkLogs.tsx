@@ -13,7 +13,7 @@ const SPLIT_POSITION_KEY = 'netvision-split-position';
 
 interface NetworkLogsProps {
   logs: NetVisionLog[];
-  onClear: () => void;
+  onClear: (deviceId?: string | null) => void;
 }
 
 export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
@@ -21,6 +21,11 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
 
   // Use the filtered logs hook for device filtering
   const filteredLogs = useFilteredLogs(logs, activeDeviceId);
+
+  // Create a device-aware clear function
+  const handleClear = useCallback(() => {
+    onClear(activeDeviceId);
+  }, [onClear, activeDeviceId]);
 
   const [selectedLog, setSelectedLog] = useState<NetVisionLog | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
@@ -145,7 +150,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
         <div className="p-2 sm:p-4">
           <NetworkLogList
             logs={filteredLogs}
-            onClear={onClear}
+            onClear={handleClear}
             onSelectLog={(log, index) => {
               setSelectedLog(log);
               setSelectedIndex(index);

@@ -4,6 +4,7 @@ import type { VNode } from 'preact';
 import type { NetVisionLog } from '../../types';
 import { NetworkLog } from '../molecules/NetworkLog';
 import { Button } from '../atoms/Button';
+import { useDevices } from '../../context/DeviceContext';
 
 const SORT_PREFERENCE_KEY = 'netvision-sort-preference';
 
@@ -24,6 +25,8 @@ export const NetworkLogList = ({
   selectedLog,
   selectedIndex,
 }: NetworkLogListProps): VNode => {
+  const { activeDeviceId, getDeviceName } = useDevices();
+
   // Remove activeDeviceId since device filtering is handled in parent component
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -33,6 +36,11 @@ export const NetworkLogList = ({
     return savedSort === 'asc' ? 'asc' : 'desc';
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Generate clear button text based on active device
+  const clearButtonText = activeDeviceId
+    ? `Clear ${getDeviceName(activeDeviceId)} Logs`
+    : 'Clear All Logs';
 
   useEffect(() => {
     localStorage.setItem(SORT_PREFERENCE_KEY, sortDirection);
@@ -166,7 +174,7 @@ export const NetworkLogList = ({
               </svg>
             </button>
             <Button variant="secondary" onClick={onClear}>
-              Clear Logs
+              {clearButtonText}
             </Button>
           </div>
         </div>

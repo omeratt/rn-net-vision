@@ -23,9 +23,22 @@ export const useWebSocket = () => {
     localStorage.setItem(LOGS_STORAGE_KEY, JSON.stringify(logs));
   }, [logs]);
 
-  const clearLogs = useCallback(() => {
-    setLogs([]);
-    localStorage.removeItem(LOGS_STORAGE_KEY);
+  const clearLogs = useCallback((deviceId?: string | null) => {
+    if (!deviceId) {
+      // Clear all logs when no device is specified
+      setLogs([]);
+      localStorage.removeItem(LOGS_STORAGE_KEY);
+    } else {
+      // Clear only logs from the specified device
+      setLogs((prevLogs) => {
+        const filteredLogs = prevLogs.filter(
+          (log) => log.deviceId !== deviceId
+        );
+        // Update localStorage with the filtered logs
+        localStorage.setItem(LOGS_STORAGE_KEY, JSON.stringify(filteredLogs));
+        return filteredLogs;
+      });
+    }
   }, []);
 
   // Use a ref to store the connect function to avoid dependency issues
