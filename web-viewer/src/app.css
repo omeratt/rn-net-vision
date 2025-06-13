@@ -20,37 +20,49 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Enhanced theme transition timing */
+  --theme-transition-duration: 180ms;
+  --theme-transition-timing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Scrollbar styles */
+/* Disable all transitions during theme switching to prevent flash */
+.theme-transitioning * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Smooth theme transitions for all elements */
+* {
+  transition: 
+    background-color var(--theme-transition-duration) var(--theme-transition-timing),
+    border-color var(--theme-transition-duration) var(--theme-transition-timing),
+    color var(--theme-transition-duration) var(--theme-transition-timing),
+    box-shadow var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Preserve other transitions */
+.transition-all {
+  transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+.transition-transform {
+  transition: transform var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+.transition-opacity {
+  transition: opacity var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Base scrollbar sizing - theme colors will be handled by JavaScript */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
-  background: theme('colors.gray.100');
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: theme('colors.gray.800');
-}
-
-::-webkit-scrollbar-thumb {
-  background: theme('colors.gray.300');
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: theme('colors.gray.600');
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.gray.400');
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.gray.500');
+/* Refined scrollbar sizing for modal panels */
+.refined-scrollbar::-webkit-scrollbar {
+  width: 6px;
 }
 
 /* Transition utilities */
@@ -84,4 +96,339 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Enhanced animations for device selector and modal */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+@keyframes bounce-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-fade-in-backdrop {
+  animation: fade-in-backdrop 0.25s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.4s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-bounce-scale {
+  animation: bounce-scale 1.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Custom animations for copy button and toast */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Toast specific animations */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* Copy button hover glow effect */
+.copy-button-glow {
+  position: relative;
+}
+
+.copy-button-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.copy-button-glow:hover::before {
+  opacity: 1;
+}
+
+/* Improved hover effects for device items */
+.device-item-hover {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+  will-change: transform, background-color;
+}
+
+.device-item-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.4s ease-out;
+  pointer-events: none;
+}
+
+.device-item-hover:hover::before {
+  left: 100%;
+}
+
+.device-item-hover:hover {
+  transform: translateX(2px) scale(1.01);
+}
+
+/* Enhanced button styles with better animations */
+.modern-button {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+  will-change: transform;
+}
+
+.modern-button:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.modern-button:active {
+  transform: translateY(0px) scale(1);
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-effect {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Text overflow and wrapping utilities */
+.text-overflow-responsive {
+  word-wrap: break-word !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+}
+
+/* High specificity override for pre elements */
+pre.code-overflow-responsive {
+  white-space: pre-wrap !important;
+  text-wrap-mode: wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+}
+
+/* Global pre element override to ensure proper wrapping */
+pre {
+  white-space: pre-wrap;
+  text-wrap-mode: wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Ensure DetailField pre elements always wrap */
+.detail-field-pre {
+  white-space: pre-wrap !important;
+  text-wrap-mode: wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Enhanced responsive container */
+.responsive-flex-container {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.responsive-flex-container > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Responsive pre elements for code display with maximum specificity */
+pre.responsive-code.code-overflow-responsive {
+  white-space: pre-wrap !important;
+  text-wrap-mode: wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+}
+
+/* For screens smaller than 640px, force wrap */
+@media (max-width: 640px) {
+  .responsive-code {
+    white-space: pre-wrap !important;
+    text-wrap-mode: wrap !important;
+    overflow-x: hidden !important;
+  }
+  
+  .code-overflow-responsive {
+    white-space: pre-wrap !important;
+    text-wrap-mode: wrap !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Force all pre elements to wrap on mobile */
+  pre {
+    white-space: pre-wrap !important;
+    text-wrap-mode: wrap !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    overflow-x: hidden !important;
+  }
+}
+
+/* Additional responsive safety measures */
+.safe-area-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Force wrap on very small screens */
+@media (max-width: 480px) {
+  .force-wrap {
+    white-space: normal !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+  }
+  
+  .force-wrap * {
+    white-space: normal !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+  }
+  
+  /* Hide horizontal scrollbars on mobile */
+  .mobile-no-scroll-x {
+    overflow-x: hidden !important;
+  }
+  
+  /* Ensure flex items don't overflow on mobile */
+  .mobile-flex-wrap {
+    flex-wrap: wrap !important;
+  }
+  
+  .mobile-flex-wrap > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
 }

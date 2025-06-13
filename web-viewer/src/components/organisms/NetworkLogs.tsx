@@ -142,12 +142,12 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
   }, [splitPosition]);
 
   return (
-    <div className="flex flex-col sm:flex-row h-[calc(100vh-5rem)] overflow-hidden rounded-lg shadow-lg">
+    <div className="flex flex-col sm:flex-row h-[calc(100vh-5rem)] overflow-hidden rounded-lg shadow-lg safe-area-container">
       <div
         style={{ width: `${splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900 transition-[width] ease-out"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-[width] ease-out mobile-no-scroll-x"
       >
-        <div className="p-2 sm:p-4">
+        <div className="p-2 sm:p-4 h-full overflow-y-auto">
           <NetworkLogList
             logs={filteredLogs}
             onClear={handleClear}
@@ -170,7 +170,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
 
       <div
         style={{ width: `${100 - splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-auto bg-white dark:bg-gray-800 transition-[width] ease-out"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white dark:bg-gray-800 transition-[width] ease-out mobile-no-scroll-x"
       >
         <LogDetailsPanel log={selectedLog} />
       </div>

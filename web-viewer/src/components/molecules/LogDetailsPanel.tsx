@@ -2,6 +2,8 @@
 import { VNode } from 'preact';
 import type { NetVisionLog } from '../../types';
 import { DetailField } from '../atoms/DetailField';
+import { CopyButton } from '../atoms/CopyButton';
+import { useToast } from '../../context/ToastContext';
 import { formatData } from '../../utils/networkUtils';
 
 interface LogDetailsPanelProps {
@@ -9,6 +11,8 @@ interface LogDetailsPanelProps {
 }
 
 export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
+  const { showToast } = useToast();
+
   const formatHeaders = (headers: Record<string, string[]>): string => {
     if (!headers) return 'No headers';
 
@@ -24,6 +28,39 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
     return Object.entries(cookies)
       .map(([key, value]) => `${key}=${value}`)
       ?.join('\n');
+  };
+
+  const getRequestSectionContent = (): string => {
+    const headers = formatHeaders(log?.requestHeaders || {});
+    const body = log?.requestBody ? formatData(log.requestBody) : '';
+    return `Headers:\n${headers}${body ? `\n\nBody:\n${body}` : ''}`;
+  };
+
+  const getResponseSectionContent = (): string => {
+    const headers = formatHeaders(log?.responseHeaders || {});
+    const body = log?.responseBody ? formatData(log.responseBody) : '';
+    return `Headers:\n${headers}${body ? `\n\nBody:\n${body}` : ''}`;
+  };
+
+  const getCookiesSectionContent = (): string => {
+    const requestCookies = log?.cookies?.request
+      ? formatCookies(log.cookies.request)
+      : '';
+    const responseCookies = log?.cookies?.response
+      ? formatCookies(log.cookies.response)
+      : '';
+
+    let content = '';
+    if (requestCookies) content += `Request Cookies:\n${requestCookies}`;
+    if (responseCookies) {
+      if (content) content += '\n\n';
+      content += `Response Cookies:\n${responseCookies}`;
+    }
+    return content || 'No cookies';
+  };
+
+  const handleSectionCopy = (sectionName: string, _content: string) => {
+    showToast(`${sectionName} section copied to clipboard!`, 'success', 2500);
   };
 
   if (!log) {
@@ -50,9 +87,9 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4 space-y-4">
+    <div className="h-full overflow-y-auto overflow-x-hidden p-4 space-y-4 mobile-no-scroll-x force-wrap">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all">
-        <div className="flex flex-wrap gap-4 mb-2">
+        <div className="flex flex-wrap gap-4 mb-2 mobile-flex-wrap">
           <DetailField label="URL" value={log.url} />
           {log.error && <DetailField label="Local Error" value={log.error} />}
           <DetailField label="Method" value={log.method} />
@@ -66,11 +103,21 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
       </div>
 
       <div className="@container">
-        <div className="flex flex-col @lg:flex-row w-full gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex-1">
-            <h3 className="text-md font-medium mb-3 text-indigo-600 dark:text-indigo-400">
-              Request
-            </h3>
+        <div className="flex flex-col @lg:flex-row w-full gap-4 responsive-flex-container mobile-flex-wrap">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h3 className="text-md font-medium text-indigo-600 dark:text-indigo-400">
+                Request
+              </h3>
+              <CopyButton
+                text={getRequestSectionContent()}
+                onCopy={() =>
+                  handleSectionCopy('Request', getRequestSectionContent())
+                }
+                size="md"
+                variant="section"
+              />
+            </div>
             <DetailField
               label="Headers"
               value={formatHeaders(log.requestHeaders)}
@@ -86,10 +133,20 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex-1">
-            <h3 className="text-md font-medium mb-3 text-indigo-600 dark:text-indigo-400">
-              Response
-            </h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h3 className="text-md font-medium text-indigo-600 dark:text-indigo-400">
+                Response
+              </h3>
+              <CopyButton
+                text={getResponseSectionContent()}
+                onCopy={() =>
+                  handleSectionCopy('Response', getResponseSectionContent())
+                }
+                size="md"
+                variant="section"
+              />
+            </div>
             <DetailField
               label="Headers"
               value={formatHeaders(log.responseHeaders)}
@@ -109,9 +166,19 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
 
       {log.cookies && (
         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all">
-          <h3 className="text-md font-medium mb-3 text-indigo-600 dark:text-indigo-400">
-            Cookies
-          </h3>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <h3 className="text-md font-medium text-indigo-600 dark:text-indigo-400">
+              Cookies
+            </h3>
+            <CopyButton
+              text={getCookiesSectionContent()}
+              onCopy={() =>
+                handleSectionCopy('Cookies', getCookiesSectionContent())
+              }
+              size="md"
+              variant="section"
+            />
+          </div>
           <div className="@container">
             <div className="flex flex-col @lg:flex-row gap-4">
               {log.cookies.request && (
@@ -119,7 +186,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
                   label="Request Cookies"
                   value={formatCookies(log.cookies.request)}
                   isCode
-                  className="flex-1"
+                  className="flex-1 min-w-0"
                 />
               )}
               {log.cookies.response && (
@@ -127,7 +194,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
                   label="Response Cookies"
                   value={formatCookies(log.cookies.response)}
                   isCode
-                  className="flex-1"
+                  className="flex-1 min-w-0"
                 />
               )}
             </div>

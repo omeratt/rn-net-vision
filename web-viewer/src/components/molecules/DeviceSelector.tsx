@@ -37,7 +37,7 @@ export const DeviceSelector = (): VNode => {
           <option value="">All Devices</option>
           {devices.map((device) => (
             <option key={device.id} value={device.id}>
-              {device.platform === 'android' ? '🤖' : '🍎'} {device.name}{' '}
+              {device.platform === 'android' ? '📱' : '📱'} {device.name}{' '}
               {device.connected ? '(🟢 Active)' : '(⚫ Inactive)'}
             </option>
           ))}

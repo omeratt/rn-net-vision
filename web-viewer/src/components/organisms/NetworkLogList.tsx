@@ -4,6 +4,7 @@ import type { VNode } from 'preact';
 import type { NetVisionLog } from '../../types';
 import { NetworkLog } from '../molecules/NetworkLog';
 import { Button } from '../atoms/Button';
+import { FilterInput } from '../atoms/FilterInput';
 import { useDevices } from '../../context/DeviceContext';
 
 const SORT_PREFERENCE_KEY = 'netvision-sort-preference';
@@ -46,9 +47,13 @@ export const NetworkLogList = ({
     localStorage.setItem(SORT_PREFERENCE_KEY, sortDirection);
   }, [sortDirection]);
 
-  const uniqueMethods = useMemo(() => {
+  const uniqueMethodOptions = useMemo(() => {
     const methods = new Set(logs.map((log) => log.method));
-    return ['all', ...Array.from(methods)];
+    const methodsArray = Array.from(methods);
+    return [
+      { value: 'all', label: 'All Methods' },
+      ...methodsArray.map((method) => ({ value: method, label: method })),
+    ];
   }, [logs]);
 
   const filteredAndSortedLogs = useMemo(() => {
@@ -110,41 +115,53 @@ export const NetworkLogList = ({
               </svg>
               Filters
             </button>
-            <div className="hidden sm:flex flex-wrap gap-2">
-              <input
+            <div className="hidden sm:flex flex-wrap gap-3">
+              <FilterInput
                 type="text"
                 placeholder="Filter by URL..."
                 value={filter}
-                onInput={(e) => {
-                  setFilter((e.target as HTMLInputElement).value);
-                }}
-                className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                onChange={setFilter}
+                icon={
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                }
+                aria-label="Filter logs by URL"
+                className="min-w-[200px]"
               />
-              <select
+
+              <FilterInput
+                type="select"
                 value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter((e.target as HTMLSelectElement).value);
-                }}
-                className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-              >
-                <option value="all">All Status</option>
-                <option value="success">Success (2xx)</option>
-                <option value="redirect">Redirect (3xx)</option>
-                <option value="error">Error (4xx/5xx)</option>
-              </select>
-              <select
+                onChange={setStatusFilter}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'success', label: 'Success (2xx)' },
+                  { value: 'redirect', label: 'Redirect (3xx)' },
+                  { value: 'error', label: 'Error (4xx/5xx)' },
+                ]}
+                aria-label="Filter logs by status code"
+                className="min-w-[140px]"
+              />
+
+              <FilterInput
+                type="select"
                 value={methodFilter}
-                onChange={(e) => {
-                  setMethodFilter((e.target as HTMLSelectElement).value);
-                }}
-                className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-              >
-                {uniqueMethods.map((method) => (
-                  <option key={method} value={method}>
-                    {method}
-                  </option>
-                ))}
-              </select>
+                onChange={setMethodFilter}
+                options={uniqueMethodOptions}
+                aria-label="Filter logs by HTTP method"
+                className="min-w-[120px]"
+              />
             </div>
           </div>
 
@@ -152,7 +169,7 @@ export const NetworkLogList = ({
             <button
               onClick={toggleSortDirection}
               title={`Sort by timestamp (${sortDirection === 'asc' ? 'oldest first' : 'newest first'})`}
-              className="flex items-center justify-center w-9 h-9 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+              className="flex items-center justify-center w-9 h-9 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all duration-200 ease-out"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -164,7 +181,7 @@ export const NetworkLogList = ({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`transition-transform duration-300 ${sortDirection === 'asc' ? 'rotate-0' : 'rotate-180'}`}
+                className={`transition-transform duration-200 ease-out ${sortDirection === 'asc' ? 'rotate-0' : 'rotate-180'}`}
               >
                 <path d="m3 16 4 4 4-4" />
                 <path d="M7 20V4" />
@@ -181,41 +198,50 @@ export const NetworkLogList = ({
 
         {/* Mobile filters, only visible when toggled */}
         {isFilterOpen && (
-          <div className="sm:hidden flex flex-col gap-3 mb-3 p-3 bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 rounded-md transition-all">
-            <input
+          <div className="sm:hidden flex flex-col gap-3 mb-3 p-4 bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 rounded-lg transition-all duration-300">
+            <FilterInput
               type="text"
               placeholder="Filter by URL..."
               value={filter}
-              onInput={(e) => {
-                setFilter((e.target as HTMLInputElement).value);
-              }}
-              className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              onChange={setFilter}
+              icon={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              }
+              aria-label="Filter logs by URL"
             />
-            <select
+
+            <FilterInput
+              type="select"
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter((e.target as HTMLSelectElement).value);
-              }}
-              className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-            >
-              <option value="all">All Status</option>
-              <option value="success">Success (2xx)</option>
-              <option value="redirect">Redirect (3xx)</option>
-              <option value="error">Error (4xx/5xx)</option>
-            </select>
-            <select
+              onChange={setStatusFilter}
+              options={[
+                { value: 'all', label: 'All Status' },
+                { value: 'success', label: 'Success (2xx)' },
+                { value: 'redirect', label: 'Redirect (3xx)' },
+                { value: 'error', label: 'Error (4xx/5xx)' },
+              ]}
+              aria-label="Filter logs by status code"
+            />
+
+            <FilterInput
+              type="select"
               value={methodFilter}
-              onChange={(e) => {
-                setMethodFilter((e.target as HTMLSelectElement).value);
-              }}
-              className="px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-            >
-              {uniqueMethods.map((method) => (
-                <option key={method} value={method}>
-                  {method}
-                </option>
-              ))}
-            </select>
+              onChange={setMethodFilter}
+              options={uniqueMethodOptions}
+              aria-label="Filter logs by HTTP method"
+            />
           </div>
         )}
       </div>

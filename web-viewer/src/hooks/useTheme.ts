@@ -1,4 +1,10 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
+import {
+  updateScrollbarTheme,
+  forceScrollbarRepaint,
+  applyThemeToDOM,
+  enableTransitions,
+} from '../utils';
 
 export const useTheme = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -12,8 +18,18 @@ export const useTheme = () => {
   });
 
   useEffect(() => {
-    // Apply dark mode class to HTML element
-    document.documentElement.classList.toggle('dark', isDarkMode);
+    // Apply theme to DOM elements
+    applyThemeToDOM(isDarkMode);
+
+    // Update scrollbar theme
+    updateScrollbarTheme(isDarkMode);
+
+    // Re-enable transitions and force scrollbar repaint
+    const timeoutId = enableTransitions(() => {
+      forceScrollbarRepaint();
+    });
+
+    return () => clearTimeout(timeoutId);
   }, [isDarkMode]);
 
   useEffect(() => {
@@ -32,6 +48,12 @@ export const useTheme = () => {
     setIsDarkMode((prev) => {
       const next = !prev;
       localStorage.setItem('darkMode', String(next));
+
+      // Add a subtle haptic feedback if supported
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+      }
+
       return next;
     });
   }, []);

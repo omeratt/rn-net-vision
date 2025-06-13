@@ -5,7 +5,7 @@ import { useTheme } from './hooks/useTheme';
 import { NetworkLogs } from './components/organisms/NetworkLogs';
 import { ErrorBoundary } from './components/atoms/ErrorBoundary';
 import { DeviceProvider } from './context/DeviceContext';
-import { DeviceDebugPanel } from './components/atoms/DeviceDebugPanel';
+import { ToastProvider } from './context/ToastContext';
 import { Header } from './components/organisms/Header';
 
 // Inner component that uses the DeviceContext
@@ -24,9 +24,6 @@ function AppContent(): VNode {
       <main className="w-full flex-1 flex flex-col px-4 py-3 sm:px-6 md:px-8">
         <NetworkLogs logs={logs} onClear={clearLogs} />
       </main>
-
-      {/* Temporary debug panel to diagnose device state issue */}
-      <DeviceDebugPanel />
     </div>
   );
 }
@@ -34,9 +31,11 @@ function AppContent(): VNode {
 export default function App(): VNode {
   return (
     <ErrorBoundary>
-      <DeviceProvider>
-        <AppContent />
-      </DeviceProvider>
+      <ToastProvider>
+        <DeviceProvider>
+          <AppContent />
+        </DeviceProvider>
+      </ToastProvider>
     </ErrorBoundary>
   );
 }
