@@ -27,7 +27,6 @@ export const FloatingDeviceDebug = ({
 
   useEffect(() => {
     if (isOpen && anchorRef.current) {
-      console.log('🔵 FloatingDeviceDebug: Opening panel');
       setShouldRender(true);
 
       const anchor = anchorRef.current.getBoundingClientRect();
@@ -53,11 +52,9 @@ export const FloatingDeviceDebug = ({
       setPosition({ top, left });
       // Start animation with slight delay to ensure DOM update
       setTimeout(() => {
-        console.log('🟢 FloatingDeviceDebug: Starting animation');
         setIsAnimating(true);
       }, 50);
     } else if (!isOpen && shouldRender) {
-      console.log('🔴 FloatingDeviceDebug: Closing panel');
       // Start exit animation
       setIsAnimating(false);
       // Remove from DOM after transition completes
@@ -230,8 +227,8 @@ export const FloatingDeviceDebug = ({
                       />
                     </div>
                     <div className="space-y-1 text-gray-600 dark:text-gray-400">
-                      <div>
-                        <strong>ID:</strong> {device.id.substring(0, 12)}...
+                      <div className="break-all">
+                        <strong>ID:</strong> {device.id}
                       </div>
                       <div>
                         <strong>Platform:</strong> {device.platform}

@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { VNode } from 'preact';
 import { useState, useRef } from 'preact/hooks';
-import { useDevices, Device } from '../../context/DeviceContext';
+import { useDevices, type Device } from '../../context/DeviceContext';
 import { StatusIndicator } from '../atoms/StatusIndicator';
 import { DropdownPortal } from '../atoms/DropdownPortal';
 
@@ -34,21 +34,41 @@ export const ModernDeviceSelector = ({
     setIsOpen(false);
   };
 
-  const getDeviceDisplayName = (device: Device): string => {
-    const nameWithoutPrefix = device.name.replace(
-      /^(iPhone|iPad|iPod|Android|Pixel|Samsung|Xiaomi)(\s|-)/i,
-      ''
-    );
-    return device.name !== nameWithoutPrefix
-      ? device.name
-      : `${device.platform === 'ios' ? 'iOS' : 'Android'} Device (${nameWithoutPrefix})`;
+  // Get display names with numbering for duplicates
+  const getDeviceDisplayNames = (): Map<string, string> => {
+    const nameMap = new Map<string, string>();
+    const nameCounts = new Map<string, number>();
+
+    // Count occurrences of each name
+    sortedConnectedDevices.forEach((device: Device) => {
+      const count = nameCounts.get(device.name) || 0;
+      nameCounts.set(device.name, count + 1);
+    });
+
+    // Create display names with numbering for duplicates
+    const nameInstanceCounts = new Map<string, number>();
+    sortedConnectedDevices.forEach((device: Device) => {
+      const totalWithSameName = nameCounts.get(device.name) || 1;
+      if (totalWithSameName === 1) {
+        nameMap.set(device.id, device.name);
+      } else {
+        const instanceCount = nameInstanceCounts.get(device.name) || 0;
+        nameInstanceCounts.set(device.name, instanceCount + 1);
+        nameMap.set(device.id, `${device.name} (${instanceCount + 1})`);
+      }
+    });
+
+    return nameMap;
   };
+
+  const deviceDisplayNames = getDeviceDisplayNames();
 
   const getSelectedDisplayText = (): string => {
     if (!isConnected) return 'Server Disconnected';
     if (sortedConnectedDevices.length === 0) return 'No Devices Connected';
     if (!activeDeviceId) return 'All Devices';
-    if (activeDevice) return getDeviceDisplayName(activeDevice);
+    if (activeDevice)
+      return deviceDisplayNames.get(activeDevice.id) || activeDevice.name;
     return 'Select Device';
   };
 
@@ -225,7 +245,7 @@ export const ModernDeviceSelector = ({
                 </div>
                 <div className="flex flex-col flex-1 min-w-0">
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors duration-200">
-                    {getDeviceDisplayName(device)}
+                    {deviceDisplayNames.get(device.id) || device.name}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400 font-mono group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors duration-200">
                     [{device.id.substring(0, 8)}]

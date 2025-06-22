@@ -7,14 +7,19 @@ interface NetworkLogProps {
   log: NetVisionLog;
   isSelected?: boolean;
   onClick?: () => void;
+  activeDeviceId?: string | null;
 }
 
 export const NetworkLog = ({
   log,
   isSelected,
   onClick,
+  activeDeviceId,
 }: NetworkLogProps): VNode => {
   const logRef = useRef<HTMLDivElement>(null);
+
+  // Only show device info when "All Devices" is selected (no activeDeviceId)
+  const showDeviceInfo = !activeDeviceId;
 
   // Scroll into view when selected with proper spacing
   useEffect(() => {
@@ -163,7 +168,7 @@ export const NetworkLog = ({
               <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-200">
                 {getDomain(log.url)}
               </span>
-              {log.deviceId && (
+              {log.deviceId && showDeviceInfo && (
                 <span
                   className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border border-white/30 shadow-sm transition-all duration-200
                   ${

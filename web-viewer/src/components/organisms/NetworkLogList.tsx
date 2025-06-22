@@ -276,6 +276,7 @@ export const NetworkLogList = ({
               log={log}
               isSelected={isLogSelected(log)}
               onClick={() => onSelectLog(log, index)}
+              activeDeviceId={activeDeviceId}
             />
           ))
         )}
