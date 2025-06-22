@@ -29,41 +29,81 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
 
   const [selectedLog, setSelectedLog] = useState<NetVisionLog | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const [sortedLogs, setSortedLogs] = useState<NetVisionLog[]>([]);
   const [splitPosition, setSplitPosition] = useState<number>(() => {
     const savedPosition = localStorage.getItem(SPLIT_POSITION_KEY);
     return savedPosition ? parseFloat(savedPosition) : 50;
   });
   const splitRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
   const [isResizing, setIsResizing] = useState(false);
 
+  // Reset selection when sorted logs change
+  useEffect(() => {
+    if (sortedLogs.length === 0) {
+      setSelectedLog(null);
+      setSelectedIndex(-1);
+    } else if (selectedIndex >= sortedLogs.length || selectedIndex < 0) {
+      // If current selection is out of bounds, reset to first item
+      setSelectedIndex(0);
+      setSelectedLog(sortedLogs[0]);
+    } else {
+      // Update selectedLog to match current index in case logs array changed
+      setSelectedLog(sortedLogs[selectedIndex]);
+    }
+  }, [sortedLogs, selectedIndex]);
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (filteredLogs.length === 0) return;
+      // Only handle keyboard events if the container or its children have focus
+      const container = containerRef.current;
+      if (!container || !container.contains(document.activeElement)) return;
+
+      if (sortedLogs.length === 0) return;
 
       if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex((prev) => {
-          const newIndex = prev <= 0 ? filteredLogs.length - 1 : prev - 1;
-          setSelectedLog(filteredLogs[newIndex]);
-          return newIndex;
-        });
+        const newIndex =
+          selectedIndex <= 0 ? sortedLogs.length - 1 : selectedIndex - 1;
+        setSelectedIndex(newIndex);
+        setSelectedLog(sortedLogs[newIndex]);
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedIndex((prev) => {
-          const newIndex = prev >= filteredLogs.length - 1 ? 0 : prev + 1;
-          setSelectedLog(filteredLogs[newIndex]);
-          return newIndex;
-        });
+        const newIndex =
+          selectedIndex >= sortedLogs.length - 1 ? 0 : selectedIndex + 1;
+        setSelectedIndex(newIndex);
+        setSelectedLog(sortedLogs[newIndex]);
       }
     },
-    [filteredLogs]
+    [sortedLogs, selectedIndex]
   );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [filteredLogs, handleKeyDown]);
+    const handleKeyDownEvent = (e: KeyboardEvent) => handleKeyDown(e);
+    document.addEventListener('keydown', handleKeyDownEvent);
+    return () => document.removeEventListener('keydown', handleKeyDownEvent);
+  }, [handleKeyDown]);
+
+  // Create a stable callback for sorted logs changes
+  const handleSortedLogsChange = useCallback(
+    (newSortedLogs: NetVisionLog[]) => {
+      setSortedLogs(newSortedLogs);
+    },
+    []
+  );
+
+  // Focus the container when component mounts or when there are logs to enable keyboard navigation
+  // But don't steal focus if something else (like an input) is already focused
+  useEffect(() => {
+    if (
+      sortedLogs.length > 0 &&
+      containerRef.current &&
+      !document.activeElement?.matches('input, textarea, select')
+    ) {
+      containerRef.current.focus();
+    }
+  }, [sortedLogs.length]);
 
   useEffect(() => {
     // Use requestAnimationFrame to optimize the animation performance
@@ -142,21 +182,29 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
   }, [splitPosition]);
 
   return (
-    <div className="flex flex-col sm:flex-row h-[calc(100vh-5rem)] overflow-hidden rounded-lg shadow-lg safe-area-container">
+    <div
+      ref={containerRef}
+      className="flex flex-col sm:flex-row h-[calc(100vh-5rem)] overflow-hidden rounded-lg shadow-lg safe-area-container focus:outline-none"
+      tabIndex={0}
+    >
       <div
         style={{ width: `${splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-[width] ease-out mobile-no-scroll-x"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-900/20 backdrop-blur-sm transition-[width] ease-out mobile-no-scroll-x"
       >
         <div className="p-2 sm:p-4 h-full overflow-y-auto">
           <NetworkLogList
             logs={filteredLogs}
             onClear={handleClear}
-            onSelectLog={(log, index) => {
+            onSelectLog={(log, visualIndex) => {
               setSelectedLog(log);
-              setSelectedIndex(index);
+              setSelectedIndex(visualIndex);
+              // Only focus the container if no input is currently focused
+              if (!document.activeElement?.matches('input, textarea, select')) {
+                containerRef.current?.focus();
+              }
             }}
             selectedLog={selectedLog}
-            selectedIndex={selectedIndex}
+            onSortedLogsChange={handleSortedLogsChange}
           />
         </div>
       </div>
@@ -170,7 +218,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
 
       <div
         style={{ width: `${100 - splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white dark:bg-gray-800 transition-[width] ease-out mobile-no-scroll-x"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-800/20 backdrop-blur-sm transition-[width] ease-out mobile-no-scroll-x"
       >
         <LogDetailsPanel log={selectedLog} />
       </div>

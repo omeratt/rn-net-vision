@@ -20,43 +20,49 @@ export const Header = ({
   const debugButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 transition-all">
-      <div className="w-full px-4 py-3 sm:px-6 md:px-8">
-        <div className="flex flex-wrap items-center justify-between">
-          <div className="flex items-center space-x-4 mb-2 sm:mb-0">
-            <div className="flex items-center gap-3">
-              <div className="text-primary-600 dark:text-primary-400 animate-pulse">
+    <header className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 shadow-lg shadow-gray-900/5 dark:shadow-gray-900/20">
+      {/* Gradient overlay for modern effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-pink-500/5 dark:from-indigo-500/10 dark:via-purple-500/10 dark:to-pink-500/10" />
+
+      <div className="relative w-full px-4 py-4 sm:px-6 md:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center space-x-6 mb-2 sm:mb-0">
+            {/* Logo section with enhanced styling */}
+            <div className="flex items-center gap-4 p-2 rounded-xl bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-700/80 dark:to-gray-600/80 backdrop-blur-sm border border-white/20 dark:border-gray-600/20 shadow-lg">
+              <div className="text-indigo-600 dark:text-indigo-400 animate-pulse">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="28"
+                  height="28"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-6 h-6"
+                  className="w-7 h-7 drop-shadow-lg"
                 >
                   <path d="M12 2L2 7l10 5 10-5-10-5z" />
                   <path d="M2 17l10 5 10-5" />
                   <path d="M2 12l10 5 10-5" />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
                 NetVision
               </h1>
             </div>
+
+            {/* Connection status indicator with enhanced styling */}
             <div
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all duration-300 ${
+              className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 backdrop-blur-sm border shadow-lg ${
                 isConnected
-                  ? 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300'
-                  : 'bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-300'
+                  ? 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-300 border-green-200/60 dark:border-green-700/60 shadow-green-500/20'
+                  : 'bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-900/40 dark:to-orange-900/40 text-red-800 dark:text-red-300 border-red-200/60 dark:border-red-700/60 shadow-red-500/20'
               }`}
             >
               <span
-                className={`w-2 h-2 rounded-full mr-1.5 ${
-                  isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+                className={`w-2 h-2 rounded-full mr-2 ${
+                  isConnected ? 'bg-green-500 animate-ping' : 'bg-red-500'
                 }`}
               />
               {isConnected ? 'Server Connected' : 'Server Disconnected'}
@@ -64,16 +70,24 @@ export const Header = ({
           </div>
 
           <div className="flex flex-wrap items-center space-x-4">
-            {/* Device Debug Button */}
+            {/* Device Debug Button with enhanced styling */}
             <button
               ref={debugButtonRef}
               onClick={() => setIsDebugOpen(!isDebugOpen)}
-              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200 group"
+              className={`p-3 rounded-xl transition-all duration-300 group shadow-lg hover:shadow-xl transform hover:scale-105 border backdrop-blur-sm ${
+                isDebugOpen
+                  ? 'bg-gradient-to-r from-indigo-100 to-indigo-200 dark:from-indigo-800 dark:to-indigo-700 border-indigo-300 dark:border-indigo-600 ring-2 ring-indigo-200/50 dark:ring-indigo-800/50 scale-105 shadow-indigo-200/50 dark:shadow-indigo-900/50'
+                  : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 border-white/50 dark:border-gray-600/50'
+              }`}
               title="Device Debug Panel"
               aria-label="Open device debug panel"
             >
               <svg
-                className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                className={`w-5 h-5 transition-all duration-300 ${
+                  isDebugOpen
+                    ? 'text-indigo-600 dark:text-indigo-400 rotate-12 scale-110'
+                    : 'text-gray-600 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:rotate-6'
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

@@ -1,7 +1,9 @@
 /** @jsxImportSource preact */
 import { VNode } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
+import { createPortal } from 'preact/compat';
 import { useDevices } from '../../context/DeviceContext';
+import { StatusIndicator } from '../atoms/StatusIndicator';
 
 interface FloatingDeviceDebugProps {
   isOpen: boolean;
@@ -13,15 +15,22 @@ export const FloatingDeviceDebug = ({
   isOpen,
   onClose,
   anchorRef,
-}: FloatingDeviceDebugProps): VNode => {
+}: FloatingDeviceDebugProps): VNode | null => {
   const { devices, activeDeviceId } = useDevices();
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    if (isOpen && anchorRef.current && panelRef.current) {
+    if (isOpen && anchorRef.current) {
+      console.log('🔵 FloatingDeviceDebug: Opening panel');
+      setShouldRender(true);
+
       const anchor = anchorRef.current.getBoundingClientRect();
-      const panel = panelRef.current.getBoundingClientRect();
       const viewport = {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -35,13 +44,29 @@ export const FloatingDeviceDebug = ({
         left = anchor.right - 320;
       }
 
-      if (top + panel.height > viewport.height) {
-        top = anchor.top - panel.height - 8;
+      // Estimate panel height to avoid initial wrong positioning
+      const estimatedPanelHeight = 400;
+      if (top + estimatedPanelHeight > viewport.height) {
+        top = anchor.top - estimatedPanelHeight - 8;
       }
 
       setPosition({ top, left });
+      // Start animation with slight delay to ensure DOM update
+      setTimeout(() => {
+        console.log('🟢 FloatingDeviceDebug: Starting animation');
+        setIsAnimating(true);
+      }, 50);
+    } else if (!isOpen && shouldRender) {
+      console.log('🔴 FloatingDeviceDebug: Closing panel');
+      // Start exit animation
+      setIsAnimating(false);
+      // Remove from DOM after transition completes
+      setTimeout(() => {
+        setShouldRender(false);
+        setPosition(null);
+      }, 300); // Match transition duration
     }
-  }, [isOpen, anchorRef]);
+  }, [isOpen, anchorRef, shouldRender]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -71,25 +96,39 @@ export const FloatingDeviceDebug = ({
     }
   }, [isOpen, onClose, anchorRef]);
 
-  return (
-    <>
-      {/* Backdrop with enhanced blur transition */}
-      {isOpen && (
-        <div className="fixed inset-0 z-40 bg-black/5 dark:bg-black/20 backdrop-blur-sm animate-fade-in-backdrop" />
-      )}
+  if (!shouldRender || !position) {
+    return null;
+  }
 
-      {/* Floating Panel */}
+  const portalContent = (
+    <>
+      {/* Backdrop with direct blur and transitions */}
+      <div
+        className={`fixed inset-0 bg-black/20 dark:bg-black/30 z-ultra-backdrop backdrop-blur-sm transition-all duration-300 ${
+          isAnimating ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={
+          {
+            backdropFilter: 'blur(3px)',
+            WebkitBackdropFilter: 'blur(3px)',
+          } as any
+        }
+        data-debug={`backdrop-${isAnimating ? 'in' : 'out'}`}
+      />
+
+      {/* Floating Panel with CSS transitions */}
       <div
         ref={panelRef}
-        className={`fixed z-50 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-2xl transition-all duration-150 ease-out ${
-          isOpen
-            ? 'opacity-100 scale-100 translate-y-0'
-            : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+        className={`fixed w-80 bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-600 rounded-xl shadow-2xl z-ultra-high transition-all duration-300 ease-out ${
+          isAnimating
+            ? 'opacity-100 translate-y-0 scale-100'
+            : 'opacity-0 -translate-y-4 scale-95'
         }`}
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
         }}
+        data-debug={`panel-${isAnimating ? 'in' : 'out'}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
@@ -183,15 +222,12 @@ export const FloatingDeviceDebug = ({
                       <span className="font-medium text-gray-900 dark:text-gray-100">
                         {device.name}
                       </span>
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          device.connected
-                            ? 'bg-green-100 dark:bg-green-800/30 text-green-800 dark:text-green-300'
-                            : 'bg-red-100 dark:bg-red-800/30 text-red-800 dark:text-red-300'
-                        }`}
-                      >
-                        {device.connected ? '🟢 Online' : '🔴 Offline'}
-                      </span>
+                      <StatusIndicator
+                        isOnline={device.connected}
+                        size="sm"
+                        showLabel={true}
+                        className="text-xs"
+                      />
                     </div>
                     <div className="space-y-1 text-gray-600 dark:text-gray-400">
                       <div>
@@ -229,4 +265,6 @@ export const FloatingDeviceDebug = ({
       </div>
     </>
   );
+
+  return createPortal(portalContent, document.body);
 };

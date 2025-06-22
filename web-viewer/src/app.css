@@ -1,6 +1,4 @@
 @import 'tailwindcss';
-@tailwind base;
-@tailwind components;
 @tailwind utilities;
 
 :root {
@@ -22,8 +20,122 @@
   -moz-osx-font-smoothing: grayscale;
   
   /* Enhanced theme transition timing */
-  --theme-transition-duration: 180ms;
+  --theme-transition-duration: 300ms;
   --theme-transition-timing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Modern animations */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+@keyframes bounceScale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
+}
+
+/* Animation classes */
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.animate-bounce-scale {
+  animation: bounceScale 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-fade-in-backdrop {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modern glassmorphism utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced glassmorphism utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-panel {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.dark .glass-button {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dark .glass-button:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Disable all transitions during theme switching to prevent flash */
@@ -39,6 +151,54 @@
     border-color var(--theme-transition-duration) var(--theme-transition-timing),
     color var(--theme-transition-duration) var(--theme-transition-timing),
     box-shadow var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Enhanced interaction utilities */
+.hover-lift {
+  transition: transform 0.2s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease-out;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+/* Modern scroll behavior */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced focus styles */
+.focus-visible-enhanced:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Modern container styles */
+.container-modern {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-modern {
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-modern {
+    padding: 0 3rem;
+  }
 }
 
 /* Preserve other transitions */
@@ -431,4 +591,182 @@ pre.responsive-code.code-overflow-responsive {
     min-width: 0 !important;
     max-width: 100% !important;
   }
+}
+
+/* Enhanced z-index utilities for proper layering */
+.z-dropdown {
+  position: relative;
+  z-index: 9999 !important;
+}
+
+.z-modal {
+  position: relative;
+  z-index: 10000 !important;
+}
+
+.z-notification {
+  z-index: 10001 !important;
+}
+
+/* Dropdown portal for maximum z-index */
+.dropdown-portal {
+  position: fixed !important;
+  z-index: 1000000 !important;
+  pointer-events: none;
+}
+
+.dropdown-portal > * {
+  pointer-events: auto;
+}
+
+.debug-panel-portal {
+  position: fixed !important;
+  z-index: 1000001 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure backdrop overlays work properly */
+.backdrop-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 999999 !important;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.dark .backdrop-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced glassmorphism for status indicators */
+.status-indicator-glass {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .status-indicator-glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Dropdown portal content visibility and layering */
+.dropdown-portal-content {
+  position: fixed !important;
+  z-index: 1000000 !important;
+  pointer-events: auto !important;
+}
+
+/* Elegant dropdown animations */
+/* Simple and reliable animations */
+@keyframes simpleDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes simpleDropdownOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+  }
+}
+
+.animate-dropdown-in {
+  animation: simpleDropdownIn 0.3s ease-out forwards;
+}
+
+.animate-dropdown-out {
+  animation: simpleDropdownOut 0.2s ease-in forwards;
+}
+
+/* Simple device panel animations */
+@keyframes simplePanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes simplePanelOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+}
+
+.animate-device-panel-in {
+  animation: simplePanelIn 0.3s ease-out forwards;
+}
+
+.animate-device-panel-out {
+  animation: simplePanelOut 0.2s ease-in forwards;
+}
+
+/* Simple backdrop animations with blur */
+@keyframes simpleBackdropIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+}
+
+@keyframes simpleBackdropOut {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
+.animate-backdrop-in {
+  animation: simpleBackdropIn 0.3s ease-out forwards;
+}
+
+.animate-backdrop-out {
+  animation: simpleBackdropOut 0.2s ease-in forwards;
+}
+
+/* Ultra-high z-index for floating panels that must be above everything */
+.z-ultra-high {
+  z-index: 9999999 !important;
+}
+
+.z-ultra-backdrop {
+  z-index: 9999998 !important;
 }

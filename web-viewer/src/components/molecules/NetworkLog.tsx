@@ -1,5 +1,6 @@
 /** @jsxImportSource preact */
 import type { VNode } from 'preact';
+import { useEffect, useRef } from 'preact/hooks';
 import type { NetVisionLog } from '../../types';
 
 interface NetworkLogProps {
@@ -13,6 +14,18 @@ export const NetworkLog = ({
   isSelected,
   onClick,
 }: NetworkLogProps): VNode => {
+  const logRef = useRef<HTMLDivElement>(null);
+
+  // Scroll into view when selected
+  useEffect(() => {
+    if (isSelected && logRef.current) {
+      logRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    }
+  }, [isSelected]);
   const getStatusColor = (status: number): string => {
     if (status < 300) return 'text-green-500 dark:text-green-400';
     if (status < 400) return 'text-blue-500 dark:text-blue-400';
@@ -86,38 +99,49 @@ export const NetworkLog = ({
 
   return (
     <div
+      ref={logRef}
       onClick={onClick}
-      className={`bg-white dark:bg-gray-800 rounded-lg p-4 cursor-pointer transition-all duration-200 border border-transparent 
+      className={`
+        relative overflow-hidden
+        bg-white/20 dark:bg-gray-800/20
+        rounded-xl p-5 cursor-pointer 
+        transition-all duration-300 ease-out
+        border border-white/30 dark:border-gray-600/30
+        before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/5 before:to-transparent 
+        before:translate-x-[-100%] before:transition-transform before:duration-700 before:ease-out
+        hover:before:translate-x-[100%]
         ${
           isSelected
-            ? 'ring-2 shadow-lg ring-indigo-300/85 dark:ring-indigo-400/85 border-indigo-200 dark:border-indigo-700/40 dark:shadow-indigo-900/60 scale-[1.01]'
-            : 'shadow-md shadow-gray-200/60 hover:shadow-lg hover:shadow-gray-200/80 dark:shadow-indigo-900/40 dark:hover:shadow-indigo-900/60 hover:scale-[1.005]'
+            ? 'ring-2 ring-indigo-400/60 dark:ring-indigo-400/80 border-indigo-300/70 dark:border-indigo-600/70 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-900/40 scale-[1.01] bg-white/30 dark:bg-gray-800/30'
+            : 'hover:ring-1 hover:ring-gray-300/50 dark:hover:ring-gray-600/50 shadow-lg shadow-gray-900/5 dark:shadow-gray-900/20 hover:shadow-xl hover:shadow-gray-900/10 dark:hover:shadow-gray-900/30 hover:scale-[1.005] hover:bg-white/25 dark:hover:bg-gray-800/25'
         }
         group
       `}
     >
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col space-y-3 relative z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <span
-              className={`inline-flex items-center justify-center px-2 py-1 rounded-md font-mono font-medium text-xs ${getMethodColor(log.method)}`}
+              className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg font-mono font-semibold text-xs border border-white/20 shadow-lg ${getMethodColor(log.method)} transition-all duration-200`}
             >
               {log.method}
             </span>
             <span
-              className={`inline-flex items-center justify-center w-10 h-6 rounded-md font-mono font-bold text-xs ${getStatusBadgeColor(log.status)} ${getStatusColor(log.status)}`}
+              className={`inline-flex items-center justify-center min-w-[2.5rem] h-7 rounded-lg font-mono font-bold text-xs border border-white/20 shadow-md ${getStatusBadgeColor(log.status)} ${getStatusColor(log.status)} transition-all duration-200`}
             >
               {log.status}
             </span>
-            <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-              {getDomain(log.url)}
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                {getDomain(log.url)}
+              </span>
               {log.deviceId && (
                 <span
-                  className={`ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border border-white/30 shadow-sm transition-all duration-200
                   ${
                     log.devicePlatform === 'ios'
-                      ? 'bg-blue-100 dark:bg-blue-800/30 text-blue-800 dark:text-blue-300'
-                      : 'bg-green-100 dark:bg-green-800/30 text-green-800 dark:text-green-300'
+                      ? 'bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-800/40 dark:to-blue-900/40 text-blue-800 dark:text-blue-300'
+                      : 'bg-gradient-to-r from-green-100 to-green-200 dark:from-green-800/40 dark:to-green-900/40 text-green-800 dark:text-green-300'
                   }`}
                 >
                   {log.devicePlatform === 'ios' ? (
@@ -140,24 +164,28 @@ export const NetworkLog = ({
                   {log.deviceName || log.deviceId.substring(0, 6)}
                 </span>
               )}
-            </span>
+            </div>
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <span
-              className={`font-mono text-xs px-2 py-1 rounded ${getDurationColor(log.duration)} bg-opacity-10 dark:bg-opacity-20`}
-            >
-              {formatDuration(log.duration)}
-            </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center space-x-2">
+              <span
+                className={`font-mono text-xs px-3 py-1.5 rounded-lg border border-white/20 shadow-md ${getDurationColor(log.duration)} bg-white/50 dark:bg-gray-800/50 transition-all duration-200`}
+              >
+                {formatDuration(log.duration)}
+              </span>
+            </div>
+            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100/50 dark:bg-gray-700/50 px-2 py-1 rounded-md">
               {formatTimestamp(log.timestamp)}
             </span>
           </div>
         </div>
 
-        <div className="pl-2 border-l-2 border-gray-200 dark:border-gray-700 group-hover:border-indigo-300 dark:group-hover:border-indigo-600 transition-colors duration-200">
-          <p className="text-gray-600 dark:text-gray-400 text-sm truncate max-w-full font-mono">
-            {getPath(log.url)}
-          </p>
+        <div className="relative">
+          <div className="pl-4 border-l-2 border-indigo-400 dark:border-indigo-500 group-hover:border-purple-500 transition-all duration-300 bg-gradient-to-r from-indigo-50/30 via-blue-50/20 to-transparent dark:from-indigo-900/30 dark:via-blue-900/20 rounded-r-lg">
+            <p className="text-gray-700 dark:text-gray-300 text-sm font-mono break-all leading-relaxed group-hover:text-indigo-800 dark:group-hover:text-indigo-200 transition-colors duration-200">
+              {getPath(log.url)}
+            </p>
+          </div>
         </div>
       </div>
     </div>

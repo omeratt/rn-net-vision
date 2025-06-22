@@ -88,7 +88,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
 
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden p-4 space-y-4 mobile-no-scroll-x force-wrap">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all">
+      <div className="bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-white/20 dark:border-gray-700/30 transition-all">
         <div className="flex flex-wrap gap-4 mb-2 mobile-flex-wrap">
           <DetailField label="URL" value={log.url} />
           {log.error && <DetailField label="Local Error" value={log.error} />}
@@ -104,7 +104,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
 
       <div className="@container">
         <div className="flex flex-col @lg:flex-row w-full gap-4 responsive-flex-container mobile-flex-wrap">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex-1 min-w-0">
+          <div className="bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-white/20 dark:border-gray-700/30 transition-all flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2 mb-3">
               <h3 className="text-md font-medium text-indigo-600 dark:text-indigo-400">
                 Request
@@ -133,7 +133,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex-1 min-w-0">
+          <div className="bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-white/20 dark:border-gray-700/30 transition-all flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2 mb-3">
               <h3 className="text-md font-medium text-indigo-600 dark:text-indigo-400">
                 Response
@@ -165,7 +165,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
       </div>
 
       {log.cookies && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-all">
+        <div className="bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-white/20 dark:border-gray-700/30 transition-all">
           <div className="flex items-center justify-between gap-2 mb-3">
             <h3 className="text-md font-medium text-indigo-600 dark:text-indigo-400">
               Cookies

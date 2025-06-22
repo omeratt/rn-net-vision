@@ -16,7 +16,7 @@ interface NetworkLogListProps {
   onClear: () => void;
   onSelectLog: (log: NetVisionLog, index: number) => void;
   selectedLog: NetVisionLog | null;
-  selectedIndex: number;
+  onSortedLogsChange?: (sortedLogs: NetVisionLog[]) => void;
 }
 
 export const NetworkLogList = ({
@@ -24,7 +24,7 @@ export const NetworkLogList = ({
   onClear,
   onSelectLog,
   selectedLog,
-  selectedIndex,
+  onSortedLogsChange,
 }: NetworkLogListProps): VNode => {
   const { activeDeviceId, getDeviceName } = useDevices();
 
@@ -37,6 +37,17 @@ export const NetworkLogList = ({
     return savedSort === 'asc' ? 'asc' : 'desc';
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Helper function to check if two logs are the same
+  const isLogSelected = (log: NetVisionLog): boolean => {
+    if (!selectedLog) return false;
+    return (
+      selectedLog.timestamp === log.timestamp &&
+      selectedLog.url === log.url &&
+      selectedLog.method === log.method &&
+      selectedLog.status === log.status
+    );
+  };
 
   // Generate clear button text based on active device
   const clearButtonText = activeDeviceId
@@ -91,9 +102,16 @@ export const NetworkLogList = ({
     setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
+  // Notify parent of sorted logs changes for keyboard navigation
+  useEffect(() => {
+    if (onSortedLogsChange) {
+      onSortedLogsChange(filteredAndSortedLogs);
+    }
+  }, [filteredAndSortedLogs, onSortedLogsChange]);
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-col bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-lg shadow-md dark:shadow-[0_4px_12px_rgba(200,200,255,0.08)] transition-all duration-300">
+      <div className="flex flex-col bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm border border-white/20 dark:border-gray-600/30 p-3 sm:p-4 rounded-lg shadow-md dark:shadow-[0_4px_12px_rgba(200,200,255,0.08)] transition-all duration-300">
         <div className="flex flex-wrap justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <button
@@ -198,7 +216,7 @@ export const NetworkLogList = ({
 
         {/* Mobile filters, only visible when toggled */}
         {isFilterOpen && (
-          <div className="sm:hidden flex flex-col gap-3 mb-3 p-4 bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 rounded-lg transition-all duration-300">
+          <div className="sm:hidden flex flex-col gap-3 mb-3 p-4 bg-white/10 dark:bg-gray-800/20 backdrop-blur-sm border border-white/20 dark:border-gray-700/30 rounded-lg transition-all duration-300">
             <FilterInput
               type="text"
               placeholder="Filter by URL..."
@@ -256,7 +274,7 @@ export const NetworkLogList = ({
             <NetworkLog
               key={`${log.timestamp}-${log.url}-${log.status}-${log.method}-${log.deviceId || 'no-device'}-${index}`}
               log={log}
-              isSelected={selectedLog === log || index === selectedIndex}
+              isSelected={isLogSelected(log)}
               onClick={() => onSelectLog(log, index)}
             />
           ))
