@@ -30,13 +30,32 @@ export const NetworkLogList = ({
 
   // Remove activeDeviceId since device filtering is handled in parent component
   const [filter, setFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [methodFilter, setMethodFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [methodFilter, setMethodFilter] = useState<string[]>([]);
   const [sortDirection, setSortDirection] = useState<SortDirection>(() => {
     const savedSort = localStorage.getItem(SORT_PREFERENCE_KEY);
     return savedSort === 'asc' ? 'asc' : 'desc';
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Helper functions for handling filter changes
+  const handleStatusFilterChange = (value: string | string[]) => {
+    if (Array.isArray(value)) {
+      setStatusFilter(value);
+    }
+  };
+
+  const handleMethodFilterChange = (value: string | string[]) => {
+    if (Array.isArray(value)) {
+      setMethodFilter(value);
+    }
+  };
+
+  const handleTextFilterChange = (value: string | string[]) => {
+    if (typeof value === 'string') {
+      setFilter(value);
+    }
+  };
 
   // Helper function to check if two logs are the same
   const isLogSelected = (log: NetVisionLog): boolean => {
@@ -61,10 +80,7 @@ export const NetworkLogList = ({
   const uniqueMethodOptions = useMemo(() => {
     const methods = new Set(logs.map((log) => log.method));
     const methodsArray = Array.from(methods);
-    return [
-      { value: 'all', label: 'All Methods' },
-      ...methodsArray.map((method) => ({ value: method, label: method })),
-    ];
+    return methodsArray.map((method) => ({ value: method, label: method }));
   }, [logs]);
 
   const uniqueStatusOptions = useMemo(() => {
@@ -82,13 +98,10 @@ export const NetworkLogList = ({
       return `${status} - Server Error`;
     };
 
-    return [
-      { value: 'all', label: 'All Status Codes' },
-      ...statusesArray.map((status) => ({
-        value: status,
-        label: getStatusLabel(status),
-      })),
-    ];
+    return statusesArray.map((status) => ({
+      value: status,
+      label: getStatusLabel(status),
+    }));
   }, [logs]);
 
   const filteredAndSortedLogs = useMemo(() => {
@@ -102,10 +115,11 @@ export const NetworkLogList = ({
         filter === '' || log.url.toLowerCase().includes(filter.toLowerCase());
 
       const matchesStatus =
-        statusFilter === 'all' || log.status.toString() === statusFilter;
+        statusFilter.length === 0 ||
+        statusFilter.includes(log.status.toString());
 
       const matchesMethod =
-        methodFilter === 'all' || log.method === methodFilter;
+        methodFilter.length === 0 || methodFilter.includes(log.method);
 
       return matchesSearch && matchesStatus && matchesMethod;
     });
@@ -157,9 +171,21 @@ export const NetworkLogList = ({
                 type="text"
                 placeholder="Filter by URL..."
                 value={filter}
-                onChange={setFilter}
+                onChange={handleTextFilterChange}
                 icon={
-                  <span style={{ fontSize: '16px', color: '#000000' }}>🔍</span>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
                 }
                 aria-label="Filter logs by URL"
                 className="min-w-[300px] flex-1"
@@ -167,18 +193,22 @@ export const NetworkLogList = ({
 
               <FilterInput
                 type="select"
+                placeholder="Status"
                 value={statusFilter}
-                onChange={setStatusFilter}
+                onChange={handleStatusFilterChange}
                 options={uniqueStatusOptions}
+                multiSelect={true}
                 aria-label="Filter logs by status code"
                 className="min-w-[140px]"
               />
 
               <FilterInput
                 type="select"
+                placeholder="Method"
                 value={methodFilter}
-                onChange={setMethodFilter}
+                onChange={handleMethodFilterChange}
                 options={uniqueMethodOptions}
+                multiSelect={true}
                 aria-label="Filter logs by HTTP method"
                 className="min-w-[120px]"
               />
@@ -223,26 +253,42 @@ export const NetworkLogList = ({
               type="text"
               placeholder="Filter by URL..."
               value={filter}
-              onChange={setFilter}
+              onChange={handleTextFilterChange}
               icon={
-                <span style={{ fontSize: '16px', color: '#000000' }}>🔍</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
               }
               aria-label="Filter logs by URL"
             />
 
             <FilterInput
               type="select"
+              placeholder="Status"
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={handleStatusFilterChange}
               options={uniqueStatusOptions}
+              multiSelect={true}
               aria-label="Filter logs by status code"
             />
 
             <FilterInput
               type="select"
+              placeholder="Method"
               value={methodFilter}
-              onChange={setMethodFilter}
+              onChange={handleMethodFilterChange}
               options={uniqueMethodOptions}
+              multiSelect={true}
               aria-label="Filter logs by HTTP method"
             />
           </div>
