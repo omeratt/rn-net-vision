@@ -1,7 +1,9 @@
 /** @jsxImportSource preact */
 import { VNode } from 'preact';
-import { useState, useRef, useEffect } from 'preact/hooks';
+import { useState, useRef } from 'preact/hooks';
 import { useDevices, Device } from '../../context/DeviceContext';
+import { StatusIndicator } from '../atoms/StatusIndicator';
+import { DropdownPortal } from '../atoms/DropdownPortal';
 
 interface ModernDeviceSelectorProps {
   isConnected: boolean;
@@ -12,7 +14,7 @@ export const ModernDeviceSelector = ({
 }: ModernDeviceSelectorProps): VNode => {
   const { devices, activeDeviceId, setActiveDeviceId } = useDevices();
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Only show connected devices in the dropdown
   const connectedDevices = devices.filter((d) => d.connected);
@@ -26,21 +28,6 @@ export const ModernDeviceSelector = ({
   });
 
   const activeDevice = devices.find((d) => d.id === activeDeviceId);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleDeviceSelect = (deviceId: string) => {
     setActiveDeviceId(deviceId);
@@ -84,51 +71,26 @@ export const ModernDeviceSelector = ({
   };
 
   const getStatusIcon = (connected: boolean): VNode => {
-    const statusClasses = `w-2 h-2 rounded-full transition-all duration-300 ${
-      connected
-        ? 'bg-green-400 shadow-green-400/50 shadow-lg animate-pulse scale-110'
-        : 'bg-gray-400 scale-90'
-    }`;
-    return (
-      <div className="relative">
-        <div className={statusClasses} />
-        {connected && (
-          <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-400/30 animate-ping" />
-        )}
-      </div>
-    );
+    return <StatusIndicator isOnline={connected} size="sm" variant="minimal" />;
   };
 
   const mainButtonClasses = `
     modern-button relative flex items-center justify-between w-full min-w-[280px] px-4 py-3
-    bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600
+    bg-white/20 dark:bg-gray-800/30 border border-white/30 dark:border-gray-600/30
     rounded-xl shadow-sm hover:shadow-lg dark:shadow-gray-900/20
     transition-all duration-300 ease-out transform hover:scale-[1.02]
     ${
       isConnected
-        ? 'hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-gradient-to-r hover:from-white hover:to-indigo-50 dark:hover:from-gray-800 dark:hover:to-indigo-900/20'
+        ? 'hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-white/30 dark:hover:bg-gray-800/40 hover:shadow-indigo-200/50 dark:hover:shadow-indigo-900/30'
         : 'opacity-60 cursor-not-allowed'
     }
     ${
       isOpen
-        ? 'border-indigo-400 dark:border-indigo-500 shadow-xl shadow-indigo-200/50 dark:shadow-indigo-900/30 ring-4 ring-indigo-100 dark:ring-indigo-900/30 scale-[1.02] bg-gradient-to-r from-white to-indigo-50 dark:from-gray-800 dark:to-indigo-900/20'
+        ? 'border-indigo-400 dark:border-indigo-500 shadow-xl shadow-indigo-200/50 dark:shadow-indigo-900/30 ring-4 ring-indigo-100/50 dark:ring-indigo-900/30 scale-[1.02] bg-white/30 dark:bg-gray-800/40'
         : ''
     }
-    focus:outline-none focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30
+    focus:outline-none focus:ring-4 focus:ring-indigo-100/50 dark:focus:ring-indigo-900/30
     group
-  `;
-
-  const dropdownClasses = `
-    animate-slide-in-up absolute top-full left-0 right-0 mt-2 z-50
-    bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-gray-200/80 dark:border-gray-600/80
-    rounded-xl shadow-2xl dark:shadow-gray-900/40
-    overflow-hidden
-    transition-all duration-300 ease-out origin-top
-    ${
-      isOpen
-        ? 'opacity-100 scale-100 translate-y-0'
-        : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-    }
   `;
 
   const arrowClasses = `
@@ -138,9 +100,10 @@ export const ModernDeviceSelector = ({
   `;
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="dropdown-container relative">
       {/* Main selector button */}
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         disabled={!isConnected}
         className={mainButtonClasses}
@@ -203,128 +166,128 @@ export const ModernDeviceSelector = ({
         </div>
       </button>
 
-      {/* Dropdown menu */}
-      <div className={dropdownClasses}>
-        <div className="py-2">
-          {/* "All Devices" option */}
-          {isConnected && sortedConnectedDevices.length > 0 && (
-            <button
-              onClick={() => handleDeviceSelect('')}
-              className={`
-                device-item-hover w-full px-4 py-3 text-left flex items-center space-x-3
-                hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 dark:hover:from-indigo-900/30 dark:hover:to-blue-900/30
-                transition-all duration-300 ease-out transform hover:scale-[1.02] hover:translate-x-1
-                ${!activeDeviceId ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border-l-4 border-indigo-400' : ''}
-                group relative overflow-hidden
-              `}
-            >
-              <div className="flex items-center space-x-2">
-                <span className="text-lg transition-all duration-300 group-hover:scale-125 group-hover:rotate-12">
-                  📱
-                </span>
-                <div className="w-2 h-2 rounded-full bg-blue-400 shadow-blue-400/50 shadow-lg animate-pulse" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors duration-200">
-                  All Devices
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors duration-200">
-                  Show logs from all connected devices
-                </span>
-              </div>
-              {!activeDeviceId && (
-                <div className="ml-auto">
-                  <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce-scale" />
+      {/* Dropdown menu using portal */}
+      <DropdownPortal
+        isOpen={isOpen}
+        anchorRef={buttonRef}
+        onClose={() => setIsOpen(false)}
+      >
+        <div className="w-80 bg-white/90 dark:bg-gray-800/90 border border-white/30 dark:border-gray-600/30 rounded-xl shadow-2xl dark:shadow-gray-900/40 overflow-hidden">
+          <div className="py-2">
+            {/* "All Devices" option */}
+            {isConnected && sortedConnectedDevices.length > 0 && (
+              <button
+                onClick={() => handleDeviceSelect('')}
+                className={`device-item-hover w-full px-4 py-3 text-left flex items-center space-x-3 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 dark:hover:from-indigo-900/30 dark:hover:to-blue-900/30 transition-all duration-200 ease-out transform hover:scale-[1.01] hover:translate-x-1 group relative overflow-hidden ${
+                  !activeDeviceId
+                    ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border-l-4 border-indigo-400'
+                    : ''
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg transition-all duration-300">
+                    📱
+                  </span>
+                  <div className="w-2 h-2 rounded-full bg-blue-400 shadow-blue-400/50 shadow-lg animate-pulse" />
                 </div>
-              )}
-            </button>
-          )}
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors duration-200">
+                    All Devices
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors duration-200">
+                    Show logs from all connected devices
+                  </span>
+                </div>
+                {!activeDeviceId && (
+                  <div className="ml-auto">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce-scale" />
+                  </div>
+                )}
+              </button>
+            )}
 
-          {/* Connected devices */}
-          {sortedConnectedDevices.map((device, index) => (
-            <button
-              key={device.id}
-              onClick={() => handleDeviceSelect(device.id)}
-              className={`
-                device-item-hover w-full px-4 py-3 text-left flex items-center space-x-3
-                hover:bg-gradient-to-r hover:from-gray-50 hover:to-indigo-50 dark:hover:from-gray-700/50 dark:hover:to-indigo-900/30
-                transition-all duration-300 ease-out transform hover:scale-[1.02] hover:translate-x-1
-                ${activeDeviceId === device.id ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border-l-4 border-indigo-400' : ''}
-                group relative overflow-hidden
-                animate-fade-in
-              `}
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="flex items-center space-x-2">
-                <span className="text-lg transition-all duration-300 group-hover:scale-125 group-hover:rotate-12">
-                  {getPlatformIcon(device.platform)}
-                </span>
-                {getStatusIcon(device.connected)}
-              </div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors duration-200">
-                  {getDeviceDisplayName(device)}
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-mono group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors duration-200">
-                  [{device.id.substring(0, 8)}]
-                </span>
-              </div>
-              {activeDeviceId === device.id && (
-                <div className="ml-auto">
-                  <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce-scale" />
+            {/* Connected devices */}
+            {sortedConnectedDevices.map((device) => (
+              <button
+                key={device.id}
+                onClick={() => handleDeviceSelect(device.id)}
+                className={`device-item-hover w-full px-4 py-3 text-left flex items-center space-x-3 hover:bg-gradient-to-r hover:from-gray-50 hover:to-indigo-50 dark:hover:from-gray-700/50 dark:hover:to-indigo-900/30 transition-all duration-200 ease-out transform hover:scale-[1.01] hover:translate-x-1 group relative overflow-hidden ${
+                  activeDeviceId === device.id
+                    ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border-l-4 border-indigo-400'
+                    : ''
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg transition-all duration-300">
+                    {getPlatformIcon(device.platform)}
+                  </span>
+                  {getStatusIcon(device.connected)}
                 </div>
-              )}
-              {/* Subtle shine effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
-              </div>
-            </button>
-          ))}
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors duration-200">
+                    {getDeviceDisplayName(device)}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-mono group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors duration-200">
+                    [{device.id.substring(0, 8)}]
+                  </span>
+                </div>
+                {activeDeviceId === device.id && (
+                  <div className="ml-auto">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce-scale" />
+                  </div>
+                )}
+                {/* Subtle shine effect - disabled for better performance */}
+                {/* <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
+                </div> */}
+              </button>
+            ))}
 
-          {/* No devices message */}
-          {isConnected && sortedConnectedDevices.length === 0 && (
-            <div className="px-4 py-6 text-center">
-              <div className="flex flex-col items-center space-y-2">
-                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                  <span className="text-2xl opacity-60">📱</span>
+            {/* No devices message */}
+            {isConnected && sortedConnectedDevices.length === 0 && (
+              <div className="px-4 py-6 text-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-2xl opacity-60">📱</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    No devices connected
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    Connect a device to see it here
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  No devices connected
-                </span>
-                <span className="text-xs text-gray-400 dark:text-gray-500">
-                  Connect a device to see it here
-                </span>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Server disconnected message */}
-          {!isConnected && (
-            <div className="px-4 py-6 text-center">
-              <div className="flex flex-col items-center space-y-2">
-                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                  <span className="text-2xl">🔴</span>
+            {/* Server disconnected message */}
+            {!isConnected && (
+              <div className="px-4 py-6 text-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <span className="text-2xl">🔴</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Server Disconnected
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    Check your connection
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Server Disconnected
-                </span>
-                <span className="text-xs text-gray-400 dark:text-gray-500">
-                  Check your connection
-                </span>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      </DropdownPortal>
 
       {/* Device count indicator */}
       <div className="absolute -top-2 -right-2 z-10">
         <div className="flex items-center space-x-1">
           {/* Connected devices count */}
-          <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl animate-bounce-scale">
-            <span className="mr-1 transition-transform duration-300 hover:rotate-180">
-              🟢
-            </span>
+          <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white/90 dark:bg-gray-800/90 border border-emerald-200 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl">
+            <div className="mr-1">
+              <StatusIndicator isOnline={true} size="sm" variant="minimal" />
+            </div>
             <span className="font-mono">{connectedDevices.length}</span>
           </div>
 
