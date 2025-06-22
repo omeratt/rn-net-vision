@@ -16,14 +16,42 @@ export const NetworkLog = ({
 }: NetworkLogProps): VNode => {
   const logRef = useRef<HTMLDivElement>(null);
 
-  // Scroll into view when selected
+  // Scroll into view when selected with proper spacing
   useEffect(() => {
     if (isSelected && logRef.current) {
-      logRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest',
-      });
+      const logElement = logRef.current;
+      const container = logElement.closest('.overflow-y-auto');
+
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const logRect = logElement.getBoundingClientRect();
+
+        // Calculate scroll offset needed
+        const containerTop = containerRect.top;
+        const containerBottom = containerRect.bottom;
+        const logTop = logRect.top;
+        const logBottom = logRect.bottom;
+
+        // Extra padding to account for spacing, borders, and visual effects
+        const extraPadding = 24; // accounts for space-y-3 (12px) + borders + ring effects
+
+        let scrollOffset = 0;
+
+        if (logTop < containerTop) {
+          // Item is above viewport - scroll up
+          scrollOffset = logTop - containerTop - extraPadding;
+        } else if (logBottom > containerBottom) {
+          // Item is below viewport - scroll down
+          scrollOffset = logBottom - containerBottom + extraPadding;
+        }
+
+        if (scrollOffset !== 0) {
+          container.scrollBy({
+            top: scrollOffset,
+            behavior: 'smooth',
+          });
+        }
+      }
     }
   }, [isSelected]);
   const getStatusColor = (status: number): string => {
