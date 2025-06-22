@@ -95,7 +95,7 @@ export const ModernDeviceSelector = ({
   };
 
   const mainButtonClasses = `
-    modern-button relative flex items-center justify-between w-full min-w-[280px] px-4 py-3
+    modern-button relative flex items-center justify-between w-full min-w-[280px] h-[60px] px-4 py-3
     bg-white/20 dark:bg-gray-800/30 border border-white/30 dark:border-gray-600/30
     rounded-xl shadow-sm hover:shadow-lg dark:shadow-gray-900/20
     transition-all duration-300 ease-out transform hover:scale-[1.02]
@@ -156,12 +156,12 @@ export const ModernDeviceSelector = ({
           </div>
 
           {/* Device name */}
-          <div className="flex flex-col items-start">
-            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[180px]">
+          <div className="flex flex-col items-start min-h-[36px] justify-center overflow-hidden">
+            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[180px] whitespace-nowrap overflow-hidden text-ellipsis">
               {getSelectedDisplayText()}
             </span>
             {activeDevice && (
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate max-w-[180px] whitespace-nowrap overflow-hidden text-ellipsis">
                 [{activeDevice.id.substring(0, 8)}]
               </span>
             )}
