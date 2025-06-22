@@ -67,6 +67,30 @@ export const NetworkLogList = ({
     ];
   }, [logs]);
 
+  const uniqueStatusOptions = useMemo(() => {
+    const statuses = new Set(logs.map((log) => log.status.toString()));
+    const statusesArray = Array.from(statuses).sort(
+      (a, b) => parseInt(a, 10) - parseInt(b, 10)
+    );
+
+    const getStatusLabel = (status: string) => {
+      const code = parseInt(status, 10);
+      if (code < 200) return `${status} - Informational`;
+      if (code < 300) return `${status} - Success`;
+      if (code < 400) return `${status} - Redirect`;
+      if (code < 500) return `${status} - Client Error`;
+      return `${status} - Server Error`;
+    };
+
+    return [
+      { value: 'all', label: 'All Status Codes' },
+      ...statusesArray.map((status) => ({
+        value: status,
+        label: getStatusLabel(status),
+      })),
+    ];
+  }, [logs]);
+
   const filteredAndSortedLogs = useMemo(() => {
     console.log(`[NetworkLogList] Filtering with total logs: ${logs.length}`);
 
@@ -78,12 +102,7 @@ export const NetworkLogList = ({
         filter === '' || log.url.toLowerCase().includes(filter.toLowerCase());
 
       const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'success' && log.status < 300) ||
-        (statusFilter === 'redirect' &&
-          log.status >= 300 &&
-          log.status < 400) ||
-        (statusFilter === 'error' && log.status >= 400);
+        statusFilter === 'all' || log.status.toString() === statusFilter;
 
       const matchesMethod =
         methodFilter === 'all' || log.method === methodFilter;
@@ -140,34 +159,17 @@ export const NetworkLogList = ({
                 value={filter}
                 onChange={setFilter}
                 icon={
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+                  <span style={{ fontSize: '16px', color: '#000000' }}>🔍</span>
                 }
                 aria-label="Filter logs by URL"
-                className="min-w-[200px]"
+                className="min-w-[300px] flex-1"
               />
 
               <FilterInput
                 type="select"
                 value={statusFilter}
                 onChange={setStatusFilter}
-                options={[
-                  { value: 'all', label: 'All Status' },
-                  { value: 'success', label: 'Success (2xx)' },
-                  { value: 'redirect', label: 'Redirect (3xx)' },
-                  { value: 'error', label: 'Error (4xx/5xx)' },
-                ]}
+                options={uniqueStatusOptions}
                 aria-label="Filter logs by status code"
                 className="min-w-[140px]"
               />
@@ -223,19 +225,7 @@ export const NetworkLogList = ({
               value={filter}
               onChange={setFilter}
               icon={
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <span style={{ fontSize: '16px', color: '#000000' }}>🔍</span>
               }
               aria-label="Filter logs by URL"
             />
@@ -244,12 +234,7 @@ export const NetworkLogList = ({
               type="select"
               value={statusFilter}
               onChange={setStatusFilter}
-              options={[
-                { value: 'all', label: 'All Status' },
-                { value: 'success', label: 'Success (2xx)' },
-                { value: 'redirect', label: 'Redirect (3xx)' },
-                { value: 'error', label: 'Error (4xx/5xx)' },
-              ]}
+              options={uniqueStatusOptions}
               aria-label="Filter logs by status code"
             />
 
