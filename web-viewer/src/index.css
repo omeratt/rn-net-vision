@@ -36,6 +36,11 @@
 /* Base colors */
 body {
   @apply bg-white text-gray-900;
+  overflow: hidden; /* Prevent body scrollbar */
+}
+
+html {
+  overflow: hidden; /* Prevent html scrollbar */
 }
 
 /* Dark mode colors */

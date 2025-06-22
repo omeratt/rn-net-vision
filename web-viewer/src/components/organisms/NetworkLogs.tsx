@@ -184,7 +184,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
   return (
     <div
       ref={containerRef}
-      className="flex flex-col sm:flex-row h-[calc(100vh-5rem)] overflow-hidden rounded-lg shadow-lg safe-area-container focus:outline-none"
+      className="flex flex-col sm:flex-row h-full overflow-hidden rounded-lg shadow-lg safe-area-container focus:outline-none"
       tabIndex={0}
     >
       <div
