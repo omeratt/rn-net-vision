@@ -137,16 +137,17 @@ export const NetworkLog = ({
       className={`
         relative overflow-hidden
         bg-white/20 dark:bg-gray-800/20
-        rounded-xl p-5 cursor-pointer 
-        transition-all duration-300 ease-out
+        rounded-xl p-4 cursor-pointer 
+        transition-all duration-200 ease-out
         border border-white/30 dark:border-gray-600/30
         before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/5 before:to-transparent 
         before:translate-x-[-100%] before:transition-transform before:duration-700 before:ease-out
         hover:before:translate-x-[100%]
+        transform-gpu backface-visibility-hidden image-rendering-crisp-edges
         ${
           isSelected
-            ? 'ring-2 ring-indigo-400/60 dark:ring-indigo-400/80 border-indigo-300/70 dark:border-indigo-600/70 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-900/40 scale-[1.01] bg-white/30 dark:bg-gray-800/30'
-            : 'hover:ring-1 hover:ring-gray-300/50 dark:hover:ring-gray-600/50 shadow-lg shadow-gray-900/5 dark:shadow-gray-900/20 hover:shadow-xl hover:shadow-gray-900/10 dark:hover:shadow-gray-900/30 hover:scale-[1.005] hover:bg-white/25 dark:hover:bg-gray-800/25'
+            ? 'ring-2 ring-indigo-400/60 dark:ring-indigo-400/80 border-indigo-300/70 dark:border-indigo-600/70 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-900/40 bg-white/30 dark:bg-gray-800/30 scale-[1.015]'
+            : 'hover:ring-1 hover:ring-gray-300/50 dark:hover:ring-gray-600/50 shadow-lg shadow-gray-900/5 dark:shadow-gray-900/20 hover:shadow-xl hover:shadow-gray-900/10 dark:hover:shadow-gray-900/30 hover:bg-white/30 dark:hover:bg-gray-800/30 hover:scale-[1.01]'
         }
         group
       `}
@@ -214,8 +215,8 @@ export const NetworkLog = ({
         </div>
 
         <div className="relative">
-          <div className="pl-4 border-l-2 border-indigo-400 dark:border-indigo-500 group-hover:border-purple-500 transition-all duration-300 bg-gradient-to-r from-indigo-50/30 via-blue-50/20 to-transparent dark:from-indigo-900/30 dark:via-blue-900/20 rounded-r-lg">
-            <p className="text-gray-700 dark:text-gray-300 text-sm font-mono break-all leading-relaxed group-hover:text-indigo-800 dark:group-hover:text-indigo-200 transition-colors duration-200">
+          <div className="pl-4 border-l-2 border-indigo-400 dark:border-indigo-500 group-hover:border-purple-500 transition-colors duration-200 bg-gradient-to-r from-purple-300/50 via-blue-50/20 to-transparent dark:from-indigo-900/30 dark:via-blue-900/20 rounded-r-lg">
+            <p className="text-gray-700 dark:text-gray-300 text-sm font-mono break-all leading-relaxed group-hover:text-indigo-800 dark:group-hover:text-indigo-200 transition-colors duration-200 transform-gpu">
               {getPath(log.url)}
             </p>
           </div>
