@@ -37,11 +37,11 @@ export const DetailField = ({
         <CopyButton text={value} onCopy={handleCopy} size="sm" />
       </div>
       {isCode ? (
-        <pre className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md text-xs font-mono text-gray-800 dark:text-gray-200 transition-all duration-200 border border-gray-100 dark:border-gray-700 detail-field-pre whitespace-pre-wrap break-words overflow-hidden">
+        <pre className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md text-xs font-mono text-gray-800 dark:text-gray-200 transition-all duration-200 border border-gray-100 dark:border-gray-700 detail-field-pre code-overflow-responsive">
           {value}
         </pre>
       ) : (
-        <div className="text-sm text-gray-600 dark:text-gray-400 transition-all duration-200 text-overflow-responsive break-words">
+        <div className="text-sm text-gray-600 dark:text-gray-400 transition-all duration-200 text-overflow-responsive break-all overflow-wrap-anywhere">
           {value}
         </div>
       )}
