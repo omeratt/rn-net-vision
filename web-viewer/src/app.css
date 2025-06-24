@@ -478,6 +478,12 @@
   hyphens: auto !important;
 }
 
+/* Utility for handling long URLs and text that needs aggressive breaking */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere !important;
+  word-break: break-all !important;
+}
+
 /* High specificity override for pre elements */
 pre.code-overflow-responsive {
   white-space: pre-wrap !important;
@@ -727,7 +733,6 @@ pre.responsive-code.code-overflow-responsive {
   animation: simplePanelOut 0.2s ease-in forwards;
 }
 
-/* Simple backdrop animations with blur */
 @keyframes simpleBackdropIn {
   from {
     opacity: 0;
