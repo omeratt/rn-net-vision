@@ -44,11 +44,11 @@ export const CopyButton = ({
 
   const variantClasses = {
     default: `
-      bg-gray-100/60 hover:bg-gray-200/80 active:bg-gray-300/90
-      dark:bg-gray-700/60 dark:hover:bg-gray-600/80 dark:active:bg-gray-500/90
-      text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200
-      border border-gray-200/60 hover:border-gray-300/80 
-      dark:border-gray-600/60 dark:hover:border-gray-500/80
+      bg-indigo-50/60 hover:bg-indigo-100/80 active:bg-indigo-200/90
+      dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50 dark:active:bg-indigo-700/60
+      text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300
+      border border-indigo-200/60 hover:border-indigo-300/80 
+      dark:border-indigo-700/60 dark:hover:border-indigo-600/80
     `,
     section: `
       bg-indigo-50/60 hover:bg-indigo-100/80 active:bg-indigo-200/90

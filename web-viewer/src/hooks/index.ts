@@ -4,3 +4,5 @@ export { useSelectedLog } from './useSelectedLog';
 export { useLogSelection } from './useLogSelection';
 export { useSplitPanel } from './useSplitPanel';
 export { useSortedLogs } from './useSortedLogs';
+export { useCollapse } from './useCollapse';
+export type { UseCollapseReturn } from './useCollapse';

@@ -61,6 +61,42 @@
   50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
 }
 
+@keyframes collapseHeight {
+  from { 
+    max-height: 5000px; 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+  to { 
+    max-height: 0; 
+    opacity: 0; 
+    transform: translateY(-1rem) scale(0.95); 
+  }
+}
+
+@keyframes expandHeight {
+  from { 
+    max-height: 0; 
+    opacity: 0; 
+    transform: translateY(-1rem) scale(0.95); 
+  }
+  to { 
+    max-height: 5000px; 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+@keyframes rotateChevron {
+  from { transform: rotate(0deg) scale(1); }
+  to { transform: rotate(90deg) scale(1.1); }
+}
+
+@keyframes rotateChevronBack {
+  from { transform: rotate(90deg) scale(1.1); }
+  to { transform: rotate(0deg) scale(1); }
+}
+
 /* Animation classes */
 .animate-shimmer {
   animation: shimmer 2s ease-in-out;
@@ -88,6 +124,22 @@
 
 .animate-fade-in-backdrop {
   animation: fadeIn 0.3s ease-out;
+}
+
+.animate-collapse {
+  animation: collapseHeight 0.3s ease-out forwards;
+}
+
+.animate-expand {
+  animation: expandHeight 0.3s ease-out forwards;
+}
+
+.animate-rotate-chevron {
+  animation: rotateChevron 0.3s ease-out forwards;
+}
+
+.animate-rotate-chevron-back {
+  animation: rotateChevronBack 0.3s ease-out forwards;
 }
 
 /* Modern glassmorphism utilities */
@@ -470,308 +522,78 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Text overflow and wrapping utilities */
-.text-overflow-responsive {
-  word-wrap: break-word !important;
-  overflow-wrap: anywhere !important;
-  word-break: break-word !important;
-  hyphens: auto !important;
+/* Enhanced text wrapping utilities */
+.force-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
-/* Utility for handling long URLs and text that needs aggressive breaking */
-.overflow-wrap-anywhere {
-  overflow-wrap: anywhere !important;
-  word-break: break-all !important;
-}
-
-/* High specificity override for pre elements */
-pre.code-overflow-responsive {
-  white-space: pre-wrap !important;
-  text-wrap-mode: wrap !important;
-  word-wrap: break-word !important;
-  overflow-wrap: anywhere !important;
-  word-break: break-word !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-  overflow-y: visible !important;
-}
-
-/* Global pre element override to ensure proper wrapping */
-pre {
-  white-space: pre-wrap;
-  text-wrap-mode: wrap;
+.detail-field-content {
   word-wrap: break-word;
   overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-break: anywhere;
 }
 
-/* Ensure DetailField pre elements always wrap */
-.detail-field-pre {
-  white-space: pre-wrap !important;
-  text-wrap-mode: wrap !important;
-  word-wrap: break-word !important;
-  overflow-wrap: anywhere !important;
-  word-break: break-word !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
+.detail-field-header {
+  padding-right: 0.75rem; /* Space for scaled copy button */
 }
 
-/* Enhanced responsive container */
-.responsive-flex-container {
-  min-width: 0;
-  max-width: 100%;
+/* Smooth collapsible animations */
+.collapsible-content {
+  transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: top;
 }
 
-.responsive-flex-container > * {
-  min-width: 0;
-  max-width: 100%;
-}
-
-/* Responsive pre elements for code display with maximum specificity */
-pre.responsive-code.code-overflow-responsive {
-  white-space: pre-wrap !important;
-  text-wrap-mode: wrap !important;
-  word-wrap: break-word !important;
-  overflow-wrap: anywhere !important;
-  word-break: break-word !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-  overflow-y: visible !important;
-}
-
-/* For screens smaller than 640px, force wrap */
-@media (max-width: 640px) {
-  .responsive-code {
-    white-space: pre-wrap !important;
-    text-wrap-mode: wrap !important;
-    overflow-x: hidden !important;
-  }
-  
-  .code-overflow-responsive {
-    white-space: pre-wrap !important;
-    text-wrap-mode: wrap !important;
-    overflow-x: hidden !important;
-  }
-  
-  /* Force all pre elements to wrap on mobile */
-  pre {
-    white-space: pre-wrap !important;
-    text-wrap-mode: wrap !important;
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-    overflow-x: hidden !important;
-  }
-}
-
-/* Additional responsive safety measures */
-.safe-area-container {
-  width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-/* Force wrap on very small screens */
-@media (max-width: 480px) {
-  .force-wrap {
-    white-space: normal !important;
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-  }
-  
-  .force-wrap * {
-    white-space: normal !important;
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-  }
-  
-  /* Hide horizontal scrollbars on mobile */
-  .mobile-no-scroll-x {
-    overflow-x: hidden !important;
-  }
-  
-  /* Ensure flex items don't overflow on mobile */
-  .mobile-flex-wrap {
-    flex-wrap: wrap !important;
-  }
-  
-  .mobile-flex-wrap > * {
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-}
-
-/* Enhanced z-index utilities for proper layering */
-.z-dropdown {
-  position: relative;
-  z-index: 9999 !important;
-}
-
-.z-modal {
-  position: relative;
-  z-index: 10000 !important;
-}
-
-.z-notification {
-  z-index: 10001 !important;
-}
-
-/* Dropdown portal for maximum z-index */
-.dropdown-portal {
-  position: fixed !important;
-  z-index: 1000000 !important;
+.collapsible-content.collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  transform: translateY(-1rem) scale(0.95);
   pointer-events: none;
 }
 
-.dropdown-portal > * {
+.collapsible-content.expanded {
+  max-height: 5000px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
-.debug-panel-portal {
-  position: fixed !important;
-  z-index: 1000001 !important;
-  pointer-events: auto !important;
+/* GPU-accelerated transform animations for collapsible elements */
+.transform-gpu {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
-/* Ensure backdrop overlays work properly */
-.backdrop-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  z-index: 999999 !important;
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+.collapsible-transform {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+  will-change: transform, opacity;
 }
 
-.dark .backdrop-overlay {
-  background: rgba(0, 0, 0, 0.3);
+.collapsible-transform.collapsed {
+  transform: translateY(-1rem) scaleY(0) translateZ(0);
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* Enhanced glassmorphism for status indicators */
-.status-indicator-glass {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.collapsible-transform.expanded {
+  transform: translateY(0) scaleY(1) translateZ(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.dark .status-indicator-glass {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+/* Prevent layout shifts during animations */
+.layout-stable {
+  contain: layout style paint;
 }
 
-/* Dropdown portal content visibility and layering */
-.dropdown-portal-content {
-  position: fixed !important;
-  z-index: 1000000 !important;
-  pointer-events: auto !important;
-}
-
-/* Elegant dropdown animations */
-/* Simple and reliable animations */
-@keyframes simpleDropdownIn {
-  from {
-    opacity: 0;
-    transform: translateY(-15px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes simpleDropdownOut {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-15px) scale(0.95);
-  }
-}
-
-.animate-dropdown-in {
-  animation: simpleDropdownIn 0.3s ease-out forwards;
-}
-
-.animate-dropdown-out {
-  animation: simpleDropdownOut 0.2s ease-in forwards;
-}
-
-/* Simple device panel animations */
-@keyframes simplePanelIn {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes simplePanelOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-}
-
-.animate-device-panel-in {
-  animation: simplePanelIn 0.3s ease-out forwards;
-}
-
-.animate-device-panel-out {
-  animation: simplePanelOut 0.2s ease-in forwards;
-}
-
-@keyframes simpleBackdropIn {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-  }
-}
-
-@keyframes simpleBackdropOut {
-  from {
-    opacity: 1;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-  }
-  to {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-  }
-}
-
-.animate-backdrop-in {
-  animation: simpleBackdropIn 0.3s ease-out forwards;
-}
-
-.animate-backdrop-out {
-  animation: simpleBackdropOut 0.2s ease-in forwards;
-}
-
-/* Ultra-high z-index for floating panels that must be above everything */
-.z-ultra-high {
-  z-index: 9999999 !important;
-}
-
-.z-ultra-backdrop {
-  z-index: 9999998 !important;
+.flex-container-stable {
+  container-type: inline-size;
+  isolation: isolate;
 }
