@@ -25,18 +25,18 @@ export const CollapsibleSection = ({
 }: CollapsibleSectionProps): VNode => {
   const { isCollapsed, toggle } = useCollapse(initialCollapsed);
 
+  // Animation duration constant
+  const TRANSITION_DURATION = 'duration-300';
+
   // Variant-specific styles
   const containerStyles = {
-    section:
-      'bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 dark:border-gray-700/30 transition-all duration-200 ease-out hover:shadow-md hover:bg-white/25 dark:hover:bg-gray-800/40',
-    field: 'transition-all duration-200 ease-out',
+    section: `bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 dark:border-gray-700/30 transition-all ${TRANSITION_DURATION} ease-out hover:shadow-md hover:bg-white/25 dark:hover:bg-gray-800/40`,
+    field: `transition-all ${TRANSITION_DURATION} ease-out`,
   };
 
   const buttonStyles = {
-    section:
-      'flex items-center gap-3 mb-3 w-full text-left group transition-all duration-200 ease-out hover:bg-indigo-50/20 dark:hover:bg-indigo-900/10 rounded-lg p-1 -m-1',
-    field:
-      'flex items-center justify-between gap-3 mb-1 w-full text-left group transition-all duration-200 ease-out',
+    section: `flex items-center gap-3 mb-3 w-full text-left group transition-all ${TRANSITION_DURATION} ease-out hover:bg-indigo-50/20 dark:hover:bg-indigo-900/10 rounded-lg p-1 -m-1`,
+    field: `flex items-center justify-between gap-3 mb-1 w-full text-left group transition-all ${TRANSITION_DURATION} ease-out`,
   };
 
   const iconContainerStyles = {
@@ -46,7 +46,7 @@ export const CollapsibleSection = ({
              text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300
              border border-indigo-200/60 hover:border-indigo-300/80 
              dark:border-indigo-700/60 dark:hover:border-indigo-600/80
-             backdrop-blur-sm transition-all duration-200 ease-out
+             backdrop-blur-sm transition-all ${TRANSITION_DURATION} ease-out
              group-hover:scale-105 group-active:scale-95
              flex-shrink-0`,
     field: `inline-flex items-center justify-center w-4 h-4 rounded-md 
@@ -55,7 +55,7 @@ export const CollapsibleSection = ({
             text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200
             border border-gray-200/60 hover:border-gray-300/80 
             dark:border-gray-600/60 dark:hover:border-gray-500/80
-            backdrop-blur-sm transition-all duration-200 ease-out
+            backdrop-blur-sm transition-all ${TRANSITION_DURATION} ease-out
             hover:scale-110 active:scale-95
             flex-shrink-0`,
   };
@@ -66,9 +66,8 @@ export const CollapsibleSection = ({
   };
 
   const titleStyles = {
-    section:
-      'text-md font-medium text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors duration-200',
-    field: `text-sm font-medium transition-colors duration-200 text-left ${titleClassName}`,
+    section: `text-md font-medium text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors ${TRANSITION_DURATION}`,
+    field: `text-sm font-medium transition-colors ${TRANSITION_DURATION} text-left ${titleClassName}`,
   };
 
   const wrapperStyles = {
@@ -102,7 +101,7 @@ export const CollapsibleSection = ({
                 strokeWidth={variant === 'section' ? '2.5' : '3'}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`transition-transform duration-200 ease-out ${
+                className={`transition-transform ${TRANSITION_DURATION} ease-out ${
                   isCollapsed ? 'rotate-0' : 'rotate-90'
                 }`}
               >
@@ -119,12 +118,12 @@ export const CollapsibleSection = ({
         </button>
 
         <div
-          className={`transition-all duration-200 ease-out overflow-hidden ${
+          className={`transition-all ${TRANSITION_DURATION} ease-out overflow-hidden ${
             isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[3000px] opacity-100'
           }`}
         >
           <div
-            className={`transition-all duration-200 ease-out ${
+            className={`transition-all ${TRANSITION_DURATION} ease-out ${
               isCollapsed
                 ? 'transform -translate-y-2 scale-95'
                 : 'transform translate-y-0 scale-100'
