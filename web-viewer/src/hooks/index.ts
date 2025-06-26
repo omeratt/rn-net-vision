@@ -6,3 +6,4 @@ export { useSplitPanel } from './useSplitPanel';
 export { useSortedLogs } from './useSortedLogs';
 export { useCollapse } from './useCollapse';
 export type { UseCollapseReturn } from './useCollapse';
+export { useFieldContent } from './useFieldContent';
