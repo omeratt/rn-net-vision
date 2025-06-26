@@ -5,10 +5,24 @@
     "target": "ESNext",
     "moduleResolution": "Node",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "lib": ["DOM", "ESNext"],
-    "jsxImportSource": "preact"
-  }
+    "jsxImportSource": "preact",
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": false,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ]
 }

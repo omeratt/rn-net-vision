@@ -3,7 +3,7 @@ import { VNode } from 'preact';
 import { CopyButton } from './CopyButton';
 import { useToast } from '../../context/ToastContext';
 import { CollapsibleSection } from '../molecules/CollapsibleSection';
-import { useFieldContent } from '../../hooks/useFieldContent';
+import { useFieldContent } from '../../hooks/useFieldContent.tsx';
 import { isErrorField } from '../../utils/fieldTypes';
 import { fieldStyles } from '../../utils/fieldStyles';
 
