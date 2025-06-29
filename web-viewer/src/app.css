@@ -597,3 +597,21 @@
   container-type: inline-size;
   isolation: isolate;
 }
+
+/* URL-specific overflow handling */
+.url-container {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  hyphens: none;
+}
+
+.url-text {
+  display: block;
+  width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  white-space: normal;
+  line-break: anywhere;
+}

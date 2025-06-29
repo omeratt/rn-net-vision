@@ -227,7 +227,7 @@ export const FloatingDeviceDebug = ({
                       />
                     </div>
                     <div className="space-y-1 text-gray-600 dark:text-gray-400">
-                      <div className="break-all">
+                      <div className="break-words overflow-wrap-anywhere">
                         <strong>ID:</strong> {device.id}
                       </div>
                       <div>

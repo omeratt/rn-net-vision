@@ -216,7 +216,7 @@ export const NetworkLog = ({
 
         <div className="relative">
           <div className="pl-4 border-l-2 border-indigo-400 dark:border-indigo-500 group-hover:border-purple-500 transition-colors duration-200 bg-gradient-to-r from-purple-300/50 via-blue-50/20 to-transparent dark:from-indigo-900/30 dark:via-blue-900/20 rounded-r-lg">
-            <p className="text-gray-700 dark:text-gray-300 text-sm font-mono break-all leading-relaxed group-hover:text-indigo-800 dark:group-hover:text-indigo-200 transition-colors duration-200 transform-gpu">
+            <p className="text-gray-700 dark:text-gray-300 text-sm font-mono break-words overflow-wrap-anywhere leading-relaxed group-hover:text-indigo-800 dark:group-hover:text-indigo-200 transition-colors duration-200 transform-gpu">
               {getPath(log.url)}
             </p>
           </div>

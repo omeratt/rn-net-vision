@@ -5,6 +5,7 @@ import { JsonViewer } from '../components/atoms/JsonViewer';
 import { KeyValueViewer } from '../components/atoms/KeyValueViewer';
 import { CodeViewer } from '../components/atoms/CodeViewer';
 import { TextViewer } from '../components/atoms/TextViewer';
+import { URLViewer } from '../components/atoms/URLViewer';
 
 interface UseFieldContentResult {
   content: VNode;
@@ -50,6 +51,10 @@ export const useFieldContent = ({
 
     case FieldType.CODE:
       content = <CodeViewer value={value} className={className} />;
+      break;
+
+    case FieldType.URL:
+      content = <URLViewer value={value} className={className} />;
       break;
 
     case FieldType.TEXT:

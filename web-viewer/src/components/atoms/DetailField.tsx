@@ -33,6 +33,7 @@ export const DetailField = ({
 
   const copyButton = <CopyButton text={value} onCopy={handleCopy} size="sm" />;
   const isError = isErrorField(label);
+  const isURL = label.toLowerCase() === 'url';
 
   const labelClassName = isError
     ? fieldStyles.label.error
@@ -40,12 +41,14 @@ export const DetailField = ({
 
   if (!collapsible) {
     return (
-      <div className={`mb-4 ${className}`}>
+      <div className={`mb-4 ${isURL ? 'w-full min-w-0' : ''} ${className}`}>
         <div className="flex items-center justify-between gap-3 mb-1">
           <span className={labelClassName}>{label}</span>
           <div className="flex-shrink-0">{copyButton}</div>
         </div>
-        {content}
+        <div className={isURL ? 'w-full min-w-0 overflow-hidden' : ''}>
+          {content}
+        </div>
       </div>
     );
   }

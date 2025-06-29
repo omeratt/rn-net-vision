@@ -7,6 +7,7 @@ export enum FieldType {
   COOKIES = 'cookies',
   HEADERS = 'headers',
   CODE = 'code',
+  URL = 'url',
   TEXT = 'text',
 }
 
@@ -17,6 +18,7 @@ const FIELD_TYPE_KEYWORDS = {
   [FieldType.JSON]: ['json', 'body'],
   [FieldType.COOKIES]: ['cookie'],
   [FieldType.HEADERS]: ['header'],
+  [FieldType.URL]: ['url'],
 } as const;
 
 /**
