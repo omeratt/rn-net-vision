@@ -42,7 +42,7 @@ export const FilterPanel = ({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
-    <div className="flex flex-col bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm border border-white/20 dark:border-gray-600/30 p-3 sm:p-4 rounded-lg shadow-md dark:shadow-[0_4px_12px_rgba(200,200,255,0.08)] transition-all duration-300">
+    <div className="flex flex-col bg-white/20 dark:bg-gray-800/30  border border-white/20 dark:border-gray-600/30 p-3 sm:p-4 rounded-lg shadow-md dark:shadow-[0_4px_12px_rgba(200,200,255,0.08)] transition-all duration-300">
       <div className="flex flex-wrap justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <button
@@ -132,7 +132,7 @@ export const FilterPanel = ({
 
       {/* Mobile filters, only visible when toggled */}
       {isFilterOpen && (
-        <div className="sm:hidden flex flex-col gap-3 mb-3 p-4 bg-white/10 dark:bg-gray-800/20 backdrop-blur-sm border border-white/20 dark:border-gray-700/30 rounded-lg transition-all duration-300">
+        <div className="sm:hidden flex flex-col gap-3 mb-3 p-4 bg-white/10 dark:bg-gray-800/20  border border-white/20 dark:border-gray-700/30 rounded-lg transition-all duration-300">
           <FilterInput
             type="text"
             placeholder="Filter by URL..."

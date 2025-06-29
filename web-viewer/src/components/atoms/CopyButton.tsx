@@ -67,7 +67,7 @@ export const CopyButton = ({
         inline-flex items-center justify-center
         rounded-lg copy-button-glow
         ${variantClasses[variant]}
-        backdrop-blur-sm
+        
         transition-all duration-300 ease-out
         hover:scale-110 active:scale-95
         hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50

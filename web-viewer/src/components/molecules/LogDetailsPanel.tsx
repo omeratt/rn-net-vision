@@ -37,7 +37,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
   return (
     <div className="h-full overflow-y-auto p-4 space-y-4 mobile-no-scroll-x force-wrap">
       {/* Summary Section */}
-      <div className="bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-white/20 dark:border-gray-700/30 transition-all duration-300 ease-out animate-fade-in">
+      <div className="bg-white/20 dark:bg-gray-800/30 rounded-lg p-4 shadow-sm border border-white/20 dark:border-gray-700/30">
         {/* URL gets its own full-width row */}
         <div className="mb-4 w-full">
           <DetailField label="URL" value={log.url} className="w-full" />

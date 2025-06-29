@@ -101,7 +101,7 @@ export const FloatingDeviceDebug = ({
     <>
       {/* Backdrop with direct blur and transitions */}
       <div
-        className={`fixed inset-0 bg-black/20 dark:bg-black/30 z-ultra-backdrop backdrop-blur-sm transition-all duration-300 ${
+        className={`fixed inset-0 bg-black/20 dark:bg-black/30 z-ultra-backdrop  transition-all duration-300 ${
           isAnimating ? 'opacity-100' : 'opacity-0'
         }`}
         style={

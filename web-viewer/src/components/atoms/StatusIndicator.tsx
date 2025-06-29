@@ -67,7 +67,7 @@ export const StatusIndicator = ({
     <div className={`flex items-center gap-2 ${className}`}>
       {/* Glassy container with contrast background */}
       <div
-        className={`${containerSize} relative rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-gray-600/30 shadow-lg flex items-center justify-center`}
+        className={`${containerSize} relative rounded-full bg-white/20 dark:bg-black/20  border border-white/30 dark:border-gray-600/30 shadow-lg flex items-center justify-center`}
       >
         {/* Main status dot */}
         <div

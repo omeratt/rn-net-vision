@@ -38,7 +38,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
     >
       <div
         style={{ width: `${splitPanel.splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-900/20 backdrop-blur-sm transition-[width] ease-out mobile-no-scroll-x"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-900/20  transition-[width] ease-out mobile-no-scroll-x"
       >
         <div className="p-2 sm:p-4 h-full overflow-y-auto">
           <NetworkLogList
@@ -61,7 +61,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
 
       <div
         style={{ width: `${100 - splitPanel.splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-800/20 backdrop-blur-sm transition-[width] ease-out mobile-no-scroll-x"
+        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-800/20  transition-[width] ease-out mobile-no-scroll-x"
       >
         <LogDetailsPanel log={selection.selectedLog} />
       </div>

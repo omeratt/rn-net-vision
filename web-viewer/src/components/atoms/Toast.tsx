@@ -144,7 +144,7 @@ export const Toast = ({
         flex items-center gap-3
         px-4 py-3 rounded-xl
         ${currentStyle.bg} ${currentStyle.border} ${currentStyle.text}
-        border shadow-xl backdrop-blur-sm
+        border shadow-xl 
         min-w-[300px] max-w-[400px]
         transform transition-all duration-500 ease-out
         ${

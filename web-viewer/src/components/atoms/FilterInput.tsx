@@ -74,7 +74,7 @@ export const FilterInput = ({
 
   const baseClasses = `
     relative w-full px-4 py-3 text-sm
-    bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm
+    bg-white/90 dark:bg-gray-800/90 
     border border-gray-200 dark:border-gray-600
     rounded-xl shadow-lg
     text-gray-900 dark:text-gray-100
