@@ -489,6 +489,207 @@
   left: 100%;
 }
 
+/* Enhanced hover effects for network log items */
+.network-log-item {
+  position: relative;
+  transition: all 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, box-shadow, filter;
+  overflow: hidden;
+}
+
+.network-log-item:hover {
+  transform: translateY(-3px) scale(1.005) rotateX(0.5deg);
+  box-shadow: 
+    0 20px 40px -10px rgba(99, 102, 241, 0.15),
+    0 15px 25px -8px rgba(139, 92, 246, 0.1),
+    0 0 0 1px rgba(99, 102, 241, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  filter: brightness(1.03) saturate(1.05);
+}
+
+.dark .network-log-item:hover {
+  box-shadow: 
+    0 20px 40px -10px rgba(129, 140, 248, 0.25),
+    0 15px 25px -8px rgba(167, 139, 250, 0.15),
+    0 0 0 1px rgba(129, 140, 248, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Animated gradient background */
+.network-log-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg, 
+    rgba(99, 102, 241, 0.08) 0%, 
+    rgba(139, 92, 246, 0.06) 25%,
+    rgba(59, 130, 246, 0.04) 50%,
+    rgba(139, 92, 246, 0.06) 75%,
+    rgba(99, 102, 241, 0.08) 100%
+  );
+  background-size: 200% 200%;
+  opacity: 0;
+  transition: all 350ms ease-out;
+  pointer-events: none;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+.network-log-item:hover::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+/* Shimmer effect */
+.network-log-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    rgba(99, 102, 241, 0.1),
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.network-log-item:hover::after {
+  left: 100%;
+}
+
+/* Gradient animation */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Pulsing glow effect */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(99, 102, 241, 0.2),
+      0 0 40px rgba(99, 102, 241, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(99, 102, 241, 0.4),
+      0 0 60px rgba(99, 102, 241, 0.2);
+  }
+}
+
+/* Floating animation for selected items */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) scale(1.02);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.025);
+  }
+}
+
+/* Enhanced micro-interactions */
+.network-log-item:hover .group-hover\:tracking-wider {
+  letter-spacing: 0.1em;
+}
+
+.network-log-item:hover .group-hover\:font-semibold {
+  font-weight: 600;
+}
+
+/* Selected state effects - modern and cohesive with hover */
+.network-log-item.selected-log {
+  transform: translateY(-1px);
+}
+
+.network-log-item.selected-log .selected\:shadow-xl {
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15), 0 6px 8px -6px rgba(99, 102, 241, 0.08);
+}
+
+.network-log-item.selected-log .selected\:border-indigo-400 {
+  border-color: rgba(99, 102, 241, 0.6);
+}
+
+.network-log-item.selected-log .selected\:bg-gradient-to-r {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.7), rgba(199, 210, 254, 0.5));
+}
+
+.dark .network-log-item.selected-log .selected\:bg-gradient-to-r {
+  background-image: linear-gradient(to right, rgba(55, 65, 81, 0.7), rgba(67, 56, 202, 0.5));
+}
+
+/* Enhanced selected state for badges and elements */
+.selected-log .inline-flex {
+  box-shadow: 0 3px 8px -2px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(199, 210, 254, 0.5));
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.dark .selected-log .inline-flex {
+  background-image: linear-gradient(to right, rgba(55, 65, 81, 0.8), rgba(67, 56, 202, 0.5));
+}
+
+/* Selected state for text elements */
+.selected-log .text-gray-700 {
+  color: rgb(67, 56, 202) !important;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.dark .selected-log .text-gray-300 {
+  color: rgb(199, 210, 254) !important;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+/* Selected state for URL path container */
+.selected-log .border-l-2 {
+  border-color: rgb(124, 58, 237) !important;
+  background-image: linear-gradient(to right, rgba(196, 181, 253, 0.4), rgba(199, 210, 254, 0.25), transparent);
+  box-shadow: 0 3px 8px -2px rgba(124, 58, 237, 0.15);
+}
+
+.dark .selected-log .border-l-2 {
+  border-color: rgb(167, 139, 250) !important;
+  background-image: linear-gradient(to right, rgba(67, 56, 202, 0.4), rgba(124, 58, 237, 0.25), transparent);
+}
+
+/* Text shadow utility */
+.group-hover\:text-shadow:hover {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Staggered animation delays for child elements */
+.network-log-item:hover > * > * > *:nth-child(1) {
+  transition-delay: 0ms;
+}
+
+.network-log-item:hover > * > * > *:nth-child(2) {
+  transition-delay: 75ms;
+}
+
+.network-log-item:hover > * > * > *:nth-child(3) {
+  transition-delay: 150ms;
+}
+
+.network-log-item:hover > * > * > *:nth-child(4) {
+  transition-delay: 225ms;
+}
+
 .device-item-hover:hover {
   transform: translateX(2px) scale(1.01);
 }

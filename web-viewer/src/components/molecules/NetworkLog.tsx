@@ -135,52 +135,74 @@ export const NetworkLog = ({
       ref={logRef}
       onClick={onClick}
       className={`
-        relative overflow-hidden
-        bg-white/20 dark:bg-gray-800/20
-        rounded-xl p-4 cursor-pointer 
-        transition-all duration-200 ease-out
-        border border-white/30 dark:border-gray-600/30
-        before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/5 before:to-transparent 
-        before:translate-x-[-100%] before:transition-transform before:duration-700 before:ease-out
-        hover:before:translate-x-[100%]
-        transform-gpu backface-visibility-hidden image-rendering-crisp-edges
+        network-log-item
+        relative
+        bg-white/25 dark:bg-gray-800/25
+        rounded-xl p-2 sm:p-4 cursor-pointer 
+        border border-white/40 dark:border-gray-600/40
+        backdrop-blur-md
+        before:rounded-xl after:rounded-xl
+        w-full min-w-0
         ${
           isSelected
-            ? 'ring-2 ring-indigo-400/60 dark:ring-indigo-400/80 border-indigo-300/70 dark:border-indigo-600/70 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-900/40 bg-white/30 dark:bg-gray-800/30 scale-[1.015]'
-            : 'hover:ring-1 hover:ring-gray-300/50 dark:hover:ring-gray-600/50 shadow-lg shadow-gray-900/5 dark:shadow-gray-900/20 hover:shadow-xl hover:shadow-gray-900/10 dark:hover:shadow-gray-900/30 hover:bg-white/30 dark:hover:bg-gray-800/30 hover:scale-[1.01]'
+            ? 'ring-2 ring-indigo-500/60 dark:ring-indigo-400/70 border-indigo-500/70 dark:border-indigo-400/70 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-400/25 bg-gradient-to-br from-white/40 to-indigo-50/30 dark:from-gray-700/40 dark:to-indigo-900/30 backdrop-blur-lg selected-log'
+            : 'hover:bg-gradient-to-br hover:from-white/45 hover:to-purple-50/25 dark:hover:from-gray-800/45 dark:hover:to-purple-900/25 hover:border-indigo-400/60 dark:hover:border-indigo-400/70'
         }
         group
       `}
     >
-      <div className="flex flex-col space-y-3 relative z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span
-              className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg font-mono font-semibold text-xs border border-white/20 shadow-lg ${getMethodColor(log.method)} transition-all duration-200`}
-            >
-              {log.method}
-            </span>
-            <span
-              className={`inline-flex items-center justify-center min-w-[2.5rem] h-7 rounded-lg font-mono font-bold text-xs border border-white/20 shadow-md ${getStatusBadgeColor(log.status)} ${getStatusColor(log.status)} transition-all duration-200`}
-            >
-              {log.status}
-            </span>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-200">
-                {getDomain(log.url)}
+      <div className="flex flex-col space-y-2 relative z-20 w-full overflow-hidden">
+        {/* Single responsive row layout - all badges stay inline until device becomes icon-only */}
+        <div className="flex flex-col gap-2 transition-all duration-300 w-full overflow-hidden">
+          {/* Primary badges row with responsive device badge and proper alignment */}
+          <div className="flex items-center justify-between gap-2 xs:gap-3 w-full min-w-0 overflow-hidden">
+            {/* Left side: Method and Status badges */}
+            <div className="flex items-center gap-2 xs:gap-3 flex-shrink-0">
+              {/* Method badge */}
+              <span
+                className={`inline-flex items-center justify-center px-2 xs:px-3 py-1 xs:py-1.5 rounded-lg font-mono font-semibold text-xs border border-white/30 shadow-lg transition-all duration-350 group-hover:shadow-2xl group-hover:border-indigo-400/60 group-hover:bg-gradient-to-r group-hover:from-white/80 group-hover:to-indigo-50/60 dark:group-hover:from-gray-700/80 dark:group-hover:to-indigo-900/60 ${getMethodColor(log.method)} ${
+                  isSelected
+                    ? 'shadow-xl border-indigo-500/50 bg-gradient-to-r from-white/70 to-indigo-50/50 dark:from-gray-600/70 dark:to-indigo-800/50 font-bold tracking-wide'
+                    : ''
+                } flex-shrink-0`}
+              >
+                {log.method}
               </span>
+
+              {/* Status badge */}
+              <span
+                className={`inline-flex items-center justify-center min-w-[2rem] xs:min-w-[2.5rem] h-6 xs:h-7 rounded-lg font-mono font-bold text-xs border border-white/30 shadow-md transition-all duration-350 group-hover:shadow-xl group-hover:border-indigo-400/60 group-hover:bg-gradient-to-r group-hover:from-white/80 group-hover:to-purple-50/60 dark:group-hover:from-gray-700/80 dark:group-hover:to-purple-900/60 ${getStatusBadgeColor(log.status)} ${getStatusColor(log.status)} ${
+                  isSelected
+                    ? 'shadow-lg border-indigo-500/50 bg-gradient-to-r from-white/70 to-purple-50/50 dark:from-gray-600/70 dark:to-purple-800/50 tracking-wider'
+                    : ''
+                } flex-shrink-0`}
+              >
+                {log.status}
+              </span>
+            </div>
+
+            {/* Right side: Device and Duration badges - flex together but device shrinks first */}
+            <div className="flex items-center gap-2 xs:gap-3 min-w-0 flex-shrink">
+              {/* Device badge - responsive: full name → truncated → icon-only */}
               {log.deviceId && showDeviceInfo && (
                 <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border border-white/30 shadow-sm transition-all duration-200
-                  ${
-                    log.devicePlatform === 'ios'
-                      ? 'bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-800/40 dark:to-blue-900/40 text-blue-800 dark:text-blue-300'
-                      : 'bg-gradient-to-r from-green-100 to-green-200 dark:from-green-800/40 dark:to-green-900/40 text-green-800 dark:text-green-300'
-                  }`}
+                  className={`inline-flex items-center rounded-lg text-xs font-medium border border-white/40 shadow-sm transition-all duration-350 group-hover:shadow-lg group-hover:border-indigo-400/70 group-hover:bg-gradient-to-r group-hover:from-white/90 group-hover:to-blue-50/70 dark:group-hover:from-gray-600/90 dark:group-hover:to-blue-900/70 
+                    min-w-[2rem] max-w-[20rem] 
+                    px-2 py-1 xs:py-1.5
+                    ${
+                      log.devicePlatform === 'ios'
+                        ? 'bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-800/40 dark:to-blue-900/40 text-blue-800 dark:text-blue-300'
+                        : 'bg-gradient-to-r from-green-100 to-green-200 dark:from-green-800/40 dark:to-green-900/40 text-green-800 dark:text-green-300'
+                    } ${
+                      isSelected
+                        ? 'shadow-md border-indigo-500/60 bg-gradient-to-r from-white/80 to-blue-50/60 dark:from-gray-500/80 dark:to-blue-800/60 font-semibold tracking-wide'
+                        : ''
+                    } flex-shrink`}
+                  title={log.deviceName || log.deviceId}
                 >
                   {log.devicePlatform === 'ios' ? (
                     <svg
-                      className="w-3 h-3 mr-1"
+                      className="w-3 h-3 flex-shrink-0"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
@@ -188,37 +210,95 @@ export const NetworkLog = ({
                     </svg>
                   ) : (
                     <svg
-                      className="w-3 h-3 mr-1"
+                      className="w-3 h-3 flex-shrink-0"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
                       <path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zM20.5 8c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zM15.53 2.16l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31C6.97 3.26 6 5.01 6 7h12c0-1.99-.97-3.75-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z" />
                     </svg>
                   )}
-                  {log.deviceName || log.deviceId.substring(0, 6)}
+                  {/* Device name text - hidden when space is very limited */}
+                  <span className="ml-1 overflow-hidden text-ellipsis whitespace-nowrap flex-shrink min-w-0">
+                    {log.deviceName || log.deviceId}
+                  </span>
                 </span>
               )}
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center space-x-2">
+
+              {/* Duration badge */}
               <span
-                className={`font-mono text-xs px-3 py-1.5 rounded-lg border border-white/20 shadow-md ${getDurationColor(log.duration)} bg-white/50 dark:bg-gray-800/50 transition-all duration-200`}
+                className={`font-mono text-xs px-2 xs:px-3 py-1 xs:py-1.5 rounded-lg border border-white/30 shadow-md transition-all duration-350 group-hover:shadow-xl group-hover:border-indigo-400/60 group-hover:bg-gradient-to-r group-hover:from-white/80 group-hover:to-indigo-50/60 dark:group-hover:from-gray-700/80 dark:group-hover:to-indigo-900/60 ${getDurationColor(log.duration)} bg-white/60 dark:bg-gray-800/60 ${
+                  isSelected
+                    ? 'shadow-lg border-indigo-500/50 bg-gradient-to-r from-white/70 to-indigo-50/50 dark:from-gray-600/70 dark:to-indigo-800/50 font-semibold tracking-wide'
+                    : ''
+                } flex-shrink-0`}
               >
                 {formatDuration(log.duration)}
               </span>
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100/50 dark:bg-gray-700/50 px-2 py-1 rounded-md">
+          </div>
+
+          {/* Secondary row: Domain only */}
+          <div className="w-full transition-all duration-300">
+            <div className="flex items-center w-full">
+              {/* Domain text */}
+              <div className="flex-1 min-w-0">
+                <span
+                  className={`text-sm font-semibold text-gray-700 dark:text-gray-300 transition-all duration-350 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 group-hover:font-bold group-hover:tracking-wider block ${
+                    isSelected
+                      ? 'text-indigo-700 dark:text-indigo-300 font-bold tracking-wide'
+                      : ''
+                  }`}
+                >
+                  {getDomain(log.url)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Timestamp row for very small screens (when hidden from main row) */}
+          <div className="flex items-center sm:hidden transition-all duration-300">
+            <span
+              className={`text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100/60 dark:bg-gray-700/60 px-2 py-1 rounded-lg border border-white/30 transition-all duration-350 group-hover:bg-gradient-to-r group-hover:from-gray-200/80 group-hover:to-indigo-100/60 dark:group-hover:from-gray-600/80 dark:group-hover:to-indigo-800/60 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 group-hover:shadow-md group-hover:font-semibold group-hover:border-indigo-400/60 ${
+                isSelected
+                  ? 'bg-gradient-to-r from-gray-200/50 to-indigo-100/30 dark:from-gray-500/50 dark:to-indigo-700/30 text-indigo-600 dark:text-indigo-400 shadow-sm font-medium tracking-wide border-indigo-500/50'
+                  : ''
+              }`}
+            >
               {formatTimestamp(log.timestamp)}
             </span>
           </div>
         </div>
 
-        <div className="relative">
-          <div className="pl-4 border-l-2 border-indigo-400 dark:border-indigo-500 group-hover:border-purple-500 transition-colors duration-200 bg-gradient-to-r from-purple-300/50 via-blue-50/20 to-transparent dark:from-indigo-900/30 dark:via-blue-900/20 rounded-r-lg">
-            <p className="text-gray-700 dark:text-gray-300 text-sm font-mono break-words overflow-wrap-anywhere leading-relaxed group-hover:text-indigo-800 dark:group-hover:text-indigo-200 transition-colors duration-200 transform-gpu">
-              {getPath(log.url)}
-            </p>
+        {/* URL Path section with timestamp - always visible and responsive */}
+        <div className="relative w-full overflow-hidden">
+          <div
+            className={`pl-2 xs:pl-3 sm:pl-4 border-l-2 border-indigo-400 dark:border-indigo-500 transition-all duration-300 group-hover:border-purple-500 dark:group-hover:border-purple-400 bg-gradient-to-r from-indigo-100/30 via-blue-50/15 to-transparent dark:from-indigo-900/20 dark:via-blue-900/15 rounded-r-lg group-hover:from-purple-200/40 group-hover:via-indigo-200/25 dark:group-hover:from-indigo-800/40 dark:group-hover:via-purple-800/25 group-hover:shadow-sm w-full overflow-hidden ${
+              isSelected
+                ? 'border-purple-500 dark:border-purple-400 bg-gradient-to-r from-purple-200/30 via-indigo-100/20 to-transparent dark:from-indigo-700/30 dark:via-purple-700/20 shadow-sm'
+                : ''
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3 w-full">
+              <p
+                className={`text-gray-700 dark:text-gray-300 text-xs xs:text-sm font-mono break-all leading-relaxed transition-all duration-300 group-hover:text-indigo-800 dark:group-hover:text-indigo-200 group-hover:font-medium flex-1 min-w-0 ${
+                  isSelected
+                    ? 'text-indigo-800 dark:text-indigo-200 font-medium'
+                    : ''
+                }`}
+                title={getPath(log.url)}
+              >
+                {getPath(log.url)}
+              </p>
+              <span
+                className={`text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100/60 dark:bg-gray-700/60 px-2 xs:px-3 py-1 xs:py-1.5 rounded-lg border border-white/30 transition-all duration-350 group-hover:bg-gradient-to-r group-hover:from-gray-200/80 group-hover:to-indigo-100/60 dark:group-hover:from-gray-600/80 dark:group-hover:to-indigo-800/60 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 group-hover:shadow-md group-hover:font-semibold group-hover:border-indigo-400/60 flex-shrink-0 ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-gray-200/50 to-indigo-100/30 dark:from-gray-500/50 dark:to-indigo-700/30 text-indigo-600 dark:text-indigo-400 shadow-sm font-medium tracking-wide border-indigo-500/50'
+                    : ''
+                }`}
+              >
+                {formatTimestamp(log.timestamp)}
+              </span>
+            </div>
           </div>
         </div>
       </div>
