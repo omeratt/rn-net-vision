@@ -11,12 +11,14 @@ interface KeyValueViewerProps {
   value: string;
   type: KeyValueType;
   className?: string;
+  hideHeader?: boolean;
 }
 
 export const KeyValueViewer = ({
   value,
   type,
   className = '',
+  hideHeader = false,
 }: KeyValueViewerProps): VNode => {
   const pairs = parseKeyValuePairs(value, type);
 
@@ -32,11 +34,13 @@ export const KeyValueViewer = ({
 
   return (
     <div className={`${fieldStyles.container.withHeader} ${className}`}>
-      <div className={fieldStyles.header.base}>
-        <span className={fieldStyles.label.keyValueHeader}>
-          {getKeyValueTypeLabel(type)} ({pairs.length})
-        </span>
-      </div>
+      {!hideHeader && (
+        <div className={fieldStyles.header.base}>
+          <span className={fieldStyles.label.keyValueHeader}>
+            {getKeyValueTypeLabel(type)} ({pairs.length})
+          </span>
+        </div>
+      )}
       <div className={fieldStyles.content.keyValueList}>
         {pairs.map((pair, index) => (
           <div key={index} className={fieldStyles.content.keyValueItem}>

@@ -12,6 +12,8 @@ interface CollapsibleSectionProps {
   variant?: CollapsibleVariant;
   rightContent?: VNode;
   titleClassName?: string;
+  itemCount?: number;
+  hideWhenExpanded?: boolean;
 }
 
 export const CollapsibleSection = ({
@@ -22,6 +24,8 @@ export const CollapsibleSection = ({
   variant = 'section',
   rightContent,
   titleClassName = '',
+  itemCount,
+  hideWhenExpanded = false,
 }: CollapsibleSectionProps): VNode => {
   const { isCollapsed, toggle } = useCollapse(initialCollapsed);
 
@@ -108,8 +112,15 @@ export const CollapsibleSection = ({
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </div>
-            <span className={`${titleStyles[variant]} ${labelColor}`}>
+            <span
+              className={`${titleStyles[variant]} ${labelColor} transition-opacity ${TRANSITION_DURATION} ${
+                hideWhenExpanded && !isCollapsed
+                  ? 'opacity-0 scale-0'
+                  : 'opacity-100 scale-100'
+              }`}
+            >
               {title}
+              {itemCount !== undefined ? ` (${itemCount})` : ''}
             </span>
           </div>
           {variant === 'field' && rightContent && (

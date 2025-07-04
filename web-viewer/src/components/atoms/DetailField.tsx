@@ -6,6 +6,7 @@ import { CollapsibleSection } from '../molecules/CollapsibleSection';
 import { useFieldContent } from '../../hooks/useFieldContent.tsx';
 import { isErrorField } from '../../utils/fieldTypes';
 import { fieldStyles } from '../../utils/fieldStyles';
+import { parseKeyValuePairs } from '../../utils/keyValuePairs';
 
 interface DetailFieldProps {
   label: string;
@@ -25,7 +26,18 @@ export const DetailField = ({
   initialExpanded = true,
 }: DetailFieldProps): VNode => {
   const { showToast } = useToast();
-  const { content } = useFieldContent({ label, value, isCode });
+
+  // Calculate item count for headers/cookies
+  const isHeaders = label.toLowerCase().includes('header');
+  const isCookies = label.toLowerCase().includes('cookie');
+  const shouldShowCount = isHeaders || isCookies;
+
+  const { content } = useFieldContent({
+    label,
+    value,
+    isCode,
+    hideHeader: shouldShowCount,
+  });
 
   const handleCopy = (_text: string) => {
     showToast(`${label} copied to clipboard!`, 'success', 2000);
@@ -34,6 +46,10 @@ export const DetailField = ({
   const copyButton = <CopyButton text={value} onCopy={handleCopy} size="sm" />;
   const isError = isErrorField(label);
   const isURL = label.toLowerCase() === 'url';
+
+  const itemCount = shouldShowCount
+    ? parseKeyValuePairs(value, isHeaders ? 'headers' : 'cookies').length
+    : undefined;
 
   const labelClassName = isError
     ? fieldStyles.label.error
@@ -61,6 +77,8 @@ export const DetailField = ({
       initialCollapsed={!initialExpanded}
       rightContent={copyButton}
       titleClassName={labelClassName}
+      itemCount={itemCount}
+      hideWhenExpanded={shouldShowCount}
     >
       {content}
     </CollapsibleSection>

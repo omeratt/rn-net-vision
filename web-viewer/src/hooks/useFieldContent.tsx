@@ -17,6 +17,7 @@ interface UseFieldContentOptions {
   value: string;
   isCode?: boolean;
   className?: string;
+  hideHeader?: boolean;
 }
 
 /**
@@ -27,6 +28,7 @@ export const useFieldContent = ({
   value,
   isCode = false,
   className = '',
+  hideHeader = false,
 }: UseFieldContentOptions): UseFieldContentResult => {
   const fieldType = detectFieldType(label, isCode);
 
@@ -39,13 +41,23 @@ export const useFieldContent = ({
 
     case FieldType.COOKIES:
       content = (
-        <KeyValueViewer value={value} type="cookies" className={className} />
+        <KeyValueViewer
+          value={value}
+          type="cookies"
+          className={className}
+          hideHeader={hideHeader}
+        />
       );
       break;
 
     case FieldType.HEADERS:
       content = (
-        <KeyValueViewer value={value} type="headers" className={className} />
+        <KeyValueViewer
+          value={value}
+          type="headers"
+          className={className}
+          hideHeader={hideHeader}
+        />
       );
       break;
 
