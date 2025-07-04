@@ -7,3 +7,4 @@ export { useSortedLogs } from './useSortedLogs';
 export { useCollapse } from './useCollapse';
 export type { UseCollapseReturn } from './useCollapse';
 export { useFieldContent } from './useFieldContent';
+export { useScrollToSelected } from './useScrollToSelected';
