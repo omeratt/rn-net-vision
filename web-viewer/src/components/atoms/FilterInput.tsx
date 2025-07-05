@@ -2,6 +2,7 @@
 import { VNode } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { DropdownPortal } from './DropdownPortal';
+import { ScrollFadeContainer } from './ScrollFadeContainer';
 
 interface FilterInputProps {
   'type'?: 'text' | 'select';
@@ -366,7 +367,10 @@ export const FilterInput = ({
               </div>
             )}
 
-            <div className="py-2">
+            <ScrollFadeContainer
+              className="py-2 max-h-64 overflow-y-auto"
+              fadeHeight={8}
+            >
               {options.map((option) => (
                 <button
                   key={option.value}
@@ -462,7 +466,7 @@ export const FilterInput = ({
                   </div>
                 </button>
               ))}
-            </div>
+            </ScrollFadeContainer>
           </div>
         </DropdownPortal>
       </div>

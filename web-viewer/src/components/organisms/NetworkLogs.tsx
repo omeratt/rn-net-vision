@@ -5,6 +5,7 @@ import type { NetVisionLog } from '../../types';
 import { NetworkLogList } from './NetworkLogList';
 import { LogDetailsPanel } from '../molecules/LogDetailsPanel';
 import { SplitHandle } from '../atoms/SplitHandle';
+import { ScrollFadeContainer } from '../atoms';
 import { useDevices } from '../../context/DeviceContext';
 import { useFilteredLogs } from '../../hooks/useFilteredLogs';
 import { useLogSelection, useSplitPanel, useSortedLogs } from '../../hooks';
@@ -40,7 +41,10 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
         style={{ width: `${splitPanel.splitPosition}%` }}
         className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-900/20  transition-[width] ease-out mobile-no-scroll-x"
       >
-        <div className="p-2 sm:p-4 h-full overflow-y-auto">
+        <ScrollFadeContainer
+          className="p-2 sm:p-4 h-full overflow-y-auto"
+          fadeHeight={20}
+        >
           <NetworkLogList
             logs={filteredLogs}
             onClear={handleClear}
@@ -49,7 +53,7 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
             onSortedLogsChange={sortedLogs.handleSortedLogsChange}
             onClearSelection={selection.handleClearSelection}
           />
-        </div>
+        </ScrollFadeContainer>
       </div>
 
       <SplitHandle

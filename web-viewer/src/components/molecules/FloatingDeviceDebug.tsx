@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import { useDevices } from '../../context/DeviceContext';
 import { StatusIndicator } from '../atoms/StatusIndicator';
+import { ScrollFadeContainer } from '../atoms';
 
 interface FloatingDeviceDebugProps {
   isOpen: boolean;
@@ -101,7 +102,7 @@ export const FloatingDeviceDebug = ({
     <>
       {/* Backdrop with direct blur and transitions */}
       <div
-        className={`fixed inset-0 bg-black/20 dark:bg-black/30 z-ultra-backdrop  transition-all duration-300 ${
+        className={`fixed inset-0 bg-black/20 dark:bg-black/30 z-50 transition-all duration-300 ${
           isAnimating ? 'opacity-100' : 'opacity-0'
         }`}
         style={
@@ -116,7 +117,7 @@ export const FloatingDeviceDebug = ({
       {/* Floating Panel with CSS transitions */}
       <div
         ref={panelRef}
-        className={`fixed w-80 bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-600 rounded-xl shadow-2xl z-ultra-high transition-all duration-300 ease-out ${
+        className={`fixed w-80 bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-600 rounded-xl shadow-2xl z-50 transition-all duration-300 ease-out ${
           isAnimating
             ? 'opacity-100 translate-y-0 scale-100'
             : 'opacity-0 -translate-y-4 scale-95'
@@ -170,7 +171,10 @@ export const FloatingDeviceDebug = ({
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4 max-h-96 overflow-y-auto refined-scrollbar">
+        <ScrollFadeContainer
+          className="p-4 space-y-4 max-h-96 overflow-y-auto refined-scrollbar"
+          fadeHeight={12}
+        >
           {/* Status Overview */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
@@ -258,7 +262,7 @@ export const FloatingDeviceDebug = ({
               </div>
             </div>
           )}
-        </div>
+        </ScrollFadeContainer>
       </div>
     </>
   );

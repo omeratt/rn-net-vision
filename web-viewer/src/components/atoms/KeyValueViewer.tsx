@@ -6,6 +6,7 @@ import {
   KeyValueType,
 } from '../../utils/keyValuePairs';
 import { fieldStyles } from '../../utils/fieldStyles';
+import { ScrollFadeContainer } from './ScrollFadeContainer';
 
 interface KeyValueViewerProps {
   value: string;
@@ -32,6 +33,11 @@ export const KeyValueViewer = ({
     );
   }
 
+  // Remove overflow classes from keyValueList style
+  const baseListClasses = fieldStyles.content.keyValueList
+    .replace('overflow-y-auto', '')
+    .replace('max-h-80', '');
+
   return (
     <div className={`${fieldStyles.container.withHeader} ${className}`}>
       {!hideHeader && (
@@ -41,7 +47,10 @@ export const KeyValueViewer = ({
           </span>
         </div>
       )}
-      <div className={fieldStyles.content.keyValueList}>
+      <ScrollFadeContainer
+        className={`${baseListClasses} max-h-80 overflow-y-auto`}
+        fadeHeight={12}
+      >
         {pairs.map((pair, index) => (
           <div key={index} className={fieldStyles.content.keyValueItem}>
             <div className="space-y-1">
@@ -54,7 +63,7 @@ export const KeyValueViewer = ({
             </div>
           </div>
         ))}
-      </div>
+      </ScrollFadeContainer>
     </div>
   );
 };

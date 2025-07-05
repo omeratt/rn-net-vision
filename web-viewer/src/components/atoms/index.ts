@@ -5,6 +5,9 @@
 // Core component
 export { DetailField } from './DetailField';
 
+// Utility components
+export { ScrollFadeContainer } from './ScrollFadeContainer';
+
 // Specialized viewer components
 export { JsonViewer } from './JsonViewer';
 export { KeyValueViewer } from './KeyValueViewer';

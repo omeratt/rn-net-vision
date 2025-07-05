@@ -6,6 +6,7 @@ import {
   isLikelyJson,
 } from '../../utils/json';
 import { fieldStyles } from '../../utils/fieldStyles';
+import { ScrollFadeContainer } from './ScrollFadeContainer';
 
 interface JsonViewerProps {
   value: string;
@@ -35,23 +36,38 @@ export const JsonViewer = ({
     : formattedJson;
 
   if (!isValidJson && !isLikelyJson(value)) {
-    // Fallback to simple code display
+    // Fallback to simple code display - remove overflow classes and use ScrollFadeContainer
+    const baseCodeClasses = fieldStyles.content.code
+      .replace('overflow-y-auto', '')
+      .replace('overflow-x-auto', '')
+      .replace('max-h-96', '');
+
     return (
-      <pre className={`${fieldStyles.content.code} ${className}`}>{value}</pre>
+      <ScrollFadeContainer
+        className={`${baseCodeClasses} max-h-96 overflow-y-auto overflow-x-auto ${className}`}
+        fadeHeight={12}
+      >
+        <pre className="whitespace-pre-wrap break-words">{value}</pre>
+      </ScrollFadeContainer>
     );
   }
+
+  // Remove overflow classes from json content style
+  const baseJsonClasses = fieldStyles.content.json
+    .replace('overflow-auto', '')
+    .replace('max-h-96', '');
 
   return (
     <div className={`${fieldStyles.container.withHeader} ${className}`}>
       <div className={fieldStyles.header.json}>
         <span className={fieldStyles.label.jsonHeader}>JSON</span>
       </div>
-      <div className="relative">
-        <pre
-          className={fieldStyles.content.json}
-          dangerouslySetInnerHTML={{ __html: highlightedJson }}
-        />
-      </div>
+      <ScrollFadeContainer
+        className={`${baseJsonClasses} max-h-96 overflow-auto`}
+        fadeHeight={12}
+      >
+        <pre dangerouslySetInnerHTML={{ __html: highlightedJson }} />
+      </ScrollFadeContainer>
     </div>
   );
 };
