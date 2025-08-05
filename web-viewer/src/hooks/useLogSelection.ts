@@ -25,38 +25,69 @@ export const useLogSelection = (sortedLogs: NetVisionLog[]) => {
     }
   }, [sortedLogs, selectedIndex, isSorting]);
 
-  // Keyboard navigation handler
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
+  // Keyboard navigation handler with refs to prevent re-registration
+  const sortedLogsRef = useRef(sortedLogs);
+  const selectedIndexRef = useRef(selectedIndex);
+
+  // Update refs when values change
+  useEffect(() => {
+    sortedLogsRef.current = sortedLogs;
+  }, [sortedLogs]);
+
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+  }, [selectedIndex]);
+
+  // Cleanup refs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      sortedLogsRef.current = [];
+      selectedIndexRef.current = -1;
+    };
+  }, []);
+
+  // Set up keyboard event listener with AbortController
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle keyboard events if the container or its children have focus
       const container = containerRef.current;
       if (!container || !container.contains(document.activeElement)) return;
 
-      if (sortedLogs.length === 0) return;
+      const currentSortedLogs = sortedLogsRef.current;
+      const currentSelectedIndex = selectedIndexRef.current;
+
+      if (currentSortedLogs.length === 0) return;
 
       if (e.key === 'ArrowUp') {
         e.preventDefault();
         const newIndex =
-          selectedIndex <= 0 ? sortedLogs.length - 1 : selectedIndex - 1;
+          currentSelectedIndex <= 0
+            ? currentSortedLogs.length - 1
+            : currentSelectedIndex - 1;
         setSelectedIndex(newIndex);
-        setSelectedLog(sortedLogs[newIndex]);
+        setSelectedLog(currentSortedLogs[newIndex]);
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         const newIndex =
-          selectedIndex >= sortedLogs.length - 1 ? 0 : selectedIndex + 1;
+          currentSelectedIndex >= currentSortedLogs.length - 1
+            ? 0
+            : currentSelectedIndex + 1;
         setSelectedIndex(newIndex);
-        setSelectedLog(sortedLogs[newIndex]);
+        setSelectedLog(currentSortedLogs[newIndex]);
       }
-    },
-    [sortedLogs, selectedIndex]
-  );
+    };
 
-  // Set up keyboard event listener
-  useEffect(() => {
-    const handleKeyDownEvent = (e: KeyboardEvent) => handleKeyDown(e);
-    document.addEventListener('keydown', handleKeyDownEvent);
-    return () => document.removeEventListener('keydown', handleKeyDownEvent);
-  }, [handleKeyDown]);
+    document.addEventListener('keydown', handleKeyDown, {
+      signal: abortController.signal,
+      passive: false,
+    });
+
+    return () => {
+      abortController.abort();
+    };
+  }, []); // No dependencies - refs provide latest values
 
   // Focus the container when component mounts or when there are logs to enable keyboard navigation
   // But don't steal focus if something else (like an input) is already focused

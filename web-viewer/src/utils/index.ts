@@ -14,3 +14,8 @@ export * from './durationUtils';
 export * from './styleUtils';
 export * from './timeUtils';
 export * from './urlUtils';
+
+// Search utilities
+export * from './searchFieldUtils';
+export * from './highlightUtils';
+export * from './searchStyles';

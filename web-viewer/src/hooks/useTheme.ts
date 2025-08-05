@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'preact/hooks';
+import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
 import {
   updateScrollbarTheme,
   forceScrollbarRepaint,
@@ -17,19 +17,39 @@ export const useTheme = () => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
+  // Add debouncing for rapid theme changes
+  const themeTimeoutRef = useRef<number | null>(null);
+
   useEffect(() => {
-    // Apply theme to DOM elements
-    applyThemeToDOM(isDarkMode);
+    // Clear any pending theme changes
+    if (themeTimeoutRef.current) {
+      clearTimeout(themeTimeoutRef.current);
+    }
 
-    // Update scrollbar theme
-    updateScrollbarTheme(isDarkMode);
+    // Debounce theme application for better performance
+    themeTimeoutRef.current = window.setTimeout(() => {
+      const applyTheme = () => {
+        // Apply theme to DOM elements
+        applyThemeToDOM(isDarkMode);
 
-    // Re-enable transitions and force scrollbar repaint
-    const timeoutId = enableTransitions(() => {
-      forceScrollbarRepaint();
-    });
+        // Update scrollbar theme
+        updateScrollbarTheme(isDarkMode);
 
-    return () => clearTimeout(timeoutId);
+        // Re-enable transitions and force scrollbar repaint
+        enableTransitions(() => {
+          forceScrollbarRepaint();
+        });
+      };
+
+      // Use requestAnimationFrame for optimal timing
+      window.requestAnimationFrame(applyTheme);
+    }, 16); // ~1 frame delay for debouncing
+
+    return () => {
+      if (themeTimeoutRef.current) {
+        clearTimeout(themeTimeoutRef.current);
+      }
+    };
   }, [isDarkMode]);
 
   useEffect(() => {

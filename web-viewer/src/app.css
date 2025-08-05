@@ -20,8 +20,9 @@
   -moz-osx-font-smoothing: grayscale;
   
   /* Enhanced theme transition timing */
-  --theme-transition-duration: 300ms;
-  --theme-transition-timing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Theme transition variables - ultra optimized for performance */
+  --theme-transition-duration: 100ms; /* Reduced from 200ms */
+  --theme-transition-timing: ease-out; /* Simplified timing function */
 }
 
 /* Modern animations */
@@ -191,18 +192,84 @@
 }
 
 /* Disable all transitions during theme switching to prevent flash */
-.theme-transitioning * {
+.theme-transitioning *:not(.theme-toggle):not(.theme-toggle *),
+.theme-transitioning *::before,
+.theme-transitioning *::after {
   transition: none !important;
   animation: none !important;
+  will-change: auto !important;
 }
 
-/* Smooth theme transitions for all elements */
-* {
-  transition: 
-    background-color var(--theme-transition-duration) var(--theme-transition-timing),
-    border-color var(--theme-transition-duration) var(--theme-transition-timing),
-    color var(--theme-transition-duration) var(--theme-transition-timing),
-    box-shadow var(--theme-transition-duration) var(--theme-transition-timing);
+/* Aggressive performance mode - disable ALL transitions for log items */
+.performance-mode *:not(.theme-toggle):not(.theme-toggle *),
+.performance-mode *::before,
+.performance-mode *::after {
+  transition: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+/* Ultra-light theme transitions - only for header and main layout */
+header,
+.header-content,
+.theme-toggle,
+.theme-toggle button,
+.device-selector {
+  transition: background-color 150ms ease-out;
+}
+
+/* Never disable theme toggle interactions */
+.theme-toggle,
+.theme-toggle *,
+.theme-toggle button {
+  transition: all 150ms ease-out !important;
+  pointer-events: auto !important;
+}
+
+/* Completely disable transitions for log container during theme change */
+.theme-transitioning .network-log-item,
+.theme-transitioning .network-log-container,
+.theme-transitioning .badge,
+.theme-transitioning .status-badge,
+.theme-transitioning .method-badge,
+.theme-transitioning .device-badge,
+.theme-transitioning .domain-display,
+.theme-transitioning .url-path-display {
+  transition: none !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Performance optimization for large lists */
+.theme-transitioning .network-log-container,
+.performance-mode .network-log-container {
+  contain: layout style paint;
+  will-change: auto;
+  transform: translateZ(0);
+}
+
+/* Completely disable heavy effects during theme changes */
+.theme-transitioning .backdrop-blur-md,
+.theme-transitioning .backdrop-blur-lg,
+.theme-transitioning .shadow-lg,
+.theme-transitioning .shadow-xl,
+.performance-mode .backdrop-blur-md,
+.performance-mode .backdrop-blur-lg,
+.performance-mode .shadow-lg,
+.performance-mode .shadow-xl {
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Disable gradients during theme transitions for better performance */
+.theme-transitioning .bg-gradient-to-r,
+.theme-transitioning .bg-gradient-to-br,
+.theme-transitioning .bg-gradient-to-l,
+.performance-mode .bg-gradient-to-r,
+.performance-mode .bg-gradient-to-br,
+.performance-mode .bg-gradient-to-l {
+  background-image: none !important;
 }
 
 /* Enhanced interaction utilities */
@@ -815,5 +882,31 @@
   word-break: break-all;
   white-space: normal;
   line-break: anywhere;
+}
+
+/* Performance mode for theme transitions with many elements */
+.performance-mode {
+  /* Use CSS containment for better performance */
+  contain: layout style;
+}
+
+.performance-mode .network-log-item,
+.performance-mode .badge,
+.performance-mode .status-badge,
+.performance-mode .method-badge,
+.performance-mode .device-badge {
+  transition: none !important;
+  animation: none !important;
+  will-change: auto !important;
+  contain: layout style paint;
+}
+
+/* Optimize rendering for lists during theme change */
+.theme-transitioning .network-log-list,
+.performance-mode .network-log-list {
+  contain: layout;
+  will-change: auto;
+  /* Prevent repaints of child elements */
+  isolation: isolate;
 }
 

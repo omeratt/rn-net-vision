@@ -5,7 +5,7 @@
 export const getBaseBadgeClasses = (isSelected: boolean): string => {
   return `
     inline-flex items-center justify-center rounded-lg font-mono font-semibold text-xs 
-    border border-white/30 shadow-lg transition-all duration-350 
+    border border-white/30 shadow-lg
     group-hover:shadow-2xl group-hover:border-indigo-400/60 
     group-hover:bg-gradient-to-r group-hover:from-white/80 group-hover:to-indigo-50/60 
     dark:group-hover:from-gray-700/80 dark:group-hover:to-indigo-900/60 

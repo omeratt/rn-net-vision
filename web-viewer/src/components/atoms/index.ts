@@ -7,6 +7,8 @@ export { DetailField } from './DetailField';
 
 // Utility components
 export { ScrollFadeContainer } from './ScrollFadeContainer';
+export { LoaderSpinner } from './LoaderSpinner';
+export { HighlightedText } from './HighlightedText';
 
 // Specialized viewer components
 export { JsonViewer } from './JsonViewer';

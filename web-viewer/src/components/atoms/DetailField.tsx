@@ -78,7 +78,6 @@ export const DetailField = ({
       rightContent={copyButton}
       titleClassName={labelClassName}
       itemCount={itemCount}
-      hideWhenExpanded={shouldShowCount}
     >
       {content}
     </CollapsibleSection>

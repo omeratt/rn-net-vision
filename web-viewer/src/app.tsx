@@ -1,10 +1,13 @@
 /** @jsxImportSource preact */
 import { VNode } from 'preact';
+import { useRef, useCallback } from 'preact/hooks';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useTheme } from './hooks/useTheme';
+import { useFilteredLogs } from './hooks/useFilteredLogs';
+import { useLogHighlight, useAppGlobalSearch } from './hooks';
 import { NetworkLogs } from './components/organisms/NetworkLogs';
 import { ErrorBoundary } from './components/atoms/ErrorBoundary';
-import { DeviceProvider } from './context/DeviceContext';
+import { DeviceProvider, useDevices } from './context/DeviceContext';
 import { ToastProvider } from './context/ToastContext';
 import { Header } from './components/organisms/Header';
 
@@ -12,6 +15,28 @@ import { Header } from './components/organisms/Header';
 function AppContent(): VNode {
   const { logs, clearLogs, isConnected } = useWebSocket();
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const { activeDeviceId } = useDevices();
+
+  // Filter logs by active device for both NetworkLogs and GlobalSearch
+  const filteredLogs = useFilteredLogs(logs, activeDeviceId);
+
+  // Ref to access the log container for focus restoration after search closes
+  const logContainerRef = useRef<HTMLDivElement>(null);
+
+  // Log highlighting hook for search selection feedback
+  const logHighlight = useLogHighlight();
+
+  // Global search integration hook
+  const globalSearch = useAppGlobalSearch({
+    onHighlight: logHighlight.setHighlight,
+  });
+
+  // Handler to restore focus to log container after search closes
+  const handleSearchClose = useCallback(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.focus();
+    }
+  }, []);
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-500/20 dark:via-purple-500/20 dark:to-pink-500/20 text-gray-900 dark:text-gray-100 transition-all duration-500 overflow-hidden">
@@ -23,10 +48,21 @@ function AppContent(): VNode {
         isConnected={isConnected}
         isDarkMode={isDarkMode}
         toggleDarkMode={toggleDarkMode}
+        logs={filteredLogs}
+        onLogSelect={globalSearch.handleLogSelect}
+        onScrollToLog={globalSearch.handleScrollToLog}
+        onSearchClose={handleSearchClose}
       />
 
       <main className="relative w-full flex-1 flex flex-col px-4 py-6 sm:px-6 md:px-8 min-h-0">
-        <NetworkLogs logs={logs} onClear={clearLogs} />
+        <NetworkLogs
+          logs={filteredLogs}
+          onClear={clearLogs}
+          logContainerRef={logContainerRef}
+          highlightedLogId={logHighlight.highlightedLogId}
+          highlightState={logHighlight.highlightState}
+          onLogSelectionChange={globalSearch.registerNetworkLogsMethods}
+        />
       </main>
     </div>
   );

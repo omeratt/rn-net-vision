@@ -6,7 +6,8 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 
 const fetchTo = (
   url: string,
-  options: Omit<ReactNativeSSLPinning.Options, 'sslPinning'>
+  options: any
+  // options: Omit<ReactNativeSSLPinning.Options, 'sslPinning'>
 ) => {
   // Example of debug level logging - detailed technical information
   logger.debug(

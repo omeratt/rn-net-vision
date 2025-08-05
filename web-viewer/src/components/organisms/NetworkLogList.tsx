@@ -18,6 +18,8 @@ interface NetworkLogListProps {
   selectedLog: NetVisionLog | null;
   onSortedLogsChange?: (sortedLogs: NetVisionLog[]) => void;
   onClearSelection?: () => void;
+  highlightedLogId?: string | null;
+  highlightState?: 'idle' | 'blinking' | 'fading';
 }
 
 export const NetworkLogList = ({
@@ -27,6 +29,8 @@ export const NetworkLogList = ({
   selectedLog,
   onSortedLogsChange,
   onClearSelection,
+  highlightedLogId,
+  highlightState = 'idle',
 }: NetworkLogListProps): VNode => {
   const { activeDeviceId, getDeviceName } = useDevices();
 
@@ -75,15 +79,22 @@ export const NetworkLogList = ({
             No logs match your filters
           </div>
         ) : (
-          sort.sortedLogs.map((log: NetVisionLog, index: number) => (
-            <NetworkLog
-              key={`${log.timestamp}-${log.url}-${log.status}-${log.method}-${log.deviceId || 'no-device'}-${index}`}
-              log={log}
-              isSelected={selection.isLogSelected(log)}
-              onClick={() => onSelectLog(log, index)}
-              activeDeviceId={activeDeviceId}
-            />
-          ))
+          sort.sortedLogs.map((log: NetVisionLog, index: number) => {
+            // Create same unique identifier as in app.tsx for consistent highlighting
+            const logId = `${log.timestamp}-${log.url}-${log.method}`;
+
+            return (
+              <NetworkLog
+                key={`${log.timestamp}-${log.url}-${log.status}-${log.method}-${log.deviceId || 'no-device'}-${index}`}
+                log={log}
+                isSelected={selection.isLogSelected(log)}
+                isHighlighted={highlightedLogId === logId}
+                highlightState={highlightState}
+                onClick={() => onSelectLog(log, index)}
+                activeDeviceId={activeDeviceId}
+              />
+            );
+          })
         )}
       </div>
     </div>

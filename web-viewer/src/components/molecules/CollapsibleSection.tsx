@@ -13,7 +13,6 @@ interface CollapsibleSectionProps {
   rightContent?: VNode;
   titleClassName?: string;
   itemCount?: number;
-  hideWhenExpanded?: boolean;
 }
 
 export const CollapsibleSection = ({
@@ -25,7 +24,6 @@ export const CollapsibleSection = ({
   rightContent,
   titleClassName = '',
   itemCount,
-  hideWhenExpanded = false,
 }: CollapsibleSectionProps): VNode => {
   const { isCollapsed, toggle } = useCollapse(initialCollapsed);
 
@@ -113,11 +111,7 @@ export const CollapsibleSection = ({
               </svg>
             </div>
             <span
-              className={`${titleStyles[variant]} ${labelColor} transition-opacity ${TRANSITION_DURATION} ${
-                hideWhenExpanded && !isCollapsed
-                  ? 'opacity-0 scale-0'
-                  : 'opacity-100 scale-100'
-              }`}
+              className={`${titleStyles[variant]} ${labelColor} transition-opacity ${TRANSITION_DURATION} `}
             >
               {title}
               {itemCount !== undefined ? ` (${itemCount})` : ''}

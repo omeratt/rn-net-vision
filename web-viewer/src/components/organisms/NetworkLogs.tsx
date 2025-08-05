@@ -1,39 +1,83 @@
 /** @jsxImportSource preact */
-import { VNode } from 'preact';
-import { useCallback } from 'react';
-import type { NetVisionLog } from '../../types';
+import { VNode, RefObject } from 'preact';
+import { useCallback, useEffect } from 'react';
+import type { NetVisionLog, HighlightState } from '../../types';
 import { NetworkLogList } from './NetworkLogList';
 import { LogDetailsPanel } from '../molecules/LogDetailsPanel';
 import { SplitHandle } from '../atoms/SplitHandle';
 import { ScrollFadeContainer } from '../atoms';
-import { useDevices } from '../../context/DeviceContext';
-import { useFilteredLogs } from '../../hooks/useFilteredLogs';
-import { useLogSelection, useSplitPanel, useSortedLogs } from '../../hooks';
+import {
+  useLogSelection,
+  useSplitPanel,
+  useSortedLogs,
+  useGlobalSearchIntegration,
+  useNetworkLogsRefs,
+} from '../../hooks';
 
 interface NetworkLogsProps {
   logs: NetVisionLog[];
   onClear: (deviceId?: string | null) => void;
+  logContainerRef?: RefObject<HTMLDivElement>;
+  highlightedLogId?: string | null;
+  highlightState?: HighlightState;
+  onLogSelectionChange?: (
+    selectMethod: (logId: string) => void, // Changed parameter type to logId for both methods
+    scrollMethod: (logId: string) => void
+  ) => void;
 }
 
-export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
-  const { activeDeviceId } = useDevices();
-
-  // Use the filtered logs hook for device filtering
-  const filteredLogs = useFilteredLogs(logs, activeDeviceId);
+export const NetworkLogs = ({
+  logs,
+  onClear,
+  logContainerRef,
+  highlightedLogId,
+  highlightState = 'idle',
+  onLogSelectionChange,
+}: NetworkLogsProps): VNode => {
+  // Note: logs are already filtered by device in app.tsx, no need to filter again
+  const filteredLogs = logs;
 
   // Use custom hooks for logic separation
   const sortedLogs = useSortedLogs();
   const selection = useLogSelection(sortedLogs.sortedLogs);
   const splitPanel = useSplitPanel();
 
-  // Create a device-aware clear function
+  // Global search integration hook
+  const globalSearch = useGlobalSearchIntegration({
+    sortedLogs: sortedLogs.sortedLogs,
+    filteredLogs,
+    handleSortedLogsChange: sortedLogs.handleSortedLogsChange,
+    handleSelectLog: selection.handleSelectLog,
+  });
+
+  // Container refs management hook
+  const containerRefs = useNetworkLogsRefs({
+    selectionContainerRef: selection.containerRef,
+    logContainerRef,
+  });
+
+  // Create a clear function (logs are already filtered by device)
   const handleClear = useCallback(() => {
-    onClear(activeDeviceId);
-  }, [onClear, activeDeviceId]);
+    onClear(null); // Clear all logs since we're already filtered
+  }, [onClear]);
+
+  // Expose methods to parent component
+  useEffect(() => {
+    if (onLogSelectionChange) {
+      onLogSelectionChange(
+        globalSearch.selectLogByUniqueId,
+        globalSearch.scrollToLogByUniqueId
+      );
+    }
+  }, [
+    onLogSelectionChange,
+    globalSearch.selectLogByUniqueId,
+    globalSearch.scrollToLogByUniqueId,
+  ]);
 
   return (
     <div
-      ref={selection.containerRef}
+      ref={containerRefs.setContainerRef}
       className="flex flex-col sm:flex-row h-full overflow-hidden rounded-lg shadow-lg safe-area-container focus:outline-none"
       tabIndex={0}
     >
@@ -52,6 +96,8 @@ export const NetworkLogs = ({ logs, onClear }: NetworkLogsProps): VNode => {
             selectedLog={selection.selectedLog}
             onSortedLogsChange={sortedLogs.handleSortedLogsChange}
             onClearSelection={selection.handleClearSelection}
+            highlightedLogId={highlightedLogId}
+            highlightState={highlightState}
           />
         </ScrollFadeContainer>
       </div>

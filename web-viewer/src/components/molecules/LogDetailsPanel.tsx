@@ -79,10 +79,12 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
       </div>
 
       {/* Cookies Section */}
-      {log.cookies && (
+      {((log.requestHeaders?.Cookie && log.requestHeaders.Cookie.length > 0) ||
+        (log.responseHeaders?.['Set-Cookie'] &&
+          log.responseHeaders['Set-Cookie'].length > 0)) && (
         <CookiesSection
-          requestCookies={log.cookies.request}
-          responseCookies={log.cookies.response}
+          requestCookies={log.requestHeaders?.Cookie}
+          responseCookies={log.responseHeaders?.['Set-Cookie']}
         />
       )}
     </ScrollFadeContainer>

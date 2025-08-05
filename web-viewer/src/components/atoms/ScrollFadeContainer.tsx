@@ -51,50 +51,55 @@ export const ScrollFadeContainer = ({
 
     let rafId: number;
     let timeoutId: number;
+    const abortController = new AbortController();
+
+    const performCheck = () => {
+      const { scrollTop, scrollHeight, clientHeight } = element;
+      const isScrollable = scrollHeight > clientHeight + 2;
+      const canScrollUp = scrollTop > 2;
+      const canScrollDown = scrollTop < scrollHeight - clientHeight - 2;
+
+      // Only update state if values actually changed
+      setScrollState((prev) => {
+        if (
+          prev.isScrollable === isScrollable &&
+          prev.canScrollUp === canScrollUp &&
+          prev.canScrollDown === canScrollDown
+        ) {
+          return prev; // No change, prevent re-render
+        }
+
+        return { isScrollable, canScrollUp, canScrollDown };
+      });
+    };
 
     const checkScrollability = () => {
       // Cancel any pending checks
       if (rafId) cancelAnimationFrame(rafId);
       if (timeoutId) clearTimeout(timeoutId);
 
-      // Use requestAnimationFrame for scroll events (immediate)
-      // Use timeout for resize events (debounced)
-      const performCheck = () => {
-        const { scrollTop, scrollHeight, clientHeight } = element;
-        const isScrollable = scrollHeight > clientHeight + 2;
-        const canScrollUp = scrollTop > 2;
-        const canScrollDown = scrollTop < scrollHeight - clientHeight - 2;
-
-        // Only update state if values actually changed
-        setScrollState((prev) => {
-          if (
-            prev.isScrollable === isScrollable &&
-            prev.canScrollUp === canScrollUp &&
-            prev.canScrollDown === canScrollDown
-          ) {
-            return prev; // No change, prevent re-render
-          }
-
-          return { isScrollable, canScrollUp, canScrollDown };
-        });
-      };
-
       rafId = requestAnimationFrame(performCheck);
     };
 
     const debouncedCheck = () => {
       if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(checkScrollability, 100);
+      timeoutId = window.setTimeout(performCheck, 100);
     };
 
     // Initial check
-    checkScrollability();
+    performCheck();
 
     // Immediate check on scroll (smooth)
-    element.addEventListener('scroll', checkScrollability, { passive: true });
+    element.addEventListener('scroll', checkScrollability, {
+      passive: true,
+      signal: abortController.signal,
+    });
 
     // Debounced check on resize (less frequent)
-    window.addEventListener('resize', debouncedCheck, { passive: true });
+    window.addEventListener('resize', debouncedCheck, {
+      passive: true,
+      signal: abortController.signal,
+    });
 
     // ResizeObserver to detect content changes (like when switching logs)
     const resizeObserver = new ResizeObserver(() => {
@@ -107,8 +112,7 @@ export const ScrollFadeContainer = ({
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
       if (timeoutId) clearTimeout(timeoutId);
-      element.removeEventListener('scroll', checkScrollability);
-      window.removeEventListener('resize', debouncedCheck);
+      abortController.abort();
       resizeObserver.disconnect();
     };
   }, [scrollRef]);

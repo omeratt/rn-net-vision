@@ -49,7 +49,7 @@ function startTrackingDevices() {
   });
 
   tracker.stderr.on('data', (data) => {
-    logger.error(`🔥 ADB tracker error: ${data.toString()}`);
+    logger.error(`🔥 ADB tracker error1: ${data.toString()}`);
   });
 
   tracker.on('close', (code) => {

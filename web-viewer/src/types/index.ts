@@ -21,6 +21,8 @@ export interface NetVisionLog {
 
 export type Theme = 'light' | 'dark';
 
+export type HighlightState = 'idle' | 'blinking' | 'fading';
+
 export interface WebSocketMessage {
   type: 'vite-ready' | 'network-log';
   payload?: NetVisionLog;

@@ -4,17 +4,27 @@ import { useState, useRef } from 'preact/hooks';
 import { ThemeToggle } from '../molecules/ThemeToggle';
 import { ModernDeviceSelector } from '../molecules/ModernDeviceSelector';
 import { FloatingDeviceDebug } from '../molecules/FloatingDeviceDebug';
+import { GlobalSearch } from './GlobalSearch';
+import type { NetVisionLog } from '../../types';
 
 interface HeaderProps {
   isConnected: boolean;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
+  logs: NetVisionLog[];
+  onLogSelect: (log: NetVisionLog) => void;
+  onScrollToLog?: (logId: string) => void;
+  onSearchClose?: () => void;
 }
 
 export const Header = ({
   isConnected,
   isDarkMode,
   toggleDarkMode,
+  logs,
+  onLogSelect,
+  onScrollToLog,
+  onSearchClose,
 }: HeaderProps): VNode => {
   const [isDebugOpen, setIsDebugOpen] = useState(false);
   const debugButtonRef = useRef<HTMLButtonElement>(null);
@@ -25,8 +35,9 @@ export const Header = ({
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-pink-500/5 dark:from-indigo-500/10 dark:via-purple-500/10 dark:to-pink-500/10" />
 
       <div className="relative w-full px-4 py-4 sm:px-6 md:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center space-x-6 mb-2 sm:mb-0">
+        <div className="flex w-full items-center gap-4">
+          {/* Left logo & status */}
+          <div className="flex items-center space-x-6">
             {/* Logo section with enhanced styling */}
             <div className="flex items-center gap-4 p-2 rounded-xl bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-700/80 dark:to-gray-600/80  border border-white/20 dark:border-gray-600/20 shadow-lg">
               <div className="text-indigo-600 dark:text-indigo-400 animate-pulse">
@@ -69,7 +80,18 @@ export const Header = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center space-x-4">
+          {/* Center search */}
+          <div className="flex-1 flex justify-center">
+            <GlobalSearch
+              logs={logs}
+              onLogSelect={onLogSelect}
+              onScrollToLog={onScrollToLog}
+              onSearchClose={onSearchClose}
+            />
+          </div>
+
+          {/* Right controls */}
+          <div className="flex items-center space-x-4">
             {/* Device Debug Button with enhanced styling */}
             <button
               ref={debugButtonRef}
