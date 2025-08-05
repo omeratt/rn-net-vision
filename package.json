@@ -23,6 +23,7 @@
     "cpp",
     "metro",
     "server",
+    "logger.js",
     "web-viewer/dist/**/*",
     "web-viewer/run-vite-production.js",
     "web-viewer/package.json",
@@ -49,7 +50,7 @@
     "typecheck": "tsc",
     "lint": "eslint . --ext .js,.ts,.tsx --ignore-pattern web-viewer/",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "prepare": "bob build && cd web-viewer && yarn install && yarn build && cd ..",
+    "prepare": "bob build && cp netvision.config.js lib/ && cd web-viewer && yarn install && yarn build && cd ..",
     "release": "release-it",
     "start-server": "node server/debug-server.js",
     "track-net-vision-logs": "adb logcat -c && adb logcat | grep NetVision"
