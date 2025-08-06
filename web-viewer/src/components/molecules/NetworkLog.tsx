@@ -28,10 +28,7 @@ export const NetworkLog = ({
   const showDeviceInfo = !activeDeviceId;
 
   return (
-    <div
-      data-log-timestamp={log.timestamp}
-      data-log-id={`${log.timestamp}-${log.url}-${log.method}`}
-    >
+    <div data-log-timestamp={log.timestamp} data-log-id={log.id}>
       <NetworkLogContainer
         isSelected={isSelected}
         isHighlighted={isHighlighted}

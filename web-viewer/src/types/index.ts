@@ -1,4 +1,5 @@
 export interface NetVisionLog {
+  id: string; // Generated client-side using crypto.randomUUID()
   type: 'network-log';
   method: string;
   url: string;

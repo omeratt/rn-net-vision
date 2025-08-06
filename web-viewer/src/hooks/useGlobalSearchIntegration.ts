@@ -20,48 +20,27 @@ export const useGlobalSearchIntegration = ({
 }: UseGlobalSearchIntegrationProps) => {
   const selectLogByUniqueId = useCallback(
     (logId: string) => {
-      // Parse the unique ID to extract timestamp, URL, and method
-      const parts = logId.split('-');
-      if (parts.length >= 3) {
-        const timestamp = parts[0];
-        const url = parts.slice(1, -1).join('-'); // Handle URLs with dashes
-        const method = parts[parts.length - 1];
+      // Find log by the generated UUID (guaranteed unique!)
+      let logIndex = sortedLogs.findIndex((log) => log.id === logId);
+      let foundLog = null;
 
-        // First try sortedLogs (the currently displayed sorted order)
-        let logIndex = sortedLogs.findIndex(
-          (log) =>
-            log.timestamp.toString() === timestamp &&
-            log.url === url &&
-            log.method === method
-        );
-        let foundLog = null;
+      if (logIndex !== -1) {
+        foundLog = sortedLogs[logIndex];
+      } else {
+        // Fallback: try filteredLogs in case log not in current sort order
+        logIndex = filteredLogs.findIndex((log) => log.id === logId);
 
         if (logIndex !== -1) {
-          foundLog = sortedLogs[logIndex];
-        } else {
-          // Fallback: try filteredLogs
-          logIndex = filteredLogs.findIndex(
-            (log) =>
-              log.timestamp.toString() === timestamp &&
-              log.url === url &&
-              log.method === method
-          );
-
-          if (logIndex !== -1) {
-            foundLog = filteredLogs[logIndex];
-
-            // Update sortedLogs to be in sync
-            handleSortedLogsChange(filteredLogs);
-          }
+          foundLog = filteredLogs[logIndex];
+          // Update sortedLogs to be in sync
+          handleSortedLogsChange(filteredLogs);
         }
+      }
 
-        if (foundLog) {
-          handleSelectLog(foundLog, logIndex);
-        } else {
-          console.warn('Could not find log with unique ID:', logId);
-        }
+      if (foundLog) {
+        handleSelectLog(foundLog, logIndex);
       } else {
-        console.warn('Invalid log ID format:', logId);
+        console.warn('Could not find log with ID:', logId);
       }
     },
     [sortedLogs, filteredLogs, handleSortedLogsChange, handleSelectLog]

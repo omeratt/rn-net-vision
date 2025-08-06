@@ -61,12 +61,9 @@ export const SearchResults = ({
             }
           >
             {results.map((result: SearchResult, index: number) => {
-              // Create unique key using same pattern as highlighting system
-              const uniqueKey = `${result.log.timestamp}-${result.log.url}-${result.log.method}`;
-
               return (
                 <ResultItem
-                  key={uniqueKey}
+                  key={result.log.id} // Use the generated ID as key
                   result={result}
                   index={index}
                   selectedIndex={selectedIndex}

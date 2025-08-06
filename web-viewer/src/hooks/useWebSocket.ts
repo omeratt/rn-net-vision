@@ -3,6 +3,11 @@ import type { NetVisionLog } from '../types';
 import { getLocalStorageLogs, LOGS_STORAGE_KEY } from '../utils/networkUtils';
 import { useDevices } from '../context/DeviceContext';
 
+// Generate unique ID for each incoming log using Web Crypto API
+const generateLogId = (): string => {
+  return crypto.randomUUID();
+};
+
 export const useWebSocket = () => {
   const [logs, setLogs] = useState<NetVisionLog[]>(getLocalStorageLogs());
   const [isConnected, setIsConnected] = useState(false);
@@ -118,45 +123,37 @@ export const useWebSocket = () => {
         console.log('[WebSocket] Parsed message:', data);
         switch (data.type) {
           case 'network-log':
-            if (data.deviceId) {
+            // Generate unique ID for each incoming log
+            const logWithId: NetVisionLog = {
+              ...data,
+              id: generateLogId(),
+            };
+
+            if (logWithId.deviceId) {
               console.log(
                 '[DeviceDebug] Network log with device info:',
-                data.deviceId,
-                data.deviceName,
-                data.devicePlatform
+                logWithId.deviceId,
+                logWithId.deviceName,
+                logWithId.devicePlatform
               );
               // Register or update device connection from network log
               addDeviceRef.current({
-                id: data.deviceId,
+                id: logWithId.deviceId,
                 name:
-                  data.deviceName ||
-                  `${data.devicePlatform || 'Unknown'}-Device-${data.deviceId.substring(0, 6)}`,
-                platform: data.devicePlatform || 'android',
+                  logWithId.deviceName ||
+                  `${logWithId.devicePlatform || 'Unknown'}-Device-${logWithId.deviceId.substring(0, 6)}`,
+                platform: logWithId.devicePlatform || 'android',
                 connected: true,
               });
             }
 
-            // Always add logs, filtering will be handled by the NetworkLogList component
+            // Add logs with generated IDs
             setLogs((prevLogs) => {
-              // Check if this log already exists to prevent duplicates
-              const isDuplicate = prevLogs.some(
-                (log) =>
-                  log.timestamp === data.timestamp &&
-                  log.url === data.url &&
-                  log.method === data.method &&
-                  log.deviceId === data.deviceId
-              );
-
-              if (isDuplicate) {
-                console.log(
-                  '[WebSocket] Duplicate log detected, skipping:',
-                  data.url
-                );
-                return prevLogs;
-              }
+              // Since each log gets a unique ID, we can simply add it
+              // No duplicate checking needed as each UUID is guaranteed unique
+              const newLogs = [...prevLogs, logWithId];
 
               // Keep the logs list from growing too large
-              const newLogs = [...prevLogs, data];
               if (newLogs.length > 1000) {
                 return newLogs.slice(-1000);
               }

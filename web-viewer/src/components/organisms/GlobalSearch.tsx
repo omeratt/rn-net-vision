@@ -46,8 +46,8 @@ export const GlobalSearch = ({
     (result: SearchResult) => {
       onLogSelect(result.log);
       if (onScrollToLog) {
-        // Pass the unique log ID instead of just timestamp
-        const logId = `${result.log.timestamp}-${result.log.url}-${result.log.method}`;
+        // Pass the generated log ID
+        const logId = result.log.id;
         onScrollToLog(logId);
       }
 

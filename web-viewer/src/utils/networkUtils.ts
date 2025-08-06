@@ -54,13 +54,27 @@ export const LOGS_STORAGE_KEY = 'netvision-logs';
  *
  * Retrieves logs from localStorage.
  * If parsing fails, it returns an empty array and logs the error to the console.
+ * Adds IDs to legacy logs that don't have them for backward compatibility.
  * @returns {NetVisionLog[]} - Returns the logs stored in localStorage.
  *
  */
 export const getLocalStorageLogs = (): NetVisionLog[] => {
   try {
     const savedLogs = localStorage.getItem(LOGS_STORAGE_KEY);
-    return savedLogs ? JSON.parse(savedLogs) : [];
+    if (!savedLogs) return [];
+
+    const parsedLogs = JSON.parse(savedLogs);
+
+    // Add IDs to legacy logs that don't have them
+    return parsedLogs.map((log: any) => {
+      if (!log.id) {
+        return {
+          ...log,
+          id: crypto.randomUUID(), // Generate ID for legacy logs
+        };
+      }
+      return log;
+    });
   } catch (error) {
     console.error('Failed to parse saved logs:', error);
     return [];

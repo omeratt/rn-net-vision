@@ -80,12 +80,12 @@ export const NetworkLogList = ({
           </div>
         ) : (
           sort.sortedLogs.map((log: NetVisionLog, index: number) => {
-            // Create same unique identifier as in app.tsx for consistent highlighting
-            const logId = `${log.timestamp}-${log.url}-${log.method}`;
+            // Use the generated log ID for consistent highlighting
+            const logId = log.id;
 
             return (
               <NetworkLog
-                key={`${log.timestamp}-${log.url}-${log.status}-${log.method}-${log.deviceId || 'no-device'}-${index}`}
+                key={log.id} // Use the generated ID as key for optimal performance
                 log={log}
                 isSelected={selection.isLogSelected(log)}
                 isHighlighted={highlightedLogId === logId}

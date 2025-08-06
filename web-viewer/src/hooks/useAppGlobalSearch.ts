@@ -18,15 +18,10 @@ export const useAppGlobalSearch = ({
     scrollToLogByUniqueId: (logId: string) => void;
   }>(null);
 
-  // Create unique log identifier
-  const createLogId = useCallback((log: NetVisionLog) => {
-    return `${log.timestamp}-${log.url}-${log.method}`;
-  }, []);
-
   // Enhanced log selection handler for global search
   const handleLogSelect = useCallback(
     (log: NetVisionLog) => {
-      const logId = createLogId(log);
+      const logId = log.id; // Use the generated ID directly
 
       // Use the NetworkLogs component's selection method if available
       if (networkLogsRef.current?.selectLogByUniqueId) {
@@ -41,7 +36,7 @@ export const useAppGlobalSearch = ({
       // Trigger highlight
       onHighlight(logId);
     },
-    [createLogId, onHighlight]
+    [onHighlight]
   );
 
   // Enhanced scroll to log handler
