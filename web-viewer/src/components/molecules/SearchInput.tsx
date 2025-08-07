@@ -270,12 +270,22 @@ export const SearchInput = ({
           },
         }}
         onBlur={() => {
-          // Delay blur slightly to allow for overlay clicks
+          // Delay blur slightly to allow for search result clicks
           setTimeout(() => {
-            if (document.activeElement !== inputRef.current) {
+            // Don't close if focus is still on the input
+            if (document.activeElement === inputRef.current) {
+              return;
+            }
+
+            // Don't close if user clicked on a search result
+            const clickedElement = document.activeElement;
+            const isSearchResultClick =
+              clickedElement?.closest('.search-results-container') !== null;
+
+            if (!isSearchResultClick) {
               close();
             }
-          }, 100);
+          }, 150); // Slightly increased delay to ensure result clicks can complete
         }}
       />
       {/* Loading spinner positioned relative to the input */}
@@ -312,7 +322,16 @@ export const SearchInput = ({
           backdropFilter: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
         }}
         className="fixed inset-0 z-40 bg-black/20"
-        onClick={close}
+        onClick={(event) => {
+          // Only close if the click didn't happen on a search result
+          const target = event.target as HTMLElement;
+          const isSearchResultsArea =
+            target.closest('.search-results-container') !== null;
+
+          if (!isSearchResultsArea) {
+            close();
+          }
+        }}
         aria-hidden="true"
       />
 

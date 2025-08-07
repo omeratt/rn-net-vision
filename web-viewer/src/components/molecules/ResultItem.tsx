@@ -35,7 +35,8 @@ export const ResultItem = ({
       } ${isLast ? 'border-b-0 rounded-b-xl' : ''} ${
         isFirst ? 'rounded-t-xl' : ''
       }`}
-      onClick={() => {
+      onClick={(event) => {
+        event.stopPropagation(); // Prevent event from bubbling to backdrop overlay
         onClick(result);
       }}
     >
