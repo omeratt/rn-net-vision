@@ -1,6 +1,7 @@
 /** @jsxImportSource preact */
 import type { VNode } from 'preact';
 import type { NetVisionLog } from '../../types';
+import type { UnifiedLogFiltersReturn } from '../../hooks';
 import { NetworkLog } from '../molecules/NetworkLog';
 import { FilterPanel } from '../molecules/FilterPanel';
 import { ActionButtons } from '../molecules/ActionButtons';
@@ -13,6 +14,7 @@ import {
 
 interface NetworkLogListProps {
   logs: NetVisionLog[];
+  filters?: UnifiedLogFiltersReturn;
   onClear: () => void;
   onSelectLog: (log: NetVisionLog, index: number) => void;
   selectedLog: NetVisionLog | null;
@@ -24,6 +26,7 @@ interface NetworkLogListProps {
 
 export const NetworkLogList = ({
   logs,
+  filters,
   onClear,
   onSelectLog,
   selectedLog,
@@ -34,10 +37,13 @@ export const NetworkLogList = ({
 }: NetworkLogListProps): VNode => {
   const { activeDeviceId, getDeviceName } = useDevices();
 
-  // Use custom hooks
-  const filters = useNetworkLogFilters(logs);
+  // Use shared filters from parent if available, otherwise create own filters
+  // This maintains backward compatibility while allowing the new unified approach
+  const fallbackFilters = useNetworkLogFilters(logs);
+  const activeFilters = filters || fallbackFilters;
+
   const sort = useNetworkLogSort(
-    filters.filteredLogs,
+    activeFilters.filteredLogs,
     onClearSelection,
     onSortedLogsChange
   );
@@ -51,16 +57,16 @@ export const NetworkLogList = ({
   return (
     <div className="space-y-4">
       <FilterPanel
-        filter={filters.filter}
-        statusFilter={filters.statusFilter}
-        methodFilter={filters.methodFilter}
+        filter={activeFilters.filter}
+        statusFilter={activeFilters.statusFilter}
+        methodFilter={activeFilters.methodFilter}
         sortBy={sort.sortBy}
-        onTextFilterChange={filters.handleTextFilterChange}
-        onStatusFilterChange={filters.handleStatusFilterChange}
-        onMethodFilterChange={filters.handleMethodFilterChange}
+        onTextFilterChange={activeFilters.handleTextFilterChange}
+        onStatusFilterChange={activeFilters.handleStatusFilterChange}
+        onMethodFilterChange={activeFilters.handleMethodFilterChange}
         onSortByChange={sort.handleSortByChange}
-        uniqueStatusOptions={filters.uniqueStatusOptions}
-        uniqueMethodOptions={filters.uniqueMethodOptions}
+        uniqueStatusOptions={activeFilters.uniqueStatusOptions}
+        uniqueMethodOptions={activeFilters.uniqueMethodOptions}
         sortByOptions={sort.sortByOptions}
         actions={
           <ActionButtons

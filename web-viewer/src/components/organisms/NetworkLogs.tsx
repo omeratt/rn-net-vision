@@ -2,6 +2,7 @@
 import { VNode, RefObject } from 'preact';
 import { useCallback, useEffect } from 'react';
 import type { NetVisionLog, HighlightState } from '../../types';
+import type { UnifiedLogFiltersReturn } from '../../hooks';
 import { NetworkLogList } from './NetworkLogList';
 import { LogDetailsPanel } from '../molecules/LogDetailsPanel';
 import { SplitHandle } from '../atoms/SplitHandle';
@@ -16,6 +17,7 @@ import {
 
 interface NetworkLogsProps {
   logs: NetVisionLog[];
+  filters?: UnifiedLogFiltersReturn;
   onClear: (deviceId?: string | null) => void;
   logContainerRef?: RefObject<HTMLDivElement>;
   highlightedLogId?: string | null;
@@ -28,6 +30,7 @@ interface NetworkLogsProps {
 
 export const NetworkLogs = ({
   logs,
+  filters,
   onClear,
   logContainerRef,
   highlightedLogId,
@@ -91,6 +94,7 @@ export const NetworkLogs = ({
         >
           <NetworkLogList
             logs={filteredLogs}
+            filters={filters}
             onClear={handleClear}
             onSelectLog={selection.handleSelectLog}
             selectedLog={selection.selectedLog}

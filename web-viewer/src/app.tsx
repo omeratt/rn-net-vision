@@ -3,7 +3,7 @@ import { VNode } from 'preact';
 import { useRef, useCallback } from 'preact/hooks';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useTheme } from './hooks/useTheme';
-import { useFilteredLogs } from './hooks/useFilteredLogs';
+import { useUnifiedLogFilters } from './hooks/useUnifiedLogFilters';
 import { useLogHighlight, useAppGlobalSearch } from './hooks';
 import { NetworkLogs } from './components/organisms/NetworkLogs';
 import { ErrorBoundary } from './components/atoms/ErrorBoundary';
@@ -17,8 +17,8 @@ function AppContent(): VNode {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { activeDeviceId } = useDevices();
 
-  // Filter logs by active device for both NetworkLogs and GlobalSearch
-  const filteredLogs = useFilteredLogs(logs, activeDeviceId);
+  // Use unified filtering that includes ALL filter types (device, URL, method, status)
+  const unifiedFilters = useUnifiedLogFilters(logs, activeDeviceId);
 
   // Ref to access the log container for focus restoration after search closes
   const logContainerRef = useRef<HTMLDivElement>(null);
@@ -48,7 +48,7 @@ function AppContent(): VNode {
         isConnected={isConnected}
         isDarkMode={isDarkMode}
         toggleDarkMode={toggleDarkMode}
-        logs={filteredLogs}
+        logs={unifiedFilters.filteredLogs}
         onLogSelect={globalSearch.handleLogSelect}
         onScrollToLog={globalSearch.handleScrollToLog}
         onSearchClose={handleSearchClose}
@@ -56,7 +56,8 @@ function AppContent(): VNode {
 
       <main className="relative w-full flex-1 flex flex-col px-4 py-6 sm:px-6 md:px-8 min-h-0">
         <NetworkLogs
-          logs={filteredLogs}
+          logs={unifiedFilters.filteredLogs}
+          filters={unifiedFilters}
           onClear={clearLogs}
           logContainerRef={logContainerRef}
           highlightedLogId={logHighlight.highlightedLogId}

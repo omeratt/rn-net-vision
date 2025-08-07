@@ -1,4 +1,6 @@
 export { useNetworkLogFilters } from './useNetworkLogFilters';
+export { useUnifiedLogFilters } from './useUnifiedLogFilters';
+export type { UnifiedLogFiltersReturn } from './useUnifiedLogFilters';
 export { useNetworkLogSort } from './useNetworkLogSort';
 export { useSelectedLog } from './useSelectedLog';
 export { useLogSelection } from './useLogSelection';

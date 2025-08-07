@@ -35,7 +35,9 @@ export const ResultItem = ({
       } ${isLast ? 'border-b-0 rounded-b-xl' : ''} ${
         isFirst ? 'rounded-t-xl' : ''
       }`}
-      onClick={() => onClick(result)}
+      onClick={() => {
+        onClick(result);
+      }}
     >
       {/* Navigation indicator for selected result */}
       <NavigationIndicator isSelected={isSelected} position="left" />
