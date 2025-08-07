@@ -417,7 +417,7 @@ Global search now operates on the same filtered dataset as the main log list. Th
 **Fixed Data Flow:**
 
 ```
-Raw Logs → useUnifiedLogFilters(device + URL + method + status) 
+Raw Logs → useUnifiedLogFilters(device + URL + method + status)
          ↘
           filteredLogs → GlobalSearch (searches same filtered logs as display)
          ↘
@@ -440,7 +440,7 @@ Raw Logs → useUnifiedLogFilters(device + URL + method + status)
 4. ✅ `web-viewer/src/components/organisms/NetworkLogs.tsx` - Accepts shared filters
 5. ✅ `web-viewer/src/components/organisms/NetworkLogList.tsx` - Uses shared filters with fallback
 
-1. **`app.tsx` - FIXED**:
+6. **`app.tsx` - FIXED**:
 
    ```tsx
    // ✅ FIXED: Uses unified filtering for both GlobalSearch and NetworkLogList
@@ -448,7 +448,7 @@ Raw Logs → useUnifiedLogFilters(device + URL + method + status)
    // Same filtered dataset passed to both components
    ```
 
-2. **`Header.tsx` - AUTOMATICALLY FIXED**:
+7. **`Header.tsx` - AUTOMATICALLY FIXED**:
 
    ```tsx
    // ✅ FIXED: GlobalSearch now gets fully-filtered logs
@@ -460,7 +460,7 @@ Raw Logs → useUnifiedLogFilters(device + URL + method + status)
    />
    ```
 
-3. **`NetworkLogList.tsx` - FIXED**:
+8. **`NetworkLogList.tsx` - FIXED**:
 
    ```tsx
    // ✅ FIXED: Uses shared filters instead of creating duplicate filtering
@@ -472,7 +472,7 @@ Raw Logs → useUnifiedLogFilters(device + URL + method + status)
    );
    ```
 
-4. **`useSearchResults.ts` - AUTOMATICALLY FIXED**:
+9. **`useSearchResults.ts` - AUTOMATICALLY FIXED**:
    ```tsx
    // ✅ FIXED: Now searches only currently visible logs
    export const useSearchResults = (
