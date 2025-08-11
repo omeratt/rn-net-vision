@@ -1,96 +1,89 @@
-import { useState, useRef, useEffect, useCallback } from 'preact/hooks';
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'preact/hooks';
 import type { NetVisionLog } from '../types';
 
+/**
+ * Single-source-of-truth log selection hook.
+ * Stores only the selectedLogId; derives the object and index when needed.
+ */
 export const useLogSelection = (sortedLogs: NetVisionLog[]) => {
-  const [selectedLog, setSelectedLog] = useState<NetVisionLog | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-  const [isSorting, setIsSorting] = useState<boolean>(false);
+  const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset selection when sorted logs change
-  useEffect(() => {
-    if (sortedLogs.length === 0) {
-      setSelectedLog(null);
-      setSelectedIndex(-1);
-    } else if (selectedIndex >= sortedLogs.length || selectedIndex < 0) {
-      // Don't auto-select when sorting to prevent unwanted scrolling
-      if (!isSorting) {
-        // If current selection is out of bounds, reset to first item
-        setSelectedIndex(0);
-        setSelectedLog(sortedLogs[0]);
-      }
-    } else {
-      // Update selectedLog to match current index in case logs array changed
-      setSelectedLog(sortedLogs[selectedIndex]);
-    }
-  }, [sortedLogs, selectedIndex, isSorting]);
+  // Refs to avoid stale closures in global key handler
+  const sortedLogsRef = useRef<NetVisionLog[]>(sortedLogs);
+  const selectedLogIdRef = useRef<string | null>(selectedLogId);
+  const hasAutoSelectedRef = useRef(false);
 
-  // Keyboard navigation handler with refs to prevent re-registration
-  const sortedLogsRef = useRef(sortedLogs);
-  const selectedIndexRef = useRef(selectedIndex);
-
-  // Update refs when values change
+  // Keep refs current
   useEffect(() => {
     sortedLogsRef.current = sortedLogs;
   }, [sortedLogs]);
-
   useEffect(() => {
-    selectedIndexRef.current = selectedIndex;
-  }, [selectedIndex]);
+    selectedLogIdRef.current = selectedLogId;
+  }, [selectedLogId]);
 
-  // Cleanup refs on unmount to prevent memory leaks
+  // Derive selected log & index
+  const selectedLog = useMemo(
+    () =>
+      selectedLogId
+        ? sortedLogs.find((l) => l.id === selectedLogId) || null
+        : null,
+    [sortedLogs, selectedLogId]
+  );
+  const selectedIndex = useMemo(() => {
+    if (!selectedLogId) return -1;
+    return sortedLogs.findIndex((l) => l.id === selectedLogId);
+  }, [sortedLogs, selectedLogId]);
+
+  // Clear selection if the selected log disappeared (e.g., pruning)
   useEffect(() => {
-    return () => {
-      sortedLogsRef.current = [];
-      selectedIndexRef.current = -1;
-    };
-  }, []);
+    if (selectedLogId && selectedIndex === -1) {
+      setSelectedLogId(null);
+    }
+  }, [selectedIndex, selectedLogId]);
 
-  // Set up keyboard event listener with AbortController
+  // (Optional) initial auto-select first log exactly once when logs first arrive
+  useEffect(() => {
+    if (
+      !hasAutoSelectedRef.current &&
+      !selectedLogId &&
+      sortedLogs.length > 0
+    ) {
+      hasAutoSelectedRef.current = true;
+      setSelectedLogId(sortedLogs[0].id);
+    }
+  }, [sortedLogs, selectedLogId]);
+
+  // Global keyboard navigation (ArrowUp / ArrowDown)
   useEffect(() => {
     const abortController = new AbortController();
-
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle keyboard events if the container or its children have focus
       const container = containerRef.current;
       if (!container || !container.contains(document.activeElement)) return;
-
-      const currentSortedLogs = sortedLogsRef.current;
-      const currentSelectedIndex = selectedIndexRef.current;
-
-      if (currentSortedLogs.length === 0) return;
-
-      if (e.key === 'ArrowUp') {
+      const currentLogs = sortedLogsRef.current;
+      if (!currentLogs.length) return;
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault();
-        const newIndex =
-          currentSelectedIndex <= 0
-            ? currentSortedLogs.length - 1
-            : currentSelectedIndex - 1;
-        setSelectedIndex(newIndex);
-        setSelectedLog(currentSortedLogs[newIndex]);
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        const newIndex =
-          currentSelectedIndex >= currentSortedLogs.length - 1
-            ? 0
-            : currentSelectedIndex + 1;
-        setSelectedIndex(newIndex);
-        setSelectedLog(currentSortedLogs[newIndex]);
+        const delta = e.key === 'ArrowUp' ? -1 : 1;
+        navigate(delta);
       }
     };
-
     document.addEventListener('keydown', handleKeyDown, {
       signal: abortController.signal,
       passive: false,
     });
+    return () => abortController.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    return () => {
-      abortController.abort();
-    };
-  }, []); // No dependencies - refs provide latest values
-
-  // Focus the container when component mounts or when there are logs to enable keyboard navigation
-  // But don't steal focus if something else (like an input) is already focused
+  // Focus container when logs first appear (don't steal focus from inputs)
   useEffect(() => {
     if (
       sortedLogs.length > 0 &&
@@ -101,35 +94,57 @@ export const useLogSelection = (sortedLogs: NetVisionLog[]) => {
     }
   }, [sortedLogs.length]);
 
-  // Handlers
-  const handleSelectLog = useCallback(
-    (log: NetVisionLog, visualIndex: number) => {
-      setSelectedLog(log);
-      setSelectedIndex(visualIndex);
-      // Only focus the container if no input is currently focused
+  const selectById = useCallback((id: string | null) => {
+    if (id === null) {
+      setSelectedLogId(null);
+      return;
+    }
+    // Only set if exists in current logs (defensive)
+    if (sortedLogsRef.current.some((l) => l.id === id)) {
+      setSelectedLogId(id);
       if (!document.activeElement?.matches('input, textarea, select')) {
         containerRef.current?.focus();
       }
+    }
+  }, []);
+
+  const handleSelectLog = useCallback(
+    (log: NetVisionLog, _visualIndex: number) => {
+      selectById(log.id);
     },
-    []
+    [selectById]
   );
 
-  const handleClearSelection = useCallback(() => {
-    setIsSorting(true);
-    setSelectedLog(null);
-    setSelectedIndex(-1);
-    // Reset sorting flag after a brief delay
-    setTimeout(() => setIsSorting(false), 100);
+  const clearSelection = useCallback(() => {
+    setSelectedLogId(null);
+  }, []);
+
+  const navigate = useCallback((delta: -1 | 1) => {
+    const logs = sortedLogsRef.current;
+    if (!logs.length) return;
+    const currentId = selectedLogIdRef.current;
+    const currentIndex = currentId
+      ? logs.findIndex((l) => l.id === currentId)
+      : -1;
+    const nextIndex =
+      currentIndex === -1
+        ? delta === 1
+          ? 0
+          : logs.length - 1
+        : (currentIndex + delta + logs.length) % logs.length;
+    setSelectedLogId(logs[nextIndex].id);
   }, []);
 
   return {
     // State
+    selectedLogId,
     selectedLog,
     selectedIndex,
     containerRef,
-
     // Handlers
     handleSelectLog,
-    handleClearSelection,
+    clearSelection,
+    selectById,
+    navigate,
   };
 };

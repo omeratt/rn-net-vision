@@ -92,9 +92,9 @@ export const NetworkLogs = ({
           filters={filters}
           onClear={handleClear}
           onSelectLog={selection.handleSelectLog}
-          selectedLog={selection.selectedLog}
+          selectedLogId={selection.selectedLogId}
           onSortedLogsChange={sortedLogs.handleSortedLogsChange}
-          onClearSelection={selection.handleClearSelection}
+          onClearSelection={selection.clearSelection}
           highlightedLogId={highlightedLogId}
           highlightState={highlightState}
         />

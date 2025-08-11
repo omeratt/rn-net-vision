@@ -7,18 +7,14 @@ import { FilterPanel } from '../molecules/FilterPanel';
 import { ActionButtons } from '../molecules/ActionButtons';
 import { ScrollFadeContainer } from '../atoms';
 import { useDevices } from '../../context/DeviceContext';
-import {
-  useNetworkLogFilters,
-  useNetworkLogSort,
-  useSelectedLog,
-} from '../../hooks';
+import { useNetworkLogFilters, useNetworkLogSort } from '../../hooks';
 
 interface NetworkLogListProps {
   logs: NetVisionLog[];
   filters?: UnifiedLogFiltersReturn;
   onClear: () => void;
   onSelectLog: (log: NetVisionLog, index: number) => void;
-  selectedLog: NetVisionLog | null;
+  selectedLogId: string | null; // id-based selection
   onSortedLogsChange?: (sortedLogs: NetVisionLog[]) => void;
   onClearSelection?: () => void;
   highlightedLogId?: string | null;
@@ -30,7 +26,7 @@ export const NetworkLogList = ({
   filters,
   onClear,
   onSelectLog,
-  selectedLog,
+  selectedLogId,
   onSortedLogsChange,
   onClearSelection,
   highlightedLogId,
@@ -48,7 +44,8 @@ export const NetworkLogList = ({
     onClearSelection,
     onSortedLogsChange
   );
-  const selection = useSelectedLog(selectedLog);
+  // selection now id-based; simple helper inline
+  const isLogSelected = (log: NetVisionLog) => log.id === selectedLogId;
 
   // Generate clear button text based on active device
   const clearButtonText = activeDeviceId
@@ -97,14 +94,12 @@ export const NetworkLogList = ({
               </div>
             ) : (
               sort.sortedLogs.map((log: NetVisionLog, index: number) => {
-                // Use the generated log ID for consistent highlighting
                 const logId = log.id;
-
                 return (
                   <NetworkLog
-                    key={log.id} // Use the generated ID as key for optimal performance
+                    key={log.id}
                     log={log}
-                    isSelected={selection.isLogSelected(log)}
+                    isSelected={isLogSelected(log)}
                     isHighlighted={highlightedLogId === logId}
                     highlightState={highlightState}
                     onClick={() => onSelectLog(log, index)}
