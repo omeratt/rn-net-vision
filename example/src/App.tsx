@@ -76,6 +76,11 @@ export default function App() {
       },
     }).then(() => logger.debug('Feed request completed'));
 
+    fetchTo(
+      'https://stweb.isracard.co.il/contentassets/opplqrk2/login-header-noon.png',
+      { method: 'GET' }
+    ).then(() => logger.debug('Login header image request completed'));
+
     fetchTo('https://jsonplaceholder.typicode.com/posts/1', {}).then(() =>
       logger.debug('GET post request completed')
     );

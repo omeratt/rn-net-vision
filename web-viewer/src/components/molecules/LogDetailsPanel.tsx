@@ -69,12 +69,25 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
             className="flex-1 min-w-0 w-full"
           />
 
-          <LogSection
-            title="Response"
-            headers={log.responseHeaders || {}}
-            body={log.responseBody ? formatData(log.responseBody) : undefined}
-            className="flex-1 min-w-0 w-full"
-          />
+          {(() => {
+            const responseBody = log.responseBody
+              ? formatData(log.responseBody)
+              : undefined;
+            const isImageUrl =
+              /\.(?:png|jpe?g|gif|webp|bmp|avif|ico)(?:[?#].*)?$/i.test(
+                log.url
+              );
+            // If it's an image request, show the URL instead of attempting to render/parse binary
+            const bodyForDisplay = isImageUrl ? log.url : responseBody;
+            return (
+              <LogSection
+                title="Response"
+                headers={log.responseHeaders || {}}
+                body={bodyForDisplay}
+                className="flex-1 min-w-0 w-full"
+              />
+            );
+          })()}
         </div>
       </div>
 

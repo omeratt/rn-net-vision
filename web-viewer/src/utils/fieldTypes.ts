@@ -9,6 +9,7 @@ export enum FieldType {
   CODE = 'code',
   URL = 'url',
   SVG = 'svg',
+  IMAGE = 'image',
   TEXT = 'text',
 }
 
@@ -46,6 +47,16 @@ export const detectFieldType = (
   value?: string
 ): FieldType => {
   const normalizedLabel = label.toLowerCase();
+
+  // Image URL detection (prioritize before JSON/body keyword check)
+  if (value && typeof value === 'string' && normalizedLabel.includes('body')) {
+    // Accept common raster image extensions, allow query/hash suffix
+    const imageRegex =
+      /(https?:\/\/[^\s]+\.(?:png|jpe?g|gif|webp|bmp|avif|ico))(?:[?#][^\s]*)?$/i;
+    if (imageRegex.test(value.trim())) {
+      return FieldType.IMAGE;
+    }
+  }
 
   // Check for SVG content first (regardless of label)
   if (value && isSvgContent(value)) {

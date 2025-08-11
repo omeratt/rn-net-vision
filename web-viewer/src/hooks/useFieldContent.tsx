@@ -7,6 +7,7 @@ import { CodeViewer } from '../components/atoms/CodeViewer';
 import { TextViewer } from '../components/atoms/TextViewer';
 import { URLViewer } from '../components/atoms/URLViewer';
 import { SvgViewer } from '../components/atoms/SvgViewer';
+import { ImageViewer } from '../components/atoms/ImageViewer';
 
 interface UseFieldContentResult {
   content: VNode;
@@ -72,6 +73,10 @@ export const useFieldContent = ({
 
     case FieldType.SVG:
       content = <SvgViewer value={value} className={className} />;
+      break;
+
+    case FieldType.IMAGE:
+      content = <ImageViewer value={value} className={className} />;
       break;
 
     case FieldType.TEXT:
