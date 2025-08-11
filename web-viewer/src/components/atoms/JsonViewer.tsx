@@ -45,7 +45,7 @@ export const JsonViewer = ({
     return (
       <ScrollFadeContainer
         className={`${baseCodeClasses} max-h-96 overflow-y-auto overflow-x-auto ${className}`}
-        fadeHeight={12}
+        fadeHeight={60}
       >
         <pre className="whitespace-pre-wrap break-words">{value}</pre>
       </ScrollFadeContainer>
@@ -64,7 +64,7 @@ export const JsonViewer = ({
       </div>
       <ScrollFadeContainer
         className={`${baseJsonClasses} max-h-96 overflow-auto`}
-        fadeHeight={12}
+        fadeHeight={60}
       >
         <pre dangerouslySetInnerHTML={{ __html: highlightedJson }} />
       </ScrollFadeContainer>

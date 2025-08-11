@@ -23,7 +23,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps): VNode => {
           </h1>
           <ScrollFadeContainer
             className="text-sm bg-gray-100 dark:bg-gray-900 p-4 rounded mb-4 overflow-auto max-h-60"
-            fadeHeight={12}
+            fadeHeight={60}
           >
             <div className="font-medium mb-2">Error: {error.message}</div>
             {error.stack && (

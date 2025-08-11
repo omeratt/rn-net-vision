@@ -156,6 +156,11 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Custom radial gradient utility for depth */
+.bg-gradient-radial {
+  background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+}
+
 /* Enhanced glassmorphism utilities */
 .glass-panel {
   background: rgba(255, 255, 255, 0.15);
@@ -352,10 +357,12 @@ header,
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  overflow: hidden;
 }
 
 .logo {

@@ -37,7 +37,7 @@ export const LogDetailsPanel = ({ log }: LogDetailsPanelProps): VNode => {
   return (
     <ScrollFadeContainer
       className="h-full overflow-y-auto p-4 space-y-4 mobile-no-scroll-x force-wrap"
-      fadeHeight={20}
+      fadeHeight={80}
     >
       {/* Summary Section */}
       <div className="bg-white/20 dark:bg-gray-800/30 rounded-lg p-4 shadow-sm border border-white/20 dark:border-gray-700/30">

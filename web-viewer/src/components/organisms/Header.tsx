@@ -30,16 +30,16 @@ export const Header = ({
   const debugButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <header className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 shadow-lg shadow-gray-900/5 dark:shadow-gray-900/20">
-      {/* Gradient overlay for modern effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-pink-500/5 dark:from-indigo-500/10 dark:via-purple-500/10 dark:to-pink-500/10" />
+    <header className="relative bg-transparent backdrop-blur-sm border-b border-gray-200/30 dark:border-slate-700/30 transition-all duration-300 shadow-sm shadow-gray-900/5 dark:shadow-slate-900/20">
+      {/* Subtle overlay for better text readability */}
+      <div className="absolute inset-0 bg-white/5 dark:bg-slate-900/10" />
 
       <div className="relative w-full px-4 py-4 sm:px-6 md:px-8">
         <div className="flex w-full items-center gap-4">
           {/* Left logo & status */}
           <div className="flex items-center space-x-6">
             {/* Logo section with enhanced styling */}
-            <div className="flex items-center gap-4 p-2 rounded-xl bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-700/80 dark:to-gray-600/80  border border-white/20 dark:border-gray-600/20 shadow-lg">
+            <div className="flex items-center gap-4 p-2 rounded-xl bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-slate-800/80 dark:to-slate-700/80 border border-white/20 dark:border-slate-600/20 shadow-lg">
               <div className="text-indigo-600 dark:text-indigo-400 animate-pulse">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -58,25 +58,9 @@ export const Header = ({
                   <path d="M2 12l10 5 10-5" />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 via-20% to-purple-400 dark:from-indigo-300 dark:via-indigo-400 dark:to-indigo-300 bg-clip-text text-transparent drop-shadow-sm">
                 NetVision
               </h1>
-            </div>
-
-            {/* Connection status indicator with enhanced styling */}
-            <div
-              className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300  border shadow-lg ${
-                isConnected
-                  ? 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-300 border-green-200/60 dark:border-green-700/60 shadow-green-500/20'
-                  : 'bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-900/40 dark:to-orange-900/40 text-red-800 dark:text-red-300 border-red-200/60 dark:border-red-700/60 shadow-red-500/20'
-              }`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full mr-2 ${
-                  isConnected ? 'bg-green-500 animate-ping' : 'bg-red-500'
-                }`}
-              />
-              {isConnected ? 'Server Connected' : 'Server Disconnected'}
             </div>
           </div>
 
@@ -98,8 +82,8 @@ export const Header = ({
               onClick={() => setIsDebugOpen(!isDebugOpen)}
               className={`p-3 rounded-xl transition-all duration-300 group shadow-lg hover:shadow-xl transform hover:scale-105 border  ${
                 isDebugOpen
-                  ? 'bg-gradient-to-r from-indigo-100 to-indigo-200 dark:from-indigo-800 dark:to-indigo-700 border-indigo-300 dark:border-indigo-600 ring-2 ring-indigo-200/50 dark:ring-indigo-800/50 scale-105 shadow-indigo-200/50 dark:shadow-indigo-900/50'
-                  : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 border-white/50 dark:border-gray-600/50'
+                  ? 'bg-gradient-to-r from-indigo-100 to-indigo-200 dark:from-slate-700 dark:to-indigo-800 border-indigo-300 dark:border-indigo-600 ring-2 ring-indigo-200/50 dark:ring-indigo-800/50 scale-105 shadow-indigo-200/50 dark:shadow-indigo-900/50'
+                  : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-slate-700 dark:to-slate-600 hover:from-gray-200 hover:to-gray-300 dark:hover:from-slate-600 dark:hover:to-slate-500 border-white/50 dark:border-slate-600/50'
               }`}
               title="Device Debug Panel"
               aria-label="Open device debug panel"

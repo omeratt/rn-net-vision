@@ -59,6 +59,14 @@ export const SearchResults = ({
                 scrollbarColor: 'rgb(156 163 175 / 0.5) transparent',
               } as any
             }
+            onMouseDown={(e) => {
+              // Prevent blur events when interacting with search results
+              e.preventDefault();
+            }}
+            onMouseUp={(e) => {
+              // Allow the click to proceed normally
+              e.stopPropagation();
+            }}
           >
             {results.map((result: SearchResult, index: number) => {
               return (

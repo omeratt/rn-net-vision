@@ -5,6 +5,7 @@ import type { UnifiedLogFiltersReturn } from '../../hooks';
 import { NetworkLog } from '../molecules/NetworkLog';
 import { FilterPanel } from '../molecules/FilterPanel';
 import { ActionButtons } from '../molecules/ActionButtons';
+import { ScrollFadeContainer } from '../atoms';
 import { useDevices } from '../../context/DeviceContext';
 import {
   useNetworkLogFilters,
@@ -55,53 +56,65 @@ export const NetworkLogList = ({
     : 'Clear All Logs';
 
   return (
-    <div className="space-y-4">
-      <FilterPanel
-        filter={activeFilters.filter}
-        statusFilter={activeFilters.statusFilter}
-        methodFilter={activeFilters.methodFilter}
-        sortBy={sort.sortBy}
-        onTextFilterChange={activeFilters.handleTextFilterChange}
-        onStatusFilterChange={activeFilters.handleStatusFilterChange}
-        onMethodFilterChange={activeFilters.handleMethodFilterChange}
-        onSortByChange={sort.handleSortByChange}
-        uniqueStatusOptions={activeFilters.uniqueStatusOptions}
-        uniqueMethodOptions={activeFilters.uniqueMethodOptions}
-        sortByOptions={sort.sortByOptions}
-        actions={
-          <ActionButtons
-            sortTooltipText={sort.getToggleTooltipText()}
-            onToggleSort={sort.toggleSortDirection}
-            sortDirection={sort.sortDirection}
-            clearButtonText={clearButtonText}
-            onClear={onClear}
-          />
-        }
-      />
+    <div className="flex flex-col h-full">
+      {/* Fixed Filter Panel - No shadows or borders */}
+      <div className="flex-shrink-0 p-2 sm:p-4">
+        <FilterPanel
+          filter={activeFilters.filter}
+          statusFilter={activeFilters.statusFilter}
+          methodFilter={activeFilters.methodFilter}
+          sortBy={sort.sortBy}
+          onTextFilterChange={activeFilters.handleTextFilterChange}
+          onStatusFilterChange={activeFilters.handleStatusFilterChange}
+          onMethodFilterChange={activeFilters.handleMethodFilterChange}
+          onSortByChange={sort.handleSortByChange}
+          uniqueStatusOptions={activeFilters.uniqueStatusOptions}
+          uniqueMethodOptions={activeFilters.uniqueMethodOptions}
+          sortByOptions={sort.sortByOptions}
+          actions={
+            <ActionButtons
+              sortTooltipText={sort.getToggleTooltipText()}
+              onToggleSort={sort.toggleSortDirection}
+              sortDirection={sort.sortDirection}
+              clearButtonText={clearButtonText}
+              onClear={onClear}
+            />
+          }
+        />
+      </div>
 
-      <div className="space-y-3" ref={sort.listContainerRef}>
-        {sort.sortedLogs.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-            No logs match your filters
+      {/* Scrollable Log List */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollFadeContainer
+          className="h-full overflow-y-auto px-2 sm:px-4 pb-2 sm:pb-4 pt-6"
+          fadeHeight={80}
+          scrollProps={{ 'data-log-scroll-container': 'true' }}
+        >
+          <div className="space-y-3" ref={sort.listContainerRef}>
+            {sort.sortedLogs.length === 0 ? (
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                No logs match your filters
+              </div>
+            ) : (
+              sort.sortedLogs.map((log: NetVisionLog, index: number) => {
+                // Use the generated log ID for consistent highlighting
+                const logId = log.id;
+
+                return (
+                  <NetworkLog
+                    key={log.id} // Use the generated ID as key for optimal performance
+                    log={log}
+                    isSelected={selection.isLogSelected(log)}
+                    isHighlighted={highlightedLogId === logId}
+                    highlightState={highlightState}
+                    onClick={() => onSelectLog(log, index)}
+                    activeDeviceId={activeDeviceId}
+                  />
+                );
+              })
+            )}
           </div>
-        ) : (
-          sort.sortedLogs.map((log: NetVisionLog, index: number) => {
-            // Use the generated log ID for consistent highlighting
-            const logId = log.id;
-
-            return (
-              <NetworkLog
-                key={log.id} // Use the generated ID as key for optimal performance
-                log={log}
-                isSelected={selection.isLogSelected(log)}
-                isHighlighted={highlightedLogId === logId}
-                highlightState={highlightState}
-                onClick={() => onSelectLog(log, index)}
-                activeDeviceId={activeDeviceId}
-              />
-            );
-          })
-        )}
+        </ScrollFadeContainer>
       </div>
     </div>
   );

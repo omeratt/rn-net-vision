@@ -15,6 +15,7 @@ export { JsonViewer } from './JsonViewer';
 export { KeyValueViewer } from './KeyValueViewer';
 export { CodeViewer } from './CodeViewer';
 export { TextViewer } from './TextViewer';
+export { SvgViewer } from './SvgViewer';
 
 // Badge components
 export { MethodBadge } from './MethodBadge';

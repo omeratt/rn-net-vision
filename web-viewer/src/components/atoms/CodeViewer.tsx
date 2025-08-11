@@ -21,7 +21,7 @@ export const CodeViewer = ({
   return (
     <ScrollFadeContainer
       className={`${baseClasses} max-h-96 overflow-y-auto overflow-x-auto ${className}`}
-      fadeHeight={12}
+      fadeHeight={60}
     >
       <pre className="whitespace-pre-wrap break-words">{value}</pre>
     </ScrollFadeContainer>

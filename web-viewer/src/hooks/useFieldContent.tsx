@@ -6,6 +6,7 @@ import { KeyValueViewer } from '../components/atoms/KeyValueViewer';
 import { CodeViewer } from '../components/atoms/CodeViewer';
 import { TextViewer } from '../components/atoms/TextViewer';
 import { URLViewer } from '../components/atoms/URLViewer';
+import { SvgViewer } from '../components/atoms/SvgViewer';
 
 interface UseFieldContentResult {
   content: VNode;
@@ -30,7 +31,7 @@ export const useFieldContent = ({
   className = '',
   hideHeader = false,
 }: UseFieldContentOptions): UseFieldContentResult => {
-  const fieldType = detectFieldType(label, isCode);
+  const fieldType = detectFieldType(label, isCode, value);
 
   let content: VNode;
 
@@ -67,6 +68,10 @@ export const useFieldContent = ({
 
     case FieldType.URL:
       content = <URLViewer value={value} className={className} />;
+      break;
+
+    case FieldType.SVG:
+      content = <SvgViewer value={value} className={className} />;
       break;
 
     case FieldType.TEXT:

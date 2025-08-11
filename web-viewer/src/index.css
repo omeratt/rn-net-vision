@@ -37,10 +37,16 @@
 body {
   @apply bg-white text-gray-900;
   overflow: hidden; /* Prevent body scrollbar */
+  height: 100vh; /* Ensure full viewport height */
+  margin: 0;
+  padding: 0;
 }
 
 html {
   overflow: hidden; /* Prevent html scrollbar */
+  height: 100vh; /* Ensure full viewport height */
+  margin: 0;
+  padding: 0;
 }
 
 /* Dark mode colors */
@@ -65,85 +71,153 @@ html {
 /* Scroll fade overlay styles */
 .scroll-fade-top {
   background: linear-gradient(to bottom, 
-    rgba(255, 255, 255, 0.8) 0%, 
-    rgba(255, 255, 255, 0.7) 10%, 
-    rgba(255, 255, 255, 0.6) 20%, 
-    rgba(255, 255, 255, 0.5) 30%, 
-    rgba(255, 255, 255, 0.4) 40%, 
-    rgba(255, 255, 255, 0.32) 50%, 
-    rgba(255, 255, 255, 0.25) 60%, 
-    rgba(255, 255, 255, 0.18) 70%, 
-    rgba(255, 255, 255, 0.12) 80%, 
-    rgba(255, 255, 255, 0.07) 85%, 
-    rgba(255, 255, 255, 0.04) 90%, 
-    rgba(255, 255, 255, 0.02) 95%, 
-    rgba(255, 255, 255, 0.01) 98%, 
+    rgba(248, 250, 252, 0.95) 0%, 
+    rgba(248, 250, 252, 0.9) 5%, 
+    rgba(248, 250, 252, 0.8) 10%, 
+    rgba(248, 250, 252, 0.7) 15%, 
+    rgba(248, 250, 252, 0.6) 20%, 
+    rgba(248, 250, 252, 0.5) 30%, 
+    rgba(248, 250, 252, 0.4) 40%, 
+    rgba(248, 250, 252, 0.3) 50%, 
+    rgba(248, 250, 252, 0.2) 60%, 
+    rgba(248, 250, 252, 0.15) 70%, 
+    rgba(248, 250, 252, 0.1) 80%, 
+    rgba(248, 250, 252, 0.06) 85%, 
+    rgba(248, 250, 252, 0.03) 90%, 
+    rgba(248, 250, 252, 0.015) 95%, 
+    rgba(248, 250, 252, 0.005) 98%, 
     transparent 100%
   );
+  /* Smooth animation for fade in/out */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.15s ease-in, transform 0.15s ease-out;
 }
 
 .scroll-fade-bottom {
   background: linear-gradient(to top, 
-    rgba(255, 255, 255, 0.8) 0%, 
-    rgba(255, 255, 255, 0.7) 10%, 
-    rgba(255, 255, 255, 0.6) 20%, 
-    rgba(255, 255, 255, 0.5) 30%, 
-    rgba(255, 255, 255, 0.4) 40%, 
-    rgba(255, 255, 255, 0.32) 50%, 
-    rgba(255, 255, 255, 0.25) 60%, 
-    rgba(255, 255, 255, 0.18) 70%, 
-    rgba(255, 255, 255, 0.12) 80%, 
-    rgba(255, 255, 255, 0.07) 85%, 
-    rgba(255, 255, 255, 0.04) 90%, 
-    rgba(255, 255, 255, 0.02) 95%, 
-    rgba(255, 255, 255, 0.01) 98%, 
+    rgba(248, 250, 252, 0.95) 0%, 
+    rgba(248, 250, 252, 0.9) 5%, 
+    rgba(248, 250, 252, 0.8) 10%, 
+    rgba(248, 250, 252, 0.7) 15%, 
+    rgba(248, 250, 252, 0.6) 20%, 
+    rgba(248, 250, 252, 0.5) 30%, 
+    rgba(248, 250, 252, 0.4) 40%, 
+    rgba(248, 250, 252, 0.3) 50%, 
+    rgba(248, 250, 252, 0.2) 60%, 
+    rgba(248, 250, 252, 0.15) 70%, 
+    rgba(248, 250, 252, 0.1) 80%, 
+    rgba(248, 250, 252, 0.06) 85%, 
+    rgba(248, 250, 252, 0.03) 90%, 
+    rgba(248, 250, 252, 0.015) 95%, 
+    rgba(248, 250, 252, 0.005) 98%, 
     transparent 100%
   );
+  /* Smooth animation for fade in/out */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.15s ease-in, transform 0.15s ease-out;
 }
 
 /* Dark mode scroll fade overlays */
 .dark .scroll-fade-top {
   background: linear-gradient(to bottom, 
-    rgba(43, 53, 67, 0.85) 0%, 
-    rgba(43, 53, 67, 0.75) 10%, 
-    rgba(43, 53, 67, 0.65) 20%, 
-    rgba(43, 53, 67, 0.55) 30%, 
-    rgba(43, 53, 67, 0.45) 40%, 
-    rgba(43, 53, 67, 0.37) 50%, 
-    rgba(43, 53, 67, 0.3) 60%, 
-    rgba(43, 53, 67, 0.22) 70%, 
-    rgba(43, 53, 67, 0.15) 80%, 
-    rgba(43, 53, 67, 0.09) 85%, 
-    rgba(43, 53, 67, 0.05) 90%, 
-    rgba(43, 53, 67, 0.03) 95%, 
-    rgba(43, 53, 67, 0.01) 98%, 
+    rgba(28, 38, 54, 0.99) 0%, 
+    rgba(28, 38, 54, 0.98) 3%, 
+    rgba(28, 38, 56, 0.95) 8%, 
+    rgba(29, 38, 57, 0.9) 15%, 
+    rgba(29, 38, 58, 0.8) 25%, 
+    rgba(29, 38, 59, 0.7) 35%, 
+    rgba(29, 38, 59, 0.6) 45%, 
+    rgba(29, 38, 59, 0.5) 55%, 
+    rgba(29, 38, 59, 0.4) 65%, 
+    rgba(31, 39, 60, 0.3) 72%, 
+    rgba(33, 39, 62, 0.2) 78%, 
+    rgba(33, 39, 62, 0.15) 82%, 
+    rgba(33, 39, 62, 0.1) 86%, 
+    rgba(33, 39, 62, 0.07) 89%, 
+    rgba(33, 39, 62, 0.04) 92%, 
+    rgba(33, 39, 62, 0.025) 94%, 
+    rgba(33, 39, 62, 0.015) 96%, 
+    rgba(33, 39, 62, 0.008) 97%, 
+    rgba(33, 39, 62, 0.004) 98%, 
+    rgba(33, 39, 62, 0.002) 99%, 
+    rgba(33, 39, 62, 0.001) 99.5%, 
     transparent 100%
   );
+  /* Smooth animation for fade in/out */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.15s ease-in, transform 0.15s ease-out;
 }
 
 .dark .scroll-fade-bottom {
   background: linear-gradient(to top, 
-    rgba(43, 53, 67, 0.85) 0%, 
-    rgba(43, 53, 67, 0.75) 10%, 
-    rgba(43, 53, 67, 0.65) 20%, 
-    rgba(43, 53, 67, 0.55) 30%, 
-    rgba(43, 53, 67, 0.45) 40%, 
-    rgba(43, 53, 67, 0.37) 50%, 
-    rgba(43, 53, 67, 0.3) 60%, 
-    rgba(43, 53, 67, 0.22) 70%, 
-    rgba(43, 53, 67, 0.15) 80%, 
-    rgba(43, 53, 67, 0.09) 85%, 
-    rgba(43, 53, 67, 0.05) 90%, 
-    rgba(43, 53, 67, 0.03) 95%, 
-    rgba(43, 53, 67, 0.01) 98%, 
+    rgba(28, 38, 54, 0.99) 0%, 
+    rgba(28, 38, 54, 0.98) 3%, 
+    rgba(28, 38, 56, 0.95) 8%, 
+    rgba(29, 38, 57, 0.9) 15%, 
+    rgba(29, 38, 58, 0.8) 25%, 
+    rgba(29, 38, 59, 0.7) 35%, 
+    rgba(29, 38, 59, 0.6) 45%, 
+    rgba(29, 38, 59, 0.5) 55%, 
+    rgba(29, 38, 59, 0.4) 65%, 
+    rgba(31, 39, 60, 0.3) 72%, 
+    rgba(33, 39, 62, 0.2) 78%, 
+    rgba(33, 39, 62, 0.15) 82%, 
+    rgba(33, 39, 62, 0.1) 86%, 
+    rgba(33, 39, 62, 0.07) 89%, 
+    rgba(33, 39, 62, 0.04) 92%, 
+    rgba(33, 39, 62, 0.025) 94%, 
+    rgba(33, 39, 62, 0.015) 96%, 
+    rgba(33, 39, 62, 0.008) 97%, 
+    rgba(33, 39, 62, 0.004) 98%, 
+    rgba(33, 39, 62, 0.002) 99%, 
+    rgba(33, 39, 62, 0.001) 99.5%, 
     transparent 100%
   );
+  /* Smooth animation for fade in/out */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.15s ease-in, transform 0.15s ease-out;
 }
 
 /* Hide scroll fade overlays during theme transitions to prevent glitches */
 .theme-transitioning .scroll-fade-top,
 .theme-transitioning .scroll-fade-bottom {
   display: none !important;
+}
+
+/* Fade animation keyframes */
+@keyframes fadeInFromTop {
+  from {
+    opacity: 0;
+    /* transform: translateY(-20px); */
+  }
+  to {
+    opacity: 1;
+    /* transform: translateY(0); */
+  }
+}
+
+@keyframes fadeInFromBottom {
+  from {
+    opacity: 0;
+    /* transform: translateY(20px); */
+  }
+  to {
+    opacity: 1;
+    /* transform: translateY(0); */
+  }
+}
+
+/* Enhanced fade animations */
+.scroll-fade-top {
+  animation: fadeInFromTop 0.15s ease-in;
+}
+
+.scroll-fade-bottom {
+  animation: fadeInFromBottom 0.15s ease-in;
 }
 
 /* The global selectors that were here have been removed in favor of using Tailwind's dark: prefix directly */

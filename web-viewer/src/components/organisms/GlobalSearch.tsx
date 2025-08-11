@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import { VNode } from 'preact';
-import { useCallback } from 'preact/hooks';
+import { useCallback, useRef } from 'preact/hooks';
 import type { NetVisionLog } from '../../types';
 import { SearchInput } from '../molecules/SearchInput';
 import { SearchResults } from '../molecules/SearchResults';
@@ -25,6 +25,9 @@ export const GlobalSearch = ({
   onScrollToLog,
   onSearchClose,
 }: GlobalSearchProps): VNode => {
+  // Ref to track if a result click is in progress (helps prevent blur conflicts)
+  const isClickingRef = useRef(false);
+
   // Use our search state hook
   const searchState = useSearchState({ onSearchClose });
 
@@ -44,19 +47,28 @@ export const GlobalSearch = ({
 
   const handleResultClick = useCallback(
     (result: SearchResult) => {
+      // Set clicking flag to prevent blur conflicts
+      isClickingRef.current = true;
+
+      // Immediately select the log to prevent race conditions
       onLogSelect(result.log);
+
       if (onScrollToLog) {
-        // Pass the generated log ID
-        const logId = result.log.id;
-        onScrollToLog(logId);
+        // Pass the generated log ID - use requestAnimationFrame for better timing
+        requestAnimationFrame(() => {
+          const logId = result.log.id;
+          onScrollToLog(logId);
+        });
       }
 
       // Phase 3: Enhanced closing animation with delay
+      // Increased delay to ensure everything completes properly
       setTimeout(() => {
+        isClickingRef.current = false;
         searchState.handleClose();
-      }, 200); // Brief delay to let the log selection animation start
+      }, 250); // Slightly longer delay to ensure scroll completes
     },
-    [onLogSelect, onScrollToLog, searchState]
+    [onLogSelect, onScrollToLog, searchState, isClickingRef]
   );
 
   useSearchKeyboard({

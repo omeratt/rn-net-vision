@@ -49,7 +49,7 @@ export const KeyValueViewer = ({
       )}
       <ScrollFadeContainer
         className={`${baseListClasses} max-h-80 overflow-y-auto`}
-        fadeHeight={12}
+        fadeHeight={60}
       >
         {pairs.map((pair, index) => (
           <div key={index} className={fieldStyles.content.keyValueItem}>

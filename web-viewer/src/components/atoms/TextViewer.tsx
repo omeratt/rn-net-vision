@@ -20,7 +20,7 @@ export const TextViewer = ({
   return (
     <ScrollFadeContainer
       className={`${baseClasses} max-h-96 overflow-y-auto ${className}`}
-      fadeHeight={12}
+      fadeHeight={60}
     >
       <div>{value}</div>
     </ScrollFadeContainer>

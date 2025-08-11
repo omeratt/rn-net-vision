@@ -269,23 +269,41 @@ export const SearchInput = ({
             ease: [0.25, 0.1, 0.25, 1], // Same ultra-smooth easing
           },
         }}
-        onBlur={() => {
-          // Delay blur slightly to allow for search result clicks
-          setTimeout(() => {
+        onBlur={(event) => {
+          // More robust blur handling with multiple fallbacks
+          const handleBlur = () => {
             // Don't close if focus is still on the input
             if (document.activeElement === inputRef.current) {
               return;
             }
 
-            // Don't close if user clicked on a search result
-            const clickedElement = document.activeElement;
+            // More robust check for search result clicks
+            const relatedTarget = (event as any).relatedTarget;
+            const clickedElement = document.activeElement || relatedTarget;
+
+            // Check multiple ways to detect search result interaction
             const isSearchResultClick =
-              clickedElement?.closest('.search-results-container') !== null;
+              clickedElement?.closest('.search-results-container') !== null ||
+              clickedElement?.closest('[data-search-result]') !== null ||
+              // Also check if any search result item is currently being clicked
+              document.querySelector('.search-results-container:hover') !==
+                null ||
+              // Check if the event is from within a search result
+              (event.relatedTarget &&
+                (event.relatedTarget as Element)?.closest?.(
+                  '.search-results-container'
+                )) !== null;
 
             if (!isSearchResultClick) {
               close();
             }
-          }, 150); // Slightly increased delay to ensure result clicks can complete
+          };
+
+          // Try immediate execution first
+          handleBlur();
+
+          // Also try with a delay as backup
+          setTimeout(handleBlur, 200);
         }}
       />
       {/* Loading spinner positioned relative to the input */}

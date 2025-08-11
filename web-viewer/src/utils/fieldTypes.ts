@@ -8,6 +8,7 @@ export enum FieldType {
   HEADERS = 'headers',
   CODE = 'code',
   URL = 'url',
+  SVG = 'svg',
   TEXT = 'text',
 }
 
@@ -22,10 +23,34 @@ const FIELD_TYPE_KEYWORDS = {
 } as const;
 
 /**
- * Detects the field type based on the label
+ * Detects if content is SVG XML
  */
-export const detectFieldType = (label: string, isCode?: boolean): FieldType => {
+const isSvgContent = (value: string): boolean => {
+  if (!value || typeof value !== 'string') {
+    return false;
+  }
+
+  const trimmed = value.trim();
+  return (
+    trimmed.toLowerCase().includes('<svg') &&
+    (trimmed.startsWith('<') || trimmed.startsWith('<?xml'))
+  );
+};
+
+/**
+ * Detects the field type based on the label and content
+ */
+export const detectFieldType = (
+  label: string,
+  isCode?: boolean,
+  value?: string
+): FieldType => {
   const normalizedLabel = label.toLowerCase();
+
+  // Check for SVG content first (regardless of label)
+  if (value && isSvgContent(value)) {
+    return FieldType.SVG;
+  }
 
   // Check for specific field types
   for (const [fieldType, keywords] of Object.entries(FIELD_TYPE_KEYWORDS)) {

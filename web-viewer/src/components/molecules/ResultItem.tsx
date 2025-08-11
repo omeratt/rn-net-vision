@@ -35,9 +35,22 @@ export const ResultItem = ({
       } ${isLast ? 'border-b-0 rounded-b-xl' : ''} ${
         isFirst ? 'rounded-t-xl' : ''
       }`}
+      data-search-result
       onClick={(event) => {
         event.stopPropagation(); // Prevent event from bubbling to backdrop overlay
-        onClick(result);
+        event.preventDefault(); // Prevent any default behavior
+
+        // Execute click immediately to prevent race conditions
+        setTimeout(() => onClick(result), 0);
+      }}
+      onMouseDown={(event) => {
+        // Additional handler to ensure we capture the interaction
+        event.stopPropagation();
+        event.preventDefault();
+      }}
+      onMouseUp={(event) => {
+        // Clean up any event handling
+        event.stopPropagation();
       }}
     >
       {/* Navigation indicator for selected result */}

@@ -42,12 +42,13 @@ export const FilterPanel = ({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
-    <div className="flex flex-col bg-white/20 dark:bg-gray-800/30  border border-white/20 dark:border-gray-600/30 p-3 sm:p-4 rounded-lg shadow-md dark:shadow-[0_4px_12px_rgba(200,200,255,0.08)] transition-all duration-300">
-      <div className="flex flex-wrap justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col p-3 sm:p-4 transition-all duration-300">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        {/* Left side: Filter controls */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="sm:hidden flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium"
+            className="sm:hidden flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium flex-shrink-0"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +67,7 @@ export const FilterPanel = ({
           </button>
 
           {/* Desktop filters */}
-          <div className="hidden sm:flex flex-wrap gap-3 flex-1">
+          <div className="hidden sm:flex flex-wrap gap-3 flex-1 min-w-0">
             <FilterInput
               type="text"
               placeholder="Filter by URL..."
@@ -88,7 +89,7 @@ export const FilterPanel = ({
                 </svg>
               }
               aria-label="Filter logs by URL"
-              className="min-w-[300px] flex-1"
+              className="min-w-[200px] max-w-[300px] flex-1"
             />
 
             <FilterInput
@@ -99,7 +100,7 @@ export const FilterPanel = ({
               options={uniqueStatusOptions}
               multiSelect={true}
               aria-label="Filter logs by status code"
-              className="min-w-[140px]"
+              className="min-w-[120px] flex-shrink-0"
             />
 
             <FilterInput
@@ -110,7 +111,7 @@ export const FilterPanel = ({
               options={uniqueMethodOptions}
               multiSelect={true}
               aria-label="Filter logs by HTTP method"
-              className="min-w-[120px]"
+              className="min-w-[100px] flex-shrink-0"
             />
 
             <FilterInput
@@ -121,18 +122,22 @@ export const FilterPanel = ({
               options={sortByOptions}
               multiSelect={false}
               aria-label="Sort logs by field"
-              className="min-w-[130px]"
+              className="min-w-[110px] flex-shrink-0"
             />
           </div>
         </div>
 
-        {/* Action buttons slot */}
-        {actions && <div className="flex items-center">{actions}</div>}
+        {/* Right side: Action buttons - always stay in top right, aligned with first row */}
+        {actions && (
+          <div className="flex items-center flex-shrink-0 ml-2 self-start h-12">
+            {actions}
+          </div>
+        )}
       </div>
 
       {/* Mobile filters, only visible when toggled */}
       {isFilterOpen && (
-        <div className="sm:hidden flex flex-col gap-3 mb-3 p-4 bg-white/10 dark:bg-gray-800/20  border border-white/20 dark:border-gray-700/30 rounded-lg transition-all duration-300">
+        <div className="sm:hidden flex flex-col gap-3 mb-3 p-4 transition-all duration-300">
           <FilterInput
             type="text"
             placeholder="Filter by URL..."

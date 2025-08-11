@@ -369,7 +369,7 @@ export const FilterInput = ({
 
             <ScrollFadeContainer
               className="py-2 max-h-64 overflow-y-auto"
-              fadeHeight={8}
+              fadeHeight={60}
             >
               {options.map((option) => (
                 <button

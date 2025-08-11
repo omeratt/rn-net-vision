@@ -173,7 +173,7 @@ export const FloatingDeviceDebug = ({
         {/* Content */}
         <ScrollFadeContainer
           className="p-4 space-y-4 max-h-96 overflow-y-auto refined-scrollbar"
-          fadeHeight={12}
+          fadeHeight={60}
         >
           {/* Status Overview */}
           <div className="grid grid-cols-2 gap-3">

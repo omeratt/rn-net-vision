@@ -6,7 +6,6 @@ import type { UnifiedLogFiltersReturn } from '../../hooks';
 import { NetworkLogList } from './NetworkLogList';
 import { LogDetailsPanel } from '../molecules/LogDetailsPanel';
 import { SplitHandle } from '../atoms/SplitHandle';
-import { ScrollFadeContainer } from '../atoms';
 import {
   useLogSelection,
   useSplitPanel,
@@ -81,29 +80,24 @@ export const NetworkLogs = ({
   return (
     <div
       ref={containerRefs.setContainerRef}
-      className="flex flex-col sm:flex-row h-full overflow-hidden rounded-lg shadow-lg safe-area-container focus:outline-none"
+      className="flex flex-col sm:flex-row h-full min-h-full overflow-hidden rounded-lg shadow-lg safe-area-container focus:outline-none"
       tabIndex={0}
     >
       <div
         style={{ width: `${splitPanel.splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-900/20  transition-[width] ease-out mobile-no-scroll-x"
+        className="h-full sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-900/20 transition-[width] ease-out mobile-no-scroll-x flex flex-col"
       >
-        <ScrollFadeContainer
-          className="p-2 sm:p-4 h-full overflow-y-auto"
-          fadeHeight={20}
-        >
-          <NetworkLogList
-            logs={filteredLogs}
-            filters={filters}
-            onClear={handleClear}
-            onSelectLog={selection.handleSelectLog}
-            selectedLog={selection.selectedLog}
-            onSortedLogsChange={sortedLogs.handleSortedLogsChange}
-            onClearSelection={selection.handleClearSelection}
-            highlightedLogId={highlightedLogId}
-            highlightState={highlightState}
-          />
-        </ScrollFadeContainer>
+        <NetworkLogList
+          logs={filteredLogs}
+          filters={filters}
+          onClear={handleClear}
+          onSelectLog={selection.handleSelectLog}
+          selectedLog={selection.selectedLog}
+          onSortedLogsChange={sortedLogs.handleSortedLogsChange}
+          onClearSelection={selection.handleClearSelection}
+          highlightedLogId={highlightedLogId}
+          highlightState={highlightState}
+        />
       </div>
 
       <SplitHandle
@@ -115,7 +109,7 @@ export const NetworkLogs = ({
 
       <div
         style={{ width: `${100 - splitPanel.splitPosition}%` }}
-        className="h-[50vh] sm:h-auto sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-800/20  transition-[width] ease-out mobile-no-scroll-x"
+        className="h-full sm:min-h-0 overflow-hidden bg-white/10 dark:bg-gray-800/20 transition-[width] ease-out mobile-no-scroll-x"
       >
         <LogDetailsPanel log={selection.selectedLog} />
       </div>

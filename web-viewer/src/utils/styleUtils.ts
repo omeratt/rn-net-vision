@@ -20,13 +20,17 @@ export const getBaseBadgeClasses = (isSelected: boolean): string => {
 
 export const getContainerClasses = (isSelected: boolean): string => {
   return `
-    network-log-item relative bg-white/25 dark:bg-gray-800/25 rounded-xl cursor-pointer 
-    border border-white/40 dark:border-gray-600/40 backdrop-blur-md
-    before:rounded-xl after:rounded-xl w-full min-w-0
+    network-log-item relative cursor-pointer w-full min-w-0
+    rounded-xl backdrop-blur-md
+    bg-gray-100/85 dark:bg-gray-800/90
+    border border-gray-200/40 dark:border-gray-700/50
+    shadow-[6px_6px_8px_rgba(0,0,0,0.15),-6px_-6px_8px_rgba(255,255,255,0.9)] 
+    dark:shadow-[6px_6px_8px_rgba(0,0,0,0.4),-6px_-6px_8px_rgba(255,255,255,0.05)]
+    before:rounded-xl after:rounded-xl
     ${
       isSelected
         ? 'ring-2 ring-indigo-500/60 dark:ring-indigo-400/70 border-indigo-500/70 dark:border-indigo-400/70 shadow-xl shadow-indigo-500/20 dark:shadow-indigo-400/25 bg-gradient-to-br from-white/40 to-indigo-50/30 dark:from-gray-700/40 dark:to-indigo-900/30 backdrop-blur-lg selected-log'
-        : 'hover:bg-gradient-to-br hover:from-white/45 hover:to-purple-50/25 dark:hover:from-gray-800/45 dark:hover:to-purple-900/25 hover:border-indigo-400/60 dark:hover:border-indigo-400/70'
+        : 'hover:shadow-[8px_8px_16px_rgba(0,0,0,0.2),-8px_-8px_16px_rgba(255,255,255,1)] dark:hover:shadow-[8px_8px_16px_rgba(0,0,0,0.6),-8px_-8px_16px_rgba(255,255,255,0.08)] hover:bg-gray-50/95 dark:hover:bg-gray-700/95 hover:border-indigo-400/60 dark:hover:border-indigo-400/70 hover:transform hover:translate-y-[-1px] transition-all duration-200'
     }
     group
   `;
