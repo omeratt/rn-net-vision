@@ -1,7 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
 import type { NetVisionLog } from '../types';
-import { getLocalStorageLogs, LOGS_STORAGE_KEY } from '../utils/networkUtils';
+import {
+  addLog,
+  getRecentLogs,
+  clearAllLogs,
+  clearDeviceLogs,
+  migrateFromLocalStorage,
+} from '../utils/logsDb';
 import { useDevices } from '../context/DeviceContext';
+import { UI_MAX_LOGS } from '../utils/logsConfig';
 
 // Generate unique ID for each incoming log using Web Crypto API
 const generateLogId = (): string => {
@@ -9,7 +16,7 @@ const generateLogId = (): string => {
 };
 
 export const useWebSocket = () => {
-  const [logs, setLogs] = useState<NetVisionLog[]>(getLocalStorageLogs());
+  const [logs, setLogs] = useState<NetVisionLog[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const { addDevice, updateDeviceStatus } = useDevices();
   const socketRef = useRef<WebSocket | null>(null);
@@ -23,26 +30,27 @@ export const useWebSocket = () => {
     updateDeviceStatusRef.current = updateDeviceStatus;
   }, [addDevice, updateDeviceStatus]);
 
-  // Save logs to localStorage whenever they change
+  // Initial load & migration
   useEffect(() => {
-    localStorage.setItem(LOGS_STORAGE_KEY, JSON.stringify(logs));
-  }, [logs]);
+    (async () => {
+      // Migrate legacy localStorage logs one time
+      await migrateFromLocalStorage();
+      const recent = await getRecentLogs(UI_MAX_LOGS);
+      setLogs(recent);
+    })();
+  }, []);
 
   const clearLogs = useCallback((deviceId?: string | null) => {
     if (!deviceId) {
-      // Clear all logs when no device is specified
-      setLogs([]);
-      localStorage.removeItem(LOGS_STORAGE_KEY);
+      (async () => {
+        await clearAllLogs();
+        setLogs([]);
+      })();
     } else {
-      // Clear only logs from the specified device
-      setLogs((prevLogs) => {
-        const filteredLogs = prevLogs.filter(
-          (log) => log.deviceId !== deviceId
-        );
-        // Update localStorage with the filtered logs
-        localStorage.setItem(LOGS_STORAGE_KEY, JSON.stringify(filteredLogs));
-        return filteredLogs;
-      });
+      (async () => {
+        await clearDeviceLogs(deviceId);
+        setLogs((prev) => prev.filter((l) => l.deviceId !== deviceId));
+      })();
     }
   }, []);
 
@@ -148,16 +156,16 @@ export const useWebSocket = () => {
             }
 
             // Add logs with generated IDs
-            setLogs((prevLogs) => {
-              // Since each log gets a unique ID, we can simply add it
-              // No duplicate checking needed as each UUID is guaranteed unique
-              const newLogs = [...prevLogs, logWithId];
-
-              // Keep the logs list from growing too large
-              if (newLogs.length > 1000) {
-                return newLogs.slice(-1000);
-              }
-              return newLogs;
+            // Persist asynchronously
+            addLog(logWithId).then(async () => {
+              // Update in-memory list (append then trim for UI limit)
+              setLogs((prev) => {
+                const updated = [...prev, logWithId];
+                if (UI_MAX_LOGS > 0 && updated.length > UI_MAX_LOGS) {
+                  return updated.slice(-UI_MAX_LOGS);
+                }
+                return updated;
+              });
             });
             break;
 

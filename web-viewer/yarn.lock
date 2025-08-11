@@ -1178,6 +1178,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dexie@npm:4.0.8":
+  version: 4.0.8
+  resolution: "dexie@npm:4.0.8"
+  checksum: 156e0809d5102ec0522cdee473c842e2d8c5a9b91d92792c8a17829953317f11370b34bc2418a66c5c4dec7f99306a6ae8a53d02f530af85f98d8803965bc6bb
+  languageName: node
+  linkType: hard
+
 "dom-serializer@npm:^2.0.0":
   version: 2.0.0
   resolution: "dom-serializer@npm:2.0.0"
@@ -2497,6 +2504,7 @@ __metadata:
     "@tailwindcss/postcss": ^4.1.7
     "@tailwindcss/vite": ^4.1.7
     autoprefixer: 10.4.16
+    dexie: 4.0.8
     framer-motion: ^12.9.4
     postcss: ^8.5.3
     preact: ^10.26.2

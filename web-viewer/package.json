@@ -10,6 +10,7 @@
     "production": "node run-vite-production.js"
   },
   "dependencies": {
+    "dexie": "4.0.8",
     "framer-motion": "^12.9.4",
     "preact": "^10.26.2"
   },
