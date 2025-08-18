@@ -9,6 +9,7 @@ import { NetworkLogs } from './components/organisms/NetworkLogs';
 import { ErrorBoundary } from './components/atoms/ErrorBoundary';
 import { DeviceProvider, useDevices } from './context/DeviceContext';
 import { ToastProvider } from './context/ToastContext';
+import { UrlFilterProvider } from './context/UrlFilterContext';
 import { Header } from './components/organisms/Header';
 
 // Inner component that uses the DeviceContext
@@ -85,7 +86,9 @@ export default function App(): VNode {
     <ErrorBoundary>
       <ToastProvider>
         <DeviceProvider>
-          <AppContent />
+          <UrlFilterProvider>
+            <AppContent />
+          </UrlFilterProvider>
         </DeviceProvider>
       </ToastProvider>
     </ErrorBoundary>

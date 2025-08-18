@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'preact/hooks';
 import type { NetVisionLog } from '../types';
+import { useUrlFilter } from '../context/UrlFilterContext';
 
 export interface UnifiedLogFiltersReturn {
   // Filter state
@@ -31,6 +32,9 @@ export const useUnifiedLogFilters = (
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [methodFilter, setMethodFilter] = useState<string[]>([]);
+
+  // URL whitelist/blacklist filtering
+  const { shouldShowUrl } = useUrlFilter();
 
   // Helper functions for handling filter changes
   const handleStatusFilterChange = (value: string | string[]) => {
@@ -87,12 +91,17 @@ export const useUnifiedLogFilters = (
         return false;
       }
 
-      // 2. URL text filter
+      // 2. URL whitelist/blacklist filter
+      if (!shouldShowUrl(log.url)) {
+        return false;
+      }
+
+      // 3. URL text filter
       if (filter && !log.url.toLowerCase().includes(filter.toLowerCase())) {
         return false;
       }
 
-      // 3. Status filter
+      // 4. Status filter
       if (
         statusFilter.length > 0 &&
         !statusFilter.includes(log.status.toString())
@@ -100,14 +109,14 @@ export const useUnifiedLogFilters = (
         return false;
       }
 
-      // 4. Method filter
+      // 5. Method filter
       if (methodFilter.length > 0 && !methodFilter.includes(log.method)) {
         return false;
       }
 
       return true;
     });
-  }, [logs, activeDeviceId, filter, statusFilter, methodFilter]);
+  }, [logs, activeDeviceId, shouldShowUrl, filter, statusFilter, methodFilter]);
 
   return {
     // Filter state

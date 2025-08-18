@@ -2,6 +2,7 @@
 import { useState } from 'preact/hooks';
 import type { VNode, ComponentChildren } from 'preact';
 import { FilterInput } from '../atoms/FilterInput';
+import { UrlFilterButton } from '../atoms/UrlFilterButton';
 
 interface FilterPanelProps {
   // Filter state
@@ -124,6 +125,9 @@ export const FilterPanel = ({
               aria-label="Sort logs by field"
               className="min-w-[110px] flex-shrink-0"
             />
+
+            {/* URL Filter Button */}
+            <UrlFilterButton className="flex-shrink-0" />
           </div>
         </div>
 
