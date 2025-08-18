@@ -12,7 +12,8 @@
   "dependencies": {
     "dexie": "4.0.8",
     "framer-motion": "^12.9.4",
-    "preact": "^10.26.2"
+    "preact": "^10.26.2",
+    "react-virtuoso": "^4.7.10"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.1",

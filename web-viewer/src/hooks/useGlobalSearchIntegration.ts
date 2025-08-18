@@ -1,4 +1,4 @@
-import { useCallback } from 'preact/hooks';
+import { useCallback, useRef } from 'preact/hooks';
 import type { NetVisionLog } from '../types';
 
 interface UseGlobalSearchIntegrationProps {
@@ -18,6 +18,10 @@ export const useGlobalSearchIntegration = ({
   handleSortedLogsChange,
   handleSelectLog,
 }: UseGlobalSearchIntegrationProps) => {
+  // Optional bridge to a virtualized list scroll method
+  const virtuosoScrollRef = useRef<{
+    scrollToLogById: (logId: string) => void;
+  } | null>(null);
   const selectLogByUniqueId = useCallback(
     (logId: string) => {
       // Find log by the generated UUID (guaranteed unique!)
@@ -47,6 +51,12 @@ export const useGlobalSearchIntegration = ({
   );
 
   const scrollToLogByUniqueId = useCallback((logId: string) => {
+    // Prefer virtualized list scroll if available
+    if (virtuosoScrollRef.current?.scrollToLogById) {
+      virtuosoScrollRef.current.scrollToLogById(logId);
+      return;
+    }
+
     // Find the log element by unique ID and scroll to it
     const logElement = document.querySelector(`[data-log-id="${logId}"]`);
     if (!logElement) {
@@ -101,5 +111,6 @@ export const useGlobalSearchIntegration = ({
   return {
     selectLogByUniqueId,
     scrollToLogByUniqueId,
+    virtuosoScrollRef,
   };
 };

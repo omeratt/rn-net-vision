@@ -1,6 +1,6 @@
 // import { registerNetVisionDevMenu } from '@omeratt/rn-net-vision';
 import { useNetVision, initializeLogger, logger } from '@omeratt/rn-net-vision';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 // import { fetch, type ReactNativeSSLPinning } from 'react-native-ssl-pinning';
 
@@ -29,6 +29,103 @@ const fetchTo = (
 
 export default function App() {
   useNetVision();
+
+  // ---------------------- Load Test State ----------------------
+  const LOAD_TEST_TOTAL = 500;
+  const [isLoadTesting, setIsLoadTesting] = useState(false);
+  const [loadTestCompleted, setLoadTestCompleted] = useState(0);
+  const cancelRef = useRef<{ cancelled: boolean }>({ cancelled: false });
+
+  // Existing request templates (cycled through during load test)
+  const requestTemplates = useRef<Array<() => Promise<any>>>([
+    () =>
+      fetchTo('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: 'Hello NetVision',
+          body: 'This is a test request body',
+          userId: 123,
+        }),
+      }),
+    () =>
+      fetchTo(
+        'https://string.isracard.co.il/DigitalShell.MobileTestBE/GetTest',
+        { method: 'GET' }
+      ),
+    () => fetchTo('https://sellme.app/feed', { method: 'GET' }),
+    () =>
+      fetchTo(
+        'https://stweb.isracard.co.il/contentassets/opplqrk2/login-header-noon.png',
+        { method: 'GET' }
+      ),
+    () =>
+      fetchTo('https://jsonplaceholder.typicode.com/posts/1', {
+        method: 'GET',
+      }),
+  ]);
+
+  const runLoadTest = useCallback(
+    async (concurrency: number = 25) => {
+      logger.info(
+        `Starting load test of ${LOAD_TEST_TOTAL} requests (concurrency=${concurrency})`
+      );
+      setLoadTestCompleted(0);
+      cancelRef.current.cancelled = false;
+      setIsLoadTesting(true);
+      let completed = 0;
+
+      // Helper to launch a single request cycling through templates
+      const launchRequest = (i: number) => {
+        const templates = requestTemplates.current;
+        if (!templates.length) {
+          logger.warn('No request templates available for load test');
+          return Promise.resolve();
+        }
+        const fn = templates[i % templates.length]!; // non-null (we just checked length)
+        return fn().catch((e) => logger.warn('Load test request failed: ' + e));
+      };
+
+      const tick = async () => {
+        while (completed < LOAD_TEST_TOTAL && !cancelRef.current.cancelled) {
+          const remaining = LOAD_TEST_TOTAL - completed;
+          const batchSize = Math.min(concurrency, remaining);
+          const startIndex = completed;
+          await Promise.all(
+            Array.from({ length: batchSize }).map((_, idx) =>
+              launchRequest(startIndex + idx).finally(() => {
+                completed += 1;
+                if (completed % 10 === 0 || completed === LOAD_TEST_TOTAL) {
+                  setLoadTestCompleted(completed);
+                }
+              })
+            )
+          );
+          // Yield to UI thread between batches
+          await new Promise((r) => setTimeout(r, 10));
+        }
+      };
+
+      await tick();
+      if (cancelRef.current.cancelled) {
+        logger.info(`Load test cancelled after ${completed} requests`);
+      } else {
+        logger.info('Load test finished');
+        setLoadTestCompleted(completed);
+      }
+      setIsLoadTesting(false);
+    },
+    [LOAD_TEST_TOTAL]
+  );
+
+  const startLoadTest = useCallback(() => {
+    if (isLoadTesting) return;
+    runLoadTest();
+  }, [isLoadTesting, runLoadTest]);
+
+  const cancelLoadTest = useCallback(() => {
+    if (!isLoadTesting) return;
+    cancelRef.current.cancelled = true;
+  }, [isLoadTesting]);
 
   useEffect(() => {
     // Initialize the logger when the app starts
@@ -86,43 +183,35 @@ export default function App() {
     );
   }, []);
 
-  // Demo functions to show logger usage
-  const logDebugMessage = () => {
-    logger.debug(
-      'This is a debug message - detailed information for debugging'
-    );
-    return true;
-  };
-
-  const logInfoMessage = () => {
-    logger.info(
-      'This is an info message - general information about app operation'
-    );
-    return true;
-  };
-
-  const logWarningMessage = () => {
-    logger.warn(
-      'This is a warning message - something might be wrong but operation continues'
-    );
-    return true;
-  };
-
-  const logErrorMessage = () => {
-    logger.error('This is an error message - something has failed');
-    return true;
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Welcome To Net Vision!</Text>
       <Text style={styles.subtitle}>Logger Demo</Text>
 
       <View style={styles.buttonContainer}>
-        <Button title="Debug Log" onPress={logDebugMessage} />
-        <Button title="Info Log" onPress={logInfoMessage} />
-        <Button title="Warning Log" onPress={logWarningMessage} />
-        <Button title="Error Log" onPress={logErrorMessage} />
+        <View style={styles.loadTestContainer}>
+          <Text style={styles.loadTestTitle}>Load Test (500 requests)</Text>
+          <Text testID="load-test-progress" style={styles.loadTestProgress}>
+            {loadTestCompleted} / {LOAD_TEST_TOTAL}
+          </Text>
+          {!isLoadTesting && (
+            <Button
+              title="Start Load Test"
+              onPress={startLoadTest}
+              accessibilityLabel="Start 1000 network requests to populate logs"
+              testID="start-load-test"
+            />
+          )}
+          {isLoadTesting && (
+            <Button
+              title="Cancel Load Test"
+              color="#cc0000"
+              onPress={cancelLoadTest}
+              accessibilityLabel="Cancel running load test"
+              testID="cancel-load-test"
+            />
+          )}
+        </View>
       </View>
     </View>
   );
@@ -151,5 +240,20 @@ const styles = StyleSheet.create({
     marginTop: 20,
     justifyContent: 'space-between',
     height: 200,
+  },
+  loadTestContainer: {
+    marginTop: 24,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+    gap: 8,
+  },
+  loadTestTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  loadTestProgress: {
+    fontSize: 14,
+    color: '#333',
   },
 });

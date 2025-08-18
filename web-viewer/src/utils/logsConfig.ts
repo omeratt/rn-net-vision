@@ -15,7 +15,6 @@ export const DB_MAX_LOGS: number = (() => {
 // Increase cautiously; large arrays impact rendering unless list is virtualized.
 export const UI_MAX_LOGS: number = (() => {
   const raw = (import.meta as any).env?.VITE_UI_MAX_LOGS;
-  console.log({ asdasd: (import.meta as any).env });
   const parsed = raw != null ? parseInt(raw, 10) : NaN;
   if (!isNaN(parsed)) return parsed;
   return 5000; // default increased from 1000

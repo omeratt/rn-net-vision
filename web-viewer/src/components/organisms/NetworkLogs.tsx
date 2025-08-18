@@ -51,6 +51,15 @@ export const NetworkLogs = ({
     handleSortedLogsChange: sortedLogs.handleSortedLogsChange,
     handleSelectLog: selection.handleSelectLog,
   });
+  // Bridge for virtualized list scroll API
+  const handleScrollMethodReady = useCallback(
+    (scrollToLogById: (logId: string) => void) => {
+      if (globalSearch.virtuosoScrollRef) {
+        globalSearch.virtuosoScrollRef.current = { scrollToLogById };
+      }
+    },
+    [globalSearch.virtuosoScrollRef]
+  );
 
   // Container refs management hook
   const containerRefs = useNetworkLogsRefs({
@@ -97,6 +106,7 @@ export const NetworkLogs = ({
           onClearSelection={selection.clearSelection}
           highlightedLogId={highlightedLogId}
           highlightState={highlightState}
+          onScrollMethodReady={handleScrollMethodReady}
         />
       </div>
 
