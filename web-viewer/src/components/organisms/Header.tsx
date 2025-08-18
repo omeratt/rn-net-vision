@@ -65,13 +65,15 @@ export const Header = ({
           </div>
 
           {/* Center search */}
-          <div className="flex-1 flex justify-center">
-            <GlobalSearch
-              logs={logs}
-              onLogSelect={onLogSelect}
-              onScrollToLog={onScrollToLog}
-              onSearchClose={onSearchClose}
-            />
+          <div className="flex-1 flex justify-center px-4">
+            <div className="w-full max-w-xl min-w-56">
+              <GlobalSearch
+                logs={logs}
+                onLogSelect={onLogSelect}
+                onScrollToLog={onScrollToLog}
+                onSearchClose={onSearchClose}
+              />
+            </div>
           </div>
 
           {/* Right controls */}

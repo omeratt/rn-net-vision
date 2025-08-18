@@ -27,7 +27,7 @@ export const SearchInput = ({
   isOpen,
   onFocus,
   onBlur,
-  placeholder = 'Search logs...',
+  placeholder = 'Find anything…',
   isLoading = false,
 }: SearchInputProps): VNode => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -209,7 +209,7 @@ export const SearchInput = ({
       placeholder={placeholder}
       value=""
       readOnly
-      className="w-60 sm:w-lg px-4 py-4 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white/90 dark:bg-gray-800/90 placeholder-gray-500 dark:placeholder-gray-400 shadow-lg focus:outline-none transition-all duration-300 ease-out focus:border-indigo-500 dark:focus:border-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-xl cursor-text"
+      className="w-full min-w-56 max-w-xl px-4 py-4 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white/90 dark:bg-gray-800/90 placeholder-gray-500 dark:placeholder-gray-400 shadow-lg focus:outline-none transition-all duration-300 ease-out focus:border-indigo-500 dark:focus:border-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-xl cursor-text"
       animate={{
         opacity: isOpen ? 0 : 1,
         // scale: isOpen ? 0.95 : 1, // Temporarily remove scale to test
@@ -329,10 +329,13 @@ export const SearchInput = ({
       {/* Main backdrop blur */}
       <motion.div
         key="backdrop"
-        initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+        initial={{
+          opacity: 0,
+          backdropFilter: 'blur(0px)',
+        }}
         animate={{
           opacity: isOpen ? 1 : 0,
-          backdropFilter: isOpen ? 'blur(12px)' : 'blur(0px)',
+          backdropFilter: isOpen ? 'blur(4px)' : 'blur(0px)',
         }}
         transition={{
           duration: 0.5, // Slower, more luxurious timing
@@ -382,10 +385,10 @@ export const SearchInput = ({
   );
 
   return (
-    <div className="relative flex items-center">
+    <div className="relative w-full">
       {/* Keyboard shortcut overlay */}
       <div
-        className="absolute right-2 pointer-events-auto transition-opacity duration-200 ease-out"
+        className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-auto transition-opacity duration-200 ease-out z-10"
         style={
           {
             opacity: isOpen ? 0 : 1,

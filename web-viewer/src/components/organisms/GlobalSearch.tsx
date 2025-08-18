@@ -81,14 +81,14 @@ export const GlobalSearch = ({
   });
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <SearchInput
         value={searchState.query}
         onChange={searchState.handleQueryChange}
         isOpen={searchState.isOpen}
         onFocus={searchState.handleOpen}
         onBlur={searchState.handleClose}
-        placeholder="Search logs..."
+        placeholder="Find anything…"
         isLoading={isLoading}
       />
 
