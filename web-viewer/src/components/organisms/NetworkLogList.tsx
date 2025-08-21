@@ -15,7 +15,9 @@ import { forwardRef } from 'preact/compat';
 // (Header/Footer spacers removed; we use internal padding in scroller for stable align:'start')
 
 interface NetworkLogListProps {
-  logs: NetVisionLog[];
+  logs: NetVisionLog[]; // already filtered logs passed in
+  rawTotalCount?: number; // total unfiltered device logs
+  rawAppendDelta?: number; // latest raw append diff
   filters?: UnifiedLogFiltersReturn;
   onClear: () => void;
   onSelectLog: (log: NetVisionLog, index: number) => void;
@@ -29,6 +31,8 @@ interface NetworkLogListProps {
 
 export const NetworkLogList = ({
   logs,
+  rawTotalCount,
+  rawAppendDelta = 0,
   filters,
   onClear,
   onSelectLog,
@@ -45,6 +49,7 @@ export const NetworkLogList = ({
   // This maintains backward compatibility while allowing the new unified approach
   const fallbackFilters = useNetworkLogFilters(logs);
   const activeFilters = filters || fallbackFilters;
+  // No local delta logic; rely on rawAppendDelta from upstream raw log source
 
   const sort = useNetworkLogSort(
     activeFilters.filteredLogs,
@@ -213,6 +218,15 @@ export const NetworkLogList = ({
               onClear={onClear}
             />
           }
+          totalCount={rawTotalCount ?? logs.length}
+          filteredCount={
+            activeFilters.filter ||
+            activeFilters.statusFilter.length ||
+            activeFilters.methodFilter.length
+              ? logs.length
+              : null
+          }
+          deltaNew={rawAppendDelta}
         />
       </div>
 

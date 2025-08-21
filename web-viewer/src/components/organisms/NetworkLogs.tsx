@@ -16,6 +16,8 @@ import {
 
 interface NetworkLogsProps {
   logs: NetVisionLog[];
+  rawTotalCount?: number; // total raw logs (unfiltered)
+  rawAppendDelta?: number; // latest append diff
   filters?: UnifiedLogFiltersReturn;
   onClear: (deviceId?: string | null) => void;
   logContainerRef?: RefObject<HTMLDivElement>;
@@ -29,6 +31,8 @@ interface NetworkLogsProps {
 
 export const NetworkLogs = ({
   logs,
+  rawTotalCount,
+  rawAppendDelta = 0,
   filters,
   onClear,
   logContainerRef,
@@ -98,6 +102,8 @@ export const NetworkLogs = ({
       >
         <NetworkLogList
           logs={filteredLogs}
+          rawTotalCount={rawTotalCount}
+          rawAppendDelta={rawAppendDelta}
           filters={filters}
           onClear={handleClear}
           onSelectLog={selection.handleSelectLog}

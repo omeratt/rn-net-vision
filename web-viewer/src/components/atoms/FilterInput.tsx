@@ -1,6 +1,7 @@
 /** @jsxImportSource preact */
 import { VNode } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
+import { LogCountSuffix } from './LogCountSuffix';
 import { DropdownPortal } from './DropdownPortal';
 import { ScrollFadeContainer } from './ScrollFadeContainer';
 
@@ -15,6 +16,12 @@ interface FilterInputProps {
   'className'?: string;
   'aria-label'?: string;
   'multiSelect'?: boolean;
+  /** Total logs count for search field suffix */
+  'totalCount'?: number;
+  /** Filtered logs count (null or undefined means no filter active) */
+  'filteredCount'?: number | null;
+  /** New logs delta since last render (will animate +N) */
+  'deltaNew'?: number;
 }
 
 export const FilterInput = ({
@@ -28,12 +35,16 @@ export const FilterInput = ({
   className = '',
   'aria-label': ariaLabel,
   multiSelect = false,
+  totalCount,
+  filteredCount = null,
+  deltaNew = 0,
 }: FilterInputProps): VNode => {
   const [isFocused, setIsFocused] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  // (Count suffix logic handled externally by LogCountSuffix component + hook)
 
   useEffect(() => {
     if (multiSelect) {
@@ -495,13 +506,13 @@ export const FilterInput = ({
         aria-label={ariaLabel}
         className={getTextInputClasses()}
       />
-
-      {/* Active indicator with enhanced styling */}
-      {isActive && (
-        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-          <div className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-pulse shadow-lg shadow-indigo-500/50" />
-        </div>
-      )}
+      <LogCountSuffix
+        totalCount={totalCount}
+        filteredCount={filteredCount}
+        deltaNew={deltaNew}
+      />
     </div>
   );
 };
+
+// Count suffix animations live in global CSS; logic moved to LogCountSuffix component.

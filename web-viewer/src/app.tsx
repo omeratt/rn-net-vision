@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import { VNode } from 'preact';
-import { useRef, useCallback } from 'preact/hooks';
+import { useRef, useCallback, useEffect, useState } from 'preact/hooks';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useTheme } from './hooks/useTheme';
 import { useUnifiedLogFilters } from './hooks/useUnifiedLogFilters';
@@ -20,6 +20,25 @@ function AppContent(): VNode {
 
   // Use unified filtering that includes ALL filter types (device, URL, method, status)
   const unifiedFilters = useUnifiedLogFilters(logs, activeDeviceId);
+
+  // Track raw append delta (difference only when raw logs length grows)
+  const prevRawCountRef = useRef<number>(logs.length);
+  const [lastAppendDelta, setLastAppendDelta] = useState(0);
+  useEffect(() => {
+    if (logs.length > prevRawCountRef.current) {
+      const diff = logs.length - prevRawCountRef.current;
+      setLastAppendDelta(diff); // raw diff; FilterInput aggregates
+      prevRawCountRef.current = logs.length;
+      // Clear after short window so subsequent UI filter changes don't keep showing
+      const t = setTimeout(() => setLastAppendDelta(0), 800);
+      return () => clearTimeout(t);
+    }
+    // If logs shrink (clear), reset ref & delta
+    if (logs.length < prevRawCountRef.current) {
+      prevRawCountRef.current = logs.length;
+      setLastAppendDelta(0);
+    }
+  }, [logs.length]);
 
   // Ref to access the log container for focus restoration after search closes
   const logContainerRef = useRef<HTMLDivElement>(null);
@@ -68,6 +87,8 @@ function AppContent(): VNode {
         <div className="flex-1 h-full min-h-0 border-2 border-gray-200/30 dark:border-slate-700/30 rounded-lg shadow-lg overflow-hidden relative">
           <NetworkLogs
             logs={unifiedFilters.filteredLogs}
+            rawTotalCount={logs.length}
+            rawAppendDelta={lastAppendDelta}
             filters={unifiedFilters}
             onClear={clearLogs}
             logContainerRef={logContainerRef}

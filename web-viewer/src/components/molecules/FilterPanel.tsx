@@ -24,6 +24,10 @@ interface FilterPanelProps {
 
   // Action buttons slot
   actions?: ComponentChildren;
+  // Counts for URL filter suffix
+  totalCount?: number;
+  filteredCount?: number | null;
+  deltaNew?: number;
 }
 
 export const FilterPanel = ({
@@ -39,6 +43,9 @@ export const FilterPanel = ({
   uniqueMethodOptions,
   sortByOptions,
   actions,
+  totalCount,
+  filteredCount: filteredLogsCount = null,
+  deltaNew = 0,
 }: FilterPanelProps): VNode => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -91,6 +98,9 @@ export const FilterPanel = ({
               }
               aria-label="Filter logs by URL"
               className="min-w-[200px] max-w-[300px] flex-1"
+              totalCount={totalCount}
+              filteredCount={filter ? filteredLogsCount : null}
+              deltaNew={deltaNew}
             />
 
             <FilterInput
@@ -163,6 +173,9 @@ export const FilterPanel = ({
               </svg>
             }
             aria-label="Filter logs by URL"
+            totalCount={totalCount}
+            filteredCount={filter ? filteredLogsCount : null}
+            deltaNew={deltaNew}
           />
 
           <FilterInput
