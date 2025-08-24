@@ -220,4 +220,10 @@ html {
   animation: fadeInFromBottom 0.15s ease-in;
 }
 
+/* Layering utilities (custom) */
+/* Tailwind doesn't have z-ultra-high by default; define it so DropdownPortal can appear above fade overlays */
+.z-ultra-high {
+  z-index: 9999;
+}
+
 /* The global selectors that were here have been removed in favor of using Tailwind's dark: prefix directly */

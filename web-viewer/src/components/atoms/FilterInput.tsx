@@ -1,9 +1,9 @@
-/** @jsxImportSource preact */
 import { VNode } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { LogCountSuffix } from './LogCountSuffix';
 import { DropdownPortal } from './DropdownPortal';
 import { ScrollFadeContainer } from './ScrollFadeContainer';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface FilterInputProps {
   'type'?: 'text' | 'select';
@@ -38,7 +38,7 @@ export const FilterInput = ({
   totalCount,
   filteredCount = null,
   deltaNew = 0,
-}: FilterInputProps): VNode => {
+}: FilterInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -101,8 +101,8 @@ export const FilterInput = ({
     ${disabled ? '' : 'hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-blue-50/50 dark:hover:from-gray-700/50 dark:hover:to-indigo-900/30 hover:scale-[1.01]'}
   `;
 
-  const textInputClasses = `${baseClasses}`;
-  const selectButtonClasses = `${baseClasses} pr-16 text-left cursor-pointer w-full flex items-center group`;
+  const textInputClasses = `${baseClasses} h-12 min-h-[3rem]`;
+  const selectButtonClasses = `${baseClasses} pr-16 text-left cursor-pointer w-full flex items-center group h-12 min-h-[3rem]`;
 
   // Handle text input with icon spacing
   const getTextInputClasses = () => {
@@ -245,56 +245,102 @@ export const FilterInput = ({
   // Custom dropdown for select type
   if (type === 'select' && options.length > 0) {
     return (
-      <div className={`relative ${className}`}>
+      <motion.div
+        layout
+        className={`relative ${className}`}
+        transition={{
+          type: 'spring',
+          stiffness: 400,
+          damping: 30,
+          duration: 0.3,
+        }}
+      >
         {/* Custom select button */}
-        <button
+        <motion.button
+          layout
           ref={buttonRef}
           type="button"
           onClick={toggleDropdown}
           disabled={disabled}
           aria-label={ariaLabel}
           className={selectButtonClasses}
+          transition={{
+            type: 'spring',
+            stiffness: 400,
+            damping: 30,
+          }}
         >
           {/* Multi-select chips display */}
           {multiSelect && Array.isArray(value) && value.length > 0 ? (
-            <div className="flex flex-wrap gap-1 mr-4 flex-1">
-              {value.slice(0, 2).map((selectedValue) => {
-                const chipColors = getChipColors(selectedValue);
-                return (
-                  <div
-                    key={selectedValue}
-                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-lg ${chipColors}`}
-                  >
-                    <span className="font-mono font-bold">{selectedValue}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeSelectedItem(selectedValue);
+            <motion.div
+              className="flex items-center gap-1 mr-4 flex-1 min-w-0 overflow-hidden"
+              layout
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            >
+              <AnimatePresence mode="popLayout">
+                {value.slice(0, 2).map((selectedValue) => {
+                  const chipColors = getChipColors(selectedValue);
+                  return (
+                    <motion.div
+                      key={selectedValue}
+                      layout
+                      initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 500,
+                        damping: 30,
+                        opacity: { duration: 0.2 },
+                        scale: { duration: 0.2 },
                       }}
-                      className="ml-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-0.5 transition-colors"
+                      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-lg ${chipColors} flex-shrink-0`}
                     >
-                      <svg
-                        className="w-3 h-3"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                      <span className="font-mono font-bold">
+                        {selectedValue}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeSelectedItem(selectedValue);
+                        }}
+                        className="ml-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-0.5 transition-colors"
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                );
-              })}
-              {value.length > 2 && (
-                <div className="inline-flex items-center px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600">
-                  +{value.length - 2}
-                </div>
-              )}
-            </div>
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </motion.div>
+                  );
+                })}
+                {value.length > 2 && (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 30,
+                      opacity: { duration: 0.2 },
+                    }}
+                    className="inline-flex items-center px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 flex-shrink-0"
+                  >
+                    +{value.length - 2}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ) : (
             <span
               className={`transition-colors duration-200 flex-1 mr-4 ${
@@ -333,7 +379,7 @@ export const FilterInput = ({
               />
             </svg>
           </div>
-        </button>
+        </motion.button>
 
         {/* Custom dropdown menu using DropdownPortal */}
         <DropdownPortal
@@ -379,113 +425,134 @@ export const FilterInput = ({
             )}
 
             <ScrollFadeContainer
-              className="py-2 max-h-64 overflow-y-auto"
+              className="py-2 max-h-64 overflow-y-auto overflow-x-hidden"
               fadeHeight={60}
             >
-              {options.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleOptionSelect(option.value)}
-                  className={`w-full px-4 py-3 text-left flex items-center space-x-3 
-                    transition-all duration-200 ease-out group relative overflow-hidden
-                    hover:bg-gradient-to-r hover:from-gray-50 hover:to-indigo-50/50 
-                    dark:hover:from-gray-700/50 dark:hover:to-indigo-900/20 
-                    hover:scale-[1.005] hover:translate-x-0.5 ${
-                      isOptionSelected(option.value)
-                        ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border-l-4 border-indigo-400'
-                        : ''
-                    }
-                  `}
-                >
-                  <div className="flex items-center space-x-3 flex-1">
-                    {/* Checkbox for multi-select or dot indicator for single select */}
-                    {multiSelect ? (
-                      <div
-                        className={`w-4 h-4 border-2 rounded transition-all duration-200 flex items-center justify-center ${
-                          isOptionSelected(option.value)
-                            ? 'bg-indigo-500 border-indigo-500 text-white'
-                            : 'border-gray-300 dark:border-gray-600 group-hover:border-indigo-400'
-                        }`}
-                      >
-                        {isOptionSelected(option.value) && (
-                          <svg
-                            className="w-3 h-3"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
+              <AnimatePresence>
+                {options.map((option, index) => (
+                  <motion.button
+                    key={option.value}
+                    layout
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{
+                      delay: index * 0.02,
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 30,
+                    }}
+                    type="button"
+                    onClick={() => handleOptionSelect(option.value)}
+                    className={`w-full px-4 py-3 text-left flex items-center space-x-3 
+                      transition-all duration-200 ease-out group relative overflow-hidden
+                      hover:bg-gradient-to-r hover:from-gray-50 hover:to-indigo-50/50 
+                      dark:hover:from-gray-700/50 dark:hover:to-indigo-900/20 
+                      hover:scale-[1.005] hover:translate-x-0.5 ${
+                        isOptionSelected(option.value)
+                          ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border-l-4 border-indigo-400'
+                          : ''
+                      }
+                    `}
+                  >
+                    <div className="flex items-center space-x-3 flex-1">
+                      {/* Checkbox for multi-select or dot indicator for single select */}
+                      {multiSelect ? (
+                        <div
+                          className={`w-4 h-4 border-2 rounded transition-all duration-200 flex items-center justify-center ${
+                            isOptionSelected(option.value)
+                              ? 'bg-indigo-500 border-indigo-500 text-white'
+                              : 'border-gray-300 dark:border-gray-600 group-hover:border-indigo-400'
+                          }`}
+                        >
+                          {isOptionSelected(option.value) && (
+                            <svg
+                              className="w-3 h-3"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      ) : (
+                        <div
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                            isOptionSelected(option.value)
+                              ? 'bg-indigo-500 shadow-lg shadow-indigo-500/50 scale-125'
+                              : 'bg-gray-300 dark:bg-gray-600 group-hover:bg-indigo-400 dark:group-hover:bg-indigo-500'
+                          }`}
+                        />
+                      )}
+
+                      {/* Option label with color badge */}
+                      <div className="flex items-center space-x-2 flex-1">
+                        {/* Color badge for status/method */}
+                        <div
+                          className={`px-2 py-1 rounded text-xs font-mono font-bold ${getChipColors(option.value)}`}
+                        >
+                          {option.value}
+                        </div>
+                        <span
+                          className={`text-sm transition-colors duration-200 ${
+                            isOptionSelected(option.value)
+                              ? 'text-indigo-700 dark:text-indigo-300 font-semibold'
+                              : 'text-gray-900 dark:text-gray-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300'
+                          }`}
+                        >
+                          {option.label}
+                        </span>
                       </div>
-                    ) : (
-                      <div
-                        className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                          isOptionSelected(option.value)
-                            ? 'bg-indigo-500 shadow-lg shadow-indigo-500/50 scale-125'
-                            : 'bg-gray-300 dark:bg-gray-600 group-hover:bg-indigo-400 dark:group-hover:bg-indigo-500'
-                        }`}
-                      />
+                    </div>
+
+                    {/* Selected indicator for single select */}
+                    {!multiSelect && isOptionSelected(option.value) && (
+                      <div className="flex items-center">
+                        <svg
+                          className="w-4 h-4 text-indigo-500 dark:text-indigo-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
                     )}
 
-                    {/* Option label with color badge */}
-                    <div className="flex items-center space-x-2 flex-1">
-                      {/* Color badge for status/method */}
-                      <div
-                        className={`px-2 py-1 rounded text-xs font-mono font-bold ${getChipColors(option.value)}`}
-                      >
-                        {option.value}
-                      </div>
-                      <span
-                        className={`text-sm transition-colors duration-200 ${
-                          isOptionSelected(option.value)
-                            ? 'text-indigo-700 dark:text-indigo-300 font-semibold'
-                            : 'text-gray-900 dark:text-gray-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300'
-                        }`}
-                      >
-                        {option.label}
-                      </span>
+                    {/* Hover shine effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
                     </div>
-                  </div>
-
-                  {/* Selected indicator for single select */}
-                  {!multiSelect && isOptionSelected(option.value) && (
-                    <div className="flex items-center">
-                      <svg
-                        className="w-4 h-4 text-indigo-500 dark:text-indigo-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                  )}
-
-                  {/* Hover shine effect */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
-                  </div>
-                </button>
-              ))}
+                  </motion.button>
+                ))}
+              </AnimatePresence>
             </ScrollFadeContainer>
           </div>
         </DropdownPortal>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <motion.div
+      layout
+      className={`relative ${className}`}
+      transition={{
+        type: 'spring',
+        stiffness: 400,
+        damping: 30,
+        duration: 0.3,
+      }}
+    >
       {icon && (
         <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none z-10">
           <div className="w-6 h-6 bg-indigo-100/80 dark:bg-gray-700/80 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400">
@@ -494,7 +561,8 @@ export const FilterInput = ({
         </div>
       )}
 
-      <input
+      <motion.input
+        layout
         ref={inputRef as any}
         type="text"
         value={Array.isArray(value) ? '' : value}
@@ -505,13 +573,18 @@ export const FilterInput = ({
         disabled={disabled}
         aria-label={ariaLabel}
         className={getTextInputClasses()}
+        transition={{
+          type: 'spring',
+          stiffness: 400,
+          damping: 30,
+        }}
       />
       <LogCountSuffix
         totalCount={totalCount}
         filteredCount={filteredCount}
         deltaNew={deltaNew}
       />
-    </div>
+    </motion.div>
   );
 };
 

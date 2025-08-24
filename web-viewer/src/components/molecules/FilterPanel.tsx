@@ -99,7 +99,7 @@ export const FilterPanel = ({
               aria-label="Filter logs by URL"
               className="min-w-[200px] max-w-[300px] flex-1"
               totalCount={totalCount}
-              filteredCount={filter ? filteredLogsCount : null}
+              filteredCount={filteredLogsCount}
               deltaNew={deltaNew}
             />
 
@@ -174,7 +174,7 @@ export const FilterPanel = ({
             }
             aria-label="Filter logs by URL"
             totalCount={totalCount}
-            filteredCount={filter ? filteredLogsCount : null}
+            filteredCount={filteredLogsCount}
             deltaNew={deltaNew}
           />
 

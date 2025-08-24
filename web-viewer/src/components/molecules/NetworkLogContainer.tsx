@@ -10,6 +10,7 @@ interface NetworkLogContainerProps {
   highlightState?: 'idle' | 'blinking' | 'fading';
   onClick?: () => void;
   children: ComponentChildren;
+  isExiting?: boolean;
 }
 
 export const NetworkLogContainer = ({
@@ -18,6 +19,7 @@ export const NetworkLogContainer = ({
   highlightState = 'idle',
   onClick,
   children,
+  isExiting = false,
 }: NetworkLogContainerProps): VNode => {
   const containerRef = useScrollToSelected({ isSelected });
   const containerClasses = getContainerClasses(isSelected);
@@ -26,6 +28,13 @@ export const NetworkLogContainer = ({
   const baseHighlightStyles = isHighlighted
     ? 'ring-2 ring-yellow-400/70 dark:ring-yellow-500/70 bg-yellow-50/90 dark:bg-yellow-900/30 shadow-lg shadow-yellow-500/25 isolate z-10'
     : '';
+
+  const exitShadowInline = isExiting
+    ? {
+        boxShadow:
+          '0 0 0 1px rgba(220,38,38,0.45), 0 3px 8px -1px rgba(220,38,38,0.35), 0 6px 16px -2px rgba(220,38,38,0.28)',
+      }
+    : undefined;
 
   // Enhanced glow effect during blinking - subtle and elegant
   const getAnimatedStyles = () => {
@@ -74,7 +83,7 @@ export const NetworkLogContainer = ({
       ref={containerRef}
       onClick={onClick}
       className={`${containerClasses} ${baseHighlightStyles} p-2 sm:p-4 transition-all duration-300 relative contain-layout`}
-      style={getAnimatedStyles()}
+      style={{ ...getAnimatedStyles(), ...exitShadowInline }}
       variants={highlightVariants}
       animate={isHighlighted ? highlightState : 'idle'}
       initial="idle"

@@ -14,6 +14,7 @@ interface NetworkLogProps {
   highlightState?: 'idle' | 'blinking' | 'fading';
   onClick?: () => void;
   activeDeviceId?: string | null;
+  isExiting?: boolean;
 }
 
 export const NetworkLog = ({
@@ -23,6 +24,7 @@ export const NetworkLog = ({
   highlightState = 'idle',
   onClick,
   activeDeviceId,
+  isExiting = false,
 }: NetworkLogProps): VNode => {
   // Only show device info when "All Devices" is selected (no activeDeviceId)
   const showDeviceInfo = !activeDeviceId;
@@ -34,6 +36,7 @@ export const NetworkLog = ({
         isHighlighted={isHighlighted}
         highlightState={highlightState}
         onClick={onClick}
+        isExiting={isExiting}
       >
         {/* Responsive layout with badges and domain */}
         <div className="flex flex-col gap-2 transition-all duration-300 w-full overflow-hidden">

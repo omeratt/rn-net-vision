@@ -23,7 +23,7 @@ export const UrlFilterButton = ({
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative flex items-center w-12 justify-center  rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+        className={`relative flex items-center w-11.5 h-11.5 justify-center  rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
           activeFiltersCount > 0
             ? 'bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-800/40 text-purple-700 dark:text-purple-300 focus:ring-purple-500 border-2 border-purple-200 dark:border-purple-600'
             : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 focus:ring-gray-500 border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-500'
