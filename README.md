@@ -1,4 +1,6 @@
 # @omeratt/rn-net-vision
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/81be7512-eb31-43b7-be98-e9fd3c93df85" />
+
 
 ![License](https://img.shields.io/npm/l/@omeratt/rn-net-vision)
 ![npm package](https://img.shields.io/npm/v/@omeratt/rn-net-vision)
@@ -17,8 +19,10 @@ A lightweight native module for React Native that provides real-time network mon
 - ⚡ Metro integration for seamless development
 
 ## Screenshots
+<img width="1600" height="1215" alt="1_jWIyleLMrxdDM-Wwx_9KrQ" src="https://github.com/user-attachments/assets/9866fbd6-1d2b-465b-b113-72aa057f2e0f" />
 
 <!-- Add your screenshots here when available -->
+
 
 ## Installation
 
